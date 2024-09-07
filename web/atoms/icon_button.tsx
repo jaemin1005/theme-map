@@ -6,7 +6,7 @@ const IconButton: React.FC<{
   className?: string;
 }> = ({ children, className }) => {
   return (
-    <div  className={`bg-gray-800 bg-opacity-60 hover:bg-opacity-100 rounded-full p-2 ${className}`}>
+    <div  className={`group bg-gray-800 bg-opacity-60 hover:bg-opacity-100 rounded-full p-2 ${className}`}>
       {children}
     </div>
   );
