@@ -53,13 +53,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ center, zoom }) => {
   }, [center, zoom]);
 
   return (
-    <div>
-      <div id="map" style={{ height: "400px", width: "100%" }} />
+    <>
+      <div id="map" className="w-full h-full"/>
       <div>
         현재 중심 좌표: {currentCenter[0].toFixed(4)},{" "}
         {currentCenter[1].toFixed(4)}
       </div>
-    </div>
+    </>
   );
 };
 
