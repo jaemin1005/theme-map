@@ -1,6 +1,7 @@
 "use client";
 
 import LoadingComponent from "@/components/loading_component";
+import SideButtonComponent from "@/components/side_button_component";
 import { ERROR_MSG } from "@/static/error_msg";
 import { INIT_LOCATION_INFO } from "@/static/location";
 import dynamic from "next/dynamic";
@@ -12,16 +13,20 @@ const MapComponent = dynamic(() => import("../components/map_component"), {
 });
 
 export default function Home() {
-  const [currentLocation, setCurrentLocation] = useState<[number, number]>(INIT_LOCATION_INFO.COORDINATE);
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>(
+    INIT_LOCATION_INFO.COORDINATE
+  );
   const [isLoading, setIsLoading] = useState(true);
-
 
   useEffect(() => {
     // 현 위치 좌표가져오기
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCurrentLocation([position.coords.latitude, position.coords.longitude]);
+          setCurrentLocation([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
           setIsLoading(false);
         },
         (error) => {
@@ -33,11 +38,19 @@ export default function Home() {
       console.log(ERROR_MSG.GEOLOCATION_NOT_AVAILABLE);
       setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   return (
-    <div className="w-screen h-screen">
-      {isLoading ? <LoadingComponent/>  : <MapComponent center={currentLocation} zoom={INIT_LOCATION_INFO.ZOOM}></MapComponent>}
+    <div className="w-screen h-screen relative">
+      <SideButtonComponent />
+      {isLoading ? (
+        <LoadingComponent />
+      ) : (
+        <MapComponent
+          center={currentLocation}
+          zoom={INIT_LOCATION_INFO.ZOOM}
+        ></MapComponent>
+      )}
     </div>
   );
 }
