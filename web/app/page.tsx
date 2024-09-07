@@ -1,6 +1,7 @@
 "use client";
 
 import LoadingComponent from "@/components/loading_component";
+import { ERROR_MSG } from "@/static/error_msg";
 import { INIT_LOCATION_INFO } from "@/static/location";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
@@ -24,12 +25,12 @@ export default function Home() {
           setIsLoading(false);
         },
         (error) => {
-          console.error("Error getting location:", error);
+          console.error(ERROR_MSG.GEOLOCATION_GETTING_FAIL, error);
           setIsLoading(false);
         }
       );
     } else {
-      console.log("Geolocation is not available in your browser.");
+      console.log(ERROR_MSG.GEOLOCATION_NOT_AVAILABLE);
       setIsLoading(false);
     }
   }, [])
