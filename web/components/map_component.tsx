@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import SideButtonComponent from "./side_button_component";
 
 interface MapComponentProps {
   center: [number, number];
@@ -46,7 +47,28 @@ const MapComponent: React.FC<MapComponentProps> = ({ center, zoom }) => {
     };
   }, [center, zoom]);
 
-  return <div ref={mapContainerRef} className="w-full h-full z-0" />;
+  const zommInFunc = () => {
+    mapRef.current?.zoomIn();
+  };
+
+  const zoomOutFunc = () => {
+    mapRef.current?.zoomOut();
+  };
+
+  const moveToCurrent = () => {
+    mapRef.current?.locate({ setView: true, maxZoom: zoom});
+  };
+
+  return (
+    <>
+      <div ref={mapContainerRef} className="w-full h-full z-0" />
+      <SideButtonComponent
+        zoomInFunc={zommInFunc}
+        zoomOutFunc={zoomOutFunc}
+        moveToCurrent={moveToCurrent}
+      />
+    </>
+  );
 };
 
 export default MapComponent;
