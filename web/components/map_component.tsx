@@ -3,15 +3,16 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import SideButtonComponent from "./side_button_component";
 
 interface MapComponentProps {
   center: [number, number];
   zoom: number;
+  mapRef: React.MutableRefObject<L.Map | null>
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ center, zoom }) => {
-  const mapRef = useRef<L.Map | null>(null);
+const MapComponent: React.FC<MapComponentProps> = (
+  { center, zoom, mapRef },
+) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,29 +46,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ center, zoom }) => {
         mapRef.current = null;
       }
     };
-  }, [center, zoom]);
+  }, [center, zoom, mapRef]);
 
-  const zommInFunc = () => {
-    mapRef.current?.zoomIn();
-  };
-
-  const zoomOutFunc = () => {
-    mapRef.current?.zoomOut();
-  };
-
-  const moveToCurrent = () => {
-    mapRef.current?.locate({ setView: true, maxZoom: zoom});
-  };
 
   return (
-    <>
       <div ref={mapContainerRef} className="w-full h-full z-0" />
-      <SideButtonComponent
-        zoomInFunc={zommInFunc}
-        zoomOutFunc={zoomOutFunc}
-        moveToCurrent={moveToCurrent}
-      />
-    </>
   );
 };
 
