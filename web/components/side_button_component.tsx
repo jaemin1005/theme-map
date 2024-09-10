@@ -4,18 +4,27 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import L from "leaflet";
 
 interface SideButtonComponentProps {
-  zoomInFunc: () => void;
-  zoomOutFunc: () => void;
-  moveToCurrent: () => void;
+  mapRef: React.MutableRefObject<L.Map | null>;
 }
 
 const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
-  zoomInFunc,
-  zoomOutFunc,
-  moveToCurrent,
+  mapRef,
 }) => {
+  const zoomInFunc = () => {
+    mapRef.current?.zoomIn();
+  };
+
+  const zoomOutFunc = () => {
+    mapRef.current?.zoomOut();
+  };
+
+  const moveToCurrent = () => {
+    mapRef.current?.locate({ setView: true, maxZoom: mapRef.current?.getZoom() });
+  };
+
   return (
     <div className="absolute h-full flex flex-col right-0 pt-5 items-center px-2 gap-y-1 top-0 z-50">
       <IconButton onClick={zoomInFunc}>
