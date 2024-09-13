@@ -1,57 +1,52 @@
-"use client";
-
-import React, { useEffect, useRef } from "react";
-import L from "leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { useEffect } from "react";
 
 interface MapComponentProps {
-  center: [number, number];
+  center: L.LatLngExpression;
   zoom: number;
-  mapRef: React.MutableRefObject<L.Map | null>
+  onMapReady: (mapInstance: L.Map) => void; // 맵 인스턴스를 부모에게 전달하는 콜백
 }
 
-const MapComponent: React.FC<MapComponentProps> = (
-  { center, zoom, mapRef },
-) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // DOM이 랜더링 된 후에만 변경하도록 하였다.
-    if (!mapContainerRef.current) return;
-
-    // 맵 초기화
-    if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current, {
-        center: center,
-        zoom: zoom,
-        zoomControl: false,
-        dragging: true,
-        inertia: true,
-      });
-
-      // 타일 레이어 즉시 추가
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(mapRef.current);
-    } else {
-      // 맵의 중심을 업데이트
-      mapRef.current.setView(center, zoom);
-    }
-
-    // 컴포넌트 언마운트 시 맵 정리
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [center, zoom, mapRef]);
-
-
+const MapComponent: React.FC<MapComponentProps> = ({
+  center,
+  zoom,
+  onMapReady,
+}) => {
   return (
-      <div ref={mapContainerRef} className="w-full h-full z-0" />
+    <MapContainer
+      center={center}
+      zoom={zoom}
+      zoomControl={false}
+      className="w-full h-full z-0"
+    >
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      <MapEventsHandler onMapReady={onMapReady} />
+    </MapContainer>
   );
+};
+
+// 맵 이벤트를 처리하고 부모에게 맵 인스턴스를 전달하는 컴포넌트
+const MapEventsHandler: React.FC<{
+  onMapReady: (mapInstance: L.Map) => void;
+}> = ({ onMapReady }) => {
+  const map = useMap(); // useMap을 사용하여 맵 인스턴스를 가져옴
+  
+  useEffect(() => {
+    if (map) {
+      onMapReady(map);
+    }
+  }, [map, onMapReady]);
+
+  return null;
 };
 
 export default MapComponent;
