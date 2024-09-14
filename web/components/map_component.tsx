@@ -1,23 +1,32 @@
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, useMapEvents, Marker } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
+import "leaflet/dist/leaflet.css";
 
 interface MapComponentProps {
+  children?: React.ReactNode;
   center: L.LatLngExpression;
   zoom: number;
   onMapReady: (mapInstance: L.Map) => void; // 맵 인스턴스를 부모에게 전달하는 콜백
+  onMapClick?: L.LeafletMouseEventHandlerFn;
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({
+  children,
   center,
   zoom,
   onMapReady,
+  onMapClick,
 }) => {
+  useEffect(() => {
+    // 기본 마커 아이콘 설정
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+      iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png"
+    });
+  }, []);
+
   return (
     <MapContainer
       center={center}
@@ -29,7 +38,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <MapEventsHandler onMapReady={onMapReady} />
+      {children}
+      <MapEventsHandler onMapReady={onMapReady} click={onMapClick} />
     </MapContainer>
   );
 };
@@ -37,14 +47,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
 // 맵 이벤트를 처리하고 부모에게 맵 인스턴스를 전달하는 컴포넌트
 const MapEventsHandler: React.FC<{
   onMapReady: (mapInstance: L.Map) => void;
-}> = ({ onMapReady }) => {
-  const map = useMap(); // useMap을 사용하여 맵 인스턴스를 가져옴
-  
+  click?: L.LeafletMouseEventHandlerFn;
+}> = ({ onMapReady, click }) => {
+  const map = useMapEvents({
+    click,
+  });
+
   useEffect(() => {
     if (map) {
       onMapReady(map);
     }
-  }, [map, onMapReady]);
+  }, [map]);
 
   return null;
 };
