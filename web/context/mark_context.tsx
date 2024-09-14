@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { createContext, useState, ReactNode, useContext } from "react";
 
@@ -32,13 +32,19 @@ export const MarkProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// constext에 대한 커스텀 훅 정의 
+// constext에 대한 커스텀 훅 정의
 export const useMark = () => {
   try {
     const context = useContext(MarkContext);
+    if (context === null) {
+      console.error("useMarkInfo must be used within an MarkProvider");
+      throw Error;
+    }
+
     return context;
   } catch (err) {
     //! Provider의 외에서 사용할 경우 에러
-    console.error("useMarkInfo must be used within an MarkProvider")
+    console.error("useMarkInfo must be used within an MarkProvider");
+    throw Error;
   }
 };
