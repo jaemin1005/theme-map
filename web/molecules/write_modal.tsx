@@ -17,19 +17,24 @@ import { ImageSlider } from "@/atoms/image_slider";
 interface WriteModalProps {
   open: boolean;
   onOpenChange: () => void;
+  cbSaveBtn: (file: File[], title: string, body: string) => void;
 }
 
 export const WriteModal: React.FC<WriteModalProps> = ({
   open,
   onOpenChange,
+  cbSaveBtn,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
 
+  const titleRef = useRef<HTMLInputElement | null>(null);
+  const bodyRef = useRef<HTMLInputElement | null>(null);
+
   // 도달창을 닫을 때, 리액트훅 초기화
   const handlerClose = () => {
-    setFiles([])
-  }
+    setFiles([]);
+  };
 
   // 버튼 클릭했을 때, input DOM을 클릭하게 한다.
   const handleButtonClick = () => {
@@ -72,15 +77,27 @@ export const WriteModal: React.FC<WriteModalProps> = ({
               </ModalHeader>
               <ModalBody>
                 <ImageSlider files={files}></ImageSlider>
-                <TextField label="Title" variant="outlined" />
-                <TextField label="Body" multiline rows={10} />
+                <TextField inputRef={titleRef} label="Title" variant="outlined" />
+                <TextField inputRef={bodyRef} label="Body" multiline rows={10} />
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    if (titleRef.current && bodyRef.current) {
+                      cbSaveBtn(
+                        files,
+                        titleRef.current?.value,
+                        bodyRef.current?.value
+                      );
+                    }
+                    onClose();
+                  }}
+                >
+                  Save
                 </Button>
               </ModalFooter>
               <input
