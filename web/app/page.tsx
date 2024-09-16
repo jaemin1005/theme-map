@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState, useRef } from "react";
 import L from "leaflet";
 import SideButtonComponent from "@/components/side_button_component";
-import { WriteModal } from "@/molecules/write_modal";
+import { WriteModal } from "@/components/modal/write_modal";
 import { useDisclosure } from "@nextui-org/modal";
 import { useMark } from "@/context/mark_context";
 
