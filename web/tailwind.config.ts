@@ -8,7 +8,7 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./atoms/**/*.{js,ts,jsx,tsx,mdx}",
     "./molecules/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/components/(button|card|image|modal|ripple|spinner).js"
+    "./node_modules/@nextui-org/theme/dist/components/(button|card|image|link|modal|ripple|spinner).js"
   ],
   theme: {
     extend: {
