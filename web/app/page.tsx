@@ -9,6 +9,8 @@ import SideButtonComponent from "@/components/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
 import { useDisclosure } from "@nextui-org/modal";
 import { useMark } from "@/context/mark_context";
+import { SpeedDial } from "@/components/speed_dial_component";
+import PersonIcon from '@mui/icons-material/Person';
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -31,8 +33,6 @@ export default function Home() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const { marks, addMark } = useMark();
-
-  //const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // 현 위치 좌표가져오기
@@ -98,6 +98,9 @@ export default function Home() {
         onOpenChange={onOpenChange}
         cbSaveBtn={cbSaveBtn}
       />
+      <SpeedDial actions={[
+        {key: "login", icon: <PersonIcon/>, tooltipTitle: "login", onClick: () => {}}
+      ]}></SpeedDial>
     </div>
   );
 }
