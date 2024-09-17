@@ -9,15 +9,20 @@ import SideButtonComponent from "@/components/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
 import { useMark } from "@/context/mark_context";
 import { SpeedDial } from "@/components/speed_dial_component";
-import PersonIcon from '@mui/icons-material/Person';
+import PersonIcon from "@mui/icons-material/Person";
+import { LoginModal } from "@/components/modal/login_modal";
+import { LOGIN_MSG } from "@/static/login_msg";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
   ssr: false,
 });
-const MarkerComponent = dynamic(() => import("../components/marker_component"), {
-  ssr: false,
-});
+const MarkerComponent = dynamic(
+  () => import("../components/marker_component"),
+  {
+    ssr: false,
+  }
+);
 
 export default function Home() {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>(
@@ -29,9 +34,13 @@ export default function Home() {
   );
 
   const [mark, setMark] = useState<boolean>(false);
-  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false); // 모달 상태 관리
 
+  //#region  --modal 상태관리--
 
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  //#endregion
   const { marks, addMark } = useMark();
 
   useEffect(() => {
@@ -56,13 +65,12 @@ export default function Home() {
   const onMapClick = (event: L.LeafletMouseEvent) => {
     if (mark) {
       setClickPosition([event.latlng.lat, event.latlng.lng]);
-      setIsWriteModalOpen(true)
+      setIsWriteModalOpen(true);
     }
   };
 
   const cbSaveBtn = (files: File[], title: string, body: string) => {
-
-    if(clickPosition === null) return;
+    if (clickPosition === null) return;
 
     addMark({
       files,
@@ -95,12 +103,33 @@ export default function Home() {
       />
       <WriteModal
         open={isWriteModalOpen}
-        onOpenChange={() => {setIsWriteModalOpen((prev) => !prev)}}
+        onOpenChange={() => {
+          setIsWriteModalOpen((prev) => !prev);
+        }}
         cbSaveBtn={cbSaveBtn}
       />
-      <SpeedDial actions={[
-        {key: "login", icon: <PersonIcon/>, tooltipTitle: "login", onClick: () => {}}
-      ]}></SpeedDial>
+      <LoginModal
+        title={LOGIN_MSG.TITLE}
+        forgetPasswordMsg={LOGIN_MSG.FORGET_PASSWORD_MSG}
+        handleForgetPassword={() => {}}
+        loginMsg={LOGIN_MSG.LOGIN_BUTTON_MSG}
+        handleLogin={() => {}}
+        open={isLoginModalOpen}
+        onOpenChange={() => {
+          setIsLoginModalOpen((prev) => !prev)
+        }}
+      >        
+      </LoginModal>
+      <SpeedDial
+        actions={[
+          {
+            key: "login",
+            icon: <PersonIcon />,
+            tooltipTitle: "login",
+            onClick: () => {setIsLoginModalOpen(true)},
+          },
+        ]}
+      ></SpeedDial>
     </div>
   );
 }
