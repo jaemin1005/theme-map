@@ -60,7 +60,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
           backdrop:
             "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
         }}
-        scrollBehavior={"outside"}
+        scrollBehavior={"inside"}
       >
         <ModalContent>
           {(onClose) => (
