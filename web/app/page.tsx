@@ -7,7 +7,6 @@ import { useEffect, useState, useRef } from "react";
 import L from "leaflet";
 import SideButtonComponent from "@/components/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
-import { useDisclosure } from "@nextui-org/modal";
 import { useMark } from "@/context/mark_context";
 import { SpeedDial } from "@/components/speed_dial_component";
 import PersonIcon from '@mui/icons-material/Person';
@@ -30,7 +29,8 @@ export default function Home() {
   );
 
   const [mark, setMark] = useState<boolean>(false);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false); // 모달 상태 관리
+
 
   const { marks, addMark } = useMark();
 
@@ -56,7 +56,7 @@ export default function Home() {
   const onMapClick = (event: L.LeafletMouseEvent) => {
     if (mark) {
       setClickPosition([event.latlng.lat, event.latlng.lng]);
-      onOpen();
+      setIsWriteModalOpen(true)
     }
   };
 
@@ -94,8 +94,8 @@ export default function Home() {
         ]}
       />
       <WriteModal
-        open={isOpen}
-        onOpenChange={onOpenChange}
+        open={isWriteModalOpen}
+        onOpenChange={() => {setIsWriteModalOpen((prev) => !prev)}}
         cbSaveBtn={cbSaveBtn}
       />
       <SpeedDial actions={[
