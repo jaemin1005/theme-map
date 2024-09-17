@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
-import { Navigation, Pagination, Scrollbar, A11y, EffectCoverflow } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  A11y,
+  EffectCoverflow,
+} from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Image from "next/image";
 
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/scrollbar';
-import 'swiper/css/effect-coverflow';
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
+import "swiper/css/effect-coverflow";
 
 interface ImageSliderProps {
   files: File[];
@@ -26,12 +32,12 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({ files }) => {
     setImageUrlList(urlList);
 
     return () => {
-      setImageUrlList([])
-    }
+      setImageUrlList([]);
+    };
   }, [files]);
 
   return (
-    <div className="w-full overflow-x-auto min-h-min">
+    <div className="w-full min-h-max">
       <Swiper
         modules={[Navigation, Pagination, Scrollbar, A11y, EffectCoverflow]}
         spaceBetween={-10}
@@ -47,7 +53,14 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({ files }) => {
       >
         {imageUrlList?.map((val, key) => (
           <SwiperSlide key={key} className="w-min relative">
-            <Image src={val} alt="image" width={400} height={400} objectFit="contain"></Image>
+            <Image
+              src={val}
+              alt="image"
+              width={400}
+              height={400}
+              objectFit="contain"
+              className="overflow-visible"
+            ></Image>
           </SwiperSlide>
         ))}
       </Swiper>
