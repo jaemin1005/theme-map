@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Popup } from "react-leaflet";
 import "./popup.css";
-import { useEffect } from "react";
 
 interface CustomPopupProps {
   file: File;
