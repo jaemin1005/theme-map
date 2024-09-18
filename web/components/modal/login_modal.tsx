@@ -22,9 +22,9 @@ import { Button } from "@nextui-org/button";
 interface LoginModalProps {
   title: string;
   forgetPasswordMsg: string;
-  handleForgetPassword: () => void
+  handleForgetPassword: () => void;
   loginMsg: string;
-  handleLogin: () => void
+  handleLogin: (id: string, password: string) => void;
   open: boolean;
   onOpenChange: () => void;
 }
@@ -60,6 +60,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     event.preventDefault();
   };
 
+  const handleEnterKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      handleLogin(emaillRef.current!.value, passwordRef.current!.value);
+    }
+  };
+
+  const handleLoginBtnClick = () => {
+    handleLogin(emaillRef.current!.value, passwordRef.current!.value);
+  }
+
   return (
     <div>
       <Modal
@@ -79,7 +89,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <ModalHeader className="flex flex-col gap-1">
                 <h1>{title}</h1>
               </ModalHeader>
-              <ModalBody>
+              <ModalBody onKeyDown={handleEnterKeyDown}>
                 <FormControl variant="outlined" className="w-full m-1">
                   <InputLabel htmlFor="outlined-adornment-password">
                     Email
@@ -120,10 +130,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   />
                 </FormControl>
                 <button className="w-min ml-2">
-                  <span className="whitespace-nowrap text-blue-500">{forgetPasswordMsg}</span>
+                  <span className="whitespace-nowrap text-blue-500">
+                    {forgetPasswordMsg}
+                  </span>
                 </button>
-                <Button radius="full" className="font-extrabold mt-5">
-                    {loginMsg}
+                <Button radius="full" className="font-extrabold mt-5" onClick={handleLoginBtnClick}>
+                  {loginMsg}
                 </Button>
               </ModalBody>
               <ModalFooter></ModalFooter>
