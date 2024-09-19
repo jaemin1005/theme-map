@@ -1,14 +1,14 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
-import IconButton from "@/atoms/icon_button";
+import IconButton from "./icon_button";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import L from "leaflet";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
-import { ToggleButton } from "@/atoms/toggle_button";
+import { ToggleButton } from "./toggle_button";
 
 interface SideButtonComponentProps {
   mapRef: React.MutableRefObject<L.Map | null>;

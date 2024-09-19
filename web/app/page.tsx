@@ -5,7 +5,7 @@ import { INIT_LOCATION_INFO } from "@/static/location";
 import dynamic from "next/dynamic";
 import { useEffect, useState, useRef } from "react";
 import L from "leaflet";
-import SideButtonComponent from "@/components/side_button_component";
+import SideButtonComponent from "@/components/side/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
 import { useMark } from "@/context/mark_context";
 import { SpeedDial } from "@/components/speed_dial_component";
