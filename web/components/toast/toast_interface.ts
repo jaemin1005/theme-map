@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react"
 
-export type AlertType = "success" | "info" | "warning" | "error",
+// MUI Alert에 대한 Type 정의
+export type AlertType = "success" | "info" | "warning" | "error";
 
 export interface ToastProps {
     open: boolean,
