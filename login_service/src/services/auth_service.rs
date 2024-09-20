@@ -205,6 +205,7 @@ async fn get_user_by_id(user_id: &str, db: &Database) -> Result<User, Box<dyn st
     })
 }
 
+// 요청으로 부터 리프레쉬 토큰을 추출한다.
 fn extract_refresh_token_from_request(
     req: &HttpRequest,
 ) -> Result<String, Box<dyn std::error::Error>> {
@@ -215,6 +216,7 @@ fn extract_refresh_token_from_request(
     }
 }
 
+// 비밀번호없이 유저 정보 반환
 fn user_without_password(user: User) -> User {
     User {
         id: user.id.clone(),
