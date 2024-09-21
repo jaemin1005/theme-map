@@ -7,26 +7,25 @@ import {
   ModalBody,
   ModalFooter,
 } from "@nextui-org/modal";
-import {
-  IconButton,
-  InputAdornment,
-  OutlinedInput,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
-import { useRef, useState } from "react";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import React, { useRef, useState } from "react";
 import { Button } from "@nextui-org/button";
+import { CustomInput } from "./\bcustom_modal_input";
+
+interface RegisterMsg {
+  msg?: string;
+  btnMsg?: string;
+}
 
 interface LoginModalProps {
+  open: boolean;
+  onOpenChange: () => void;
   title: string;
   forgetPasswordMsg: string;
   handleForgetPassword: () => void;
   loginMsg: string;
   handleLogin: (id: string, password: string) => void;
-  open: boolean;
-  onOpenChange: () => void;
+  register?: RegisterMsg;
+  handleRegisterClick: React.MouseEventHandler;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
@@ -37,12 +36,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   loginMsg,
   handleLogin,
   onOpenChange,
+  register,
+  handleRegisterClick,
 }) => {
-  const emaillRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
 
   // 패스워드를 보여주는 유무
   const [showPassword, setShowPassword] = useState(false);
+
+  const registerMsg = register?.msg ? register.msg : "Don't have an account?";
+  const registerBtnMsg = register?.btnMsg ? register.btnMsg : "sign up";
 
   // 버튼 동작에 따른 handler
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -62,13 +66,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
   const handleEnterKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      handleLogin(emaillRef.current!.value, passwordRef.current!.value);
+      handleLogin(emailRef.current!.value, passwordRef.current!.value);
     }
   };
 
   const handleLoginBtnClick = () => {
-    handleLogin(emaillRef.current!.value, passwordRef.current!.value);
-  }
+    handleLogin(emailRef.current!.value, passwordRef.current!.value);
+  };
 
   return (
     <div>
@@ -90,53 +94,35 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <h1>{title}</h1>
               </ModalHeader>
               <ModalBody onKeyDown={handleEnterKeyDown}>
-                <FormControl variant="outlined" className="w-full m-1">
-                  <InputLabel htmlFor="outlined-adornment-password">
-                    Email
-                  </InputLabel>
-                  <OutlinedInput
-                    id="standard-basic"
-                    inputRef={emaillRef}
-                    label="Email"
-                    type="email"
-                  />
-                </FormControl>
-                <FormControl variant="outlined" className="w-full m-1">
-                  <InputLabel htmlFor="outlined-adornment-password">
-                    Password
-                  </InputLabel>
-                  <OutlinedInput
-                    id="outlined-adornment-password"
-                    type={showPassword ? "text" : "password"}
-                    inputRef={passwordRef}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          onMouseUp={handleMouseUpPassword}
-                          edge="end"
-                        >
-                          {showPassword ? (
-                            <VisibilityOffIcon />
-                          ) : (
-                            <VisibilityIcon />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Password"
-                  />
-                </FormControl>
-                <button className="w-min ml-2">
-                  <span className="whitespace-nowrap text-blue-500">
-                    {forgetPasswordMsg}
-                  </span>
+                <CustomInput label="Email" type="email" inputRef={emailRef} />
+                <CustomInput
+                  label="Password"
+                  type="password"
+                  inputRef={passwordRef}
+                  showPassword={showPassword}
+                  handleClickShowPassword={handleClickShowPassword}
+                  handleMouseDownPassword={handleMouseDownPassword}
+                  handleMouseUpPassword={handleMouseUpPassword}
+                />
+                <button className="whitespace-nowrap text-blue-500 ml-2 w-min">
+                  {forgetPasswordMsg}
                 </button>
-                <Button radius="full" className="font-extrabold mt-5" onClick={handleLoginBtnClick}>
+                <Button
+                  radius="full"
+                  className="font-extrabold mt-5"
+                  onClick={handleLoginBtnClick}
+                >
                   {loginMsg}
                 </Button>
+                <span>
+                  {registerMsg}
+                  <button
+                    className="whitespace-nowrap text-blue-500 ml-2"
+                    onClick={handleRegisterClick}
+                  >
+                    {registerBtnMsg}
+                  </button>
+                </span>
               </ModalBody>
               <ModalFooter></ModalFooter>
             </>
