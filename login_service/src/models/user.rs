@@ -33,3 +33,16 @@ pub struct LoginResponse {
     pub access_token: String,
     pub refresh_token: String,
 }
+
+#[derive(Debug, Serialize)]
+pub struct ErrorResponse {
+    pub message: String,
+}
+
+impl ErrorResponse {
+    pub fn new(message: String) -> Self {
+        Self {
+            message: message
+        }
+    }
+}
