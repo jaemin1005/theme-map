@@ -1,4 +1,6 @@
-use actix_web::{App, HttpServer};
+use std::io;
+
+use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 
 mod routes;
@@ -25,14 +27,22 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     // 데이터베이스 연결을 가져온다.
-    let db = utils::db::get_database().await;
+    let db = match utils::db::get_database().await {
+        Ok(database) => database, 
+        Err(e) => {
+            eprintln!("Error connecting to the database: {}", e);
+            return Err(io::Error::new(io::ErrorKind::Other, "Database connection failed"));
+        }
+    };
+
+    println!("Starting server at http://127.0.0.1:8080");
 
     // HTTP 서버를 시작
     // 데이터베이스 연결을 공유
     // 라우터를 초기화
     HttpServer::new(move || {
         App::new()
-            .app_data(db.clone())
+            .app_data(web::Data::new(db.clone()))
             .configure(routes::init)
     })
     .bind("127.0.0.1:8080")?
