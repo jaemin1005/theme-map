@@ -19,6 +19,7 @@ import { isValidEmail } from "@/Func/validate";
 import { TOAST_MSG } from "@/static/component/toast_msg";
 import { RegisterModal } from "@/components/modal/register_modal";
 import { RegisterReq } from "@/interface/register.dto";
+import { User } from "@/interface/user";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -131,11 +132,13 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as {user: User, accessToken: string};
         // 유저 저장
         setUser(data.user);
-        // access 토큰 저장
         setAccessToken(data.accessToken);
+
+        showToast(TOAST_MSG.LOGIN_SUCCESS + `${data.user.name}`, 'success');
+        setIsLoginModalOpen(false);
       } else {
         showToast(TOAST_MSG.LOGIN_FAIL, "error");
       }
