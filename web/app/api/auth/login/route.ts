@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cookie from 'cookie';
+import { LoginServiceRes } from '@/interface/login.dto';
 
 // 로그인 핸들러 POST 메서드
 export async function POST(req: NextRequest) {
@@ -16,10 +17,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const data = await response.json() as LoginServiceRes;
       
       // 리프레시 토큰을 HTTP-Only 쿠키로 설정
-      const refreshTokenCookie = cookie.serialize("refreshToken", data.refreshToken, {
+      const refreshTokenCookie = cookie.serialize("refreshToken", data.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         // 1주일
@@ -27,8 +28,14 @@ export async function POST(req: NextRequest) {
         path: "/",
       });
 
+      const user = {
+        id: data.user._id.$oid,
+        email: data.user.email,
+        name: data.user.name
+      }
+
       // NextResponse에 쿠키 설정
-      const res = NextResponse.json({ user: data.user, accessToken: data.accessToken }, { status: 200 });
+      const res = NextResponse.json({ user, accessToken: data.access_token }, { status: 200 });
       res.headers.append("Set-Cookie", refreshTokenCookie);
 
       return res;
