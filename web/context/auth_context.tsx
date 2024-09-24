@@ -8,12 +8,8 @@ import React, {
   useContext,
 } from "react";
 
-// 사용자 데이터 인터페이스 정의
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import {User} from "@/interface/user"
+
 
 // 컨텍스트 타입 정의
 interface AuthContextType {
