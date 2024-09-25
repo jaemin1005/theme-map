@@ -19,7 +19,7 @@ export interface LoginRes {
 
 //#region --login_service--
 
-interface LoginUserRes {
+export interface LoginUserRes {
     _id: { $oid: string }
     email: string
     name: string
