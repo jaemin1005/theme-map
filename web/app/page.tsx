@@ -131,12 +131,15 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const data = await response.json() as {user: User, accessToken: string};
+        const data = (await response.json()) as {
+          user: User;
+          accessToken: string;
+        };
         // 유저 저장
         setUser(data.user);
         setAccessToken(data.accessToken);
 
-        showToast(TOAST_MSG.LOGIN_SUCCESS + `${data.user.name}`, 'success');
+        showToast(TOAST_MSG.LOGIN_SUCCESS + `${data.user.name}`, "success");
         setIsLoginModalOpen(false);
       } else {
         showToast(TOAST_MSG.LOGIN_FAIL, "error");
@@ -165,19 +168,17 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(registerReq)
+        body: JSON.stringify(registerReq),
       });
 
-      if(response.ok) {
-        showToast(TOAST_MSG.REGISTER_SUCCESS, 'success');
+      if (response.ok) {
+        showToast(TOAST_MSG.REGISTER_SUCCESS, "success");
         setIsRegisterModalOpen(false);
         setIsLoginModalOpen(true);
       } else {
-        showToast(TOAST_MSG.REGISTER_FAIL, 'error');
+        showToast(TOAST_MSG.REGISTER_FAIL, "error");
       }
-    } catch (error) {
-
-    }
+    } catch (error) {}
   };
 
   return (
@@ -227,7 +228,16 @@ export default function Home() {
         }}
         registerCbFunc={registerFunc}
       ></RegisterModal>
-      <SpeedDial onLoginClick={()=>{setIsLoginModalOpen(true)}} onRegisterClick={() => {setIsRegisterModalOpen(true)}} onLogoutClick={()=>{}} onProfileClick={()=>{}}/>
+      <SpeedDial
+        onLoginClick={() => {
+          setIsLoginModalOpen(true);
+        }}
+        onRegisterClick={() => {
+          setIsRegisterModalOpen(true);
+        }}
+        onLogoutClick={() => {}}
+        onProfileClick={() => {}}
+      />
       <ToastComponent
         open={open}
         setOpen={setOpen}
