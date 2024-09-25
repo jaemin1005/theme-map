@@ -1,5 +1,4 @@
 import {
-    Box,
     SpeedDial as MUISpeedDial,
     SpeedDialAction,
     SpeedDialIcon,
