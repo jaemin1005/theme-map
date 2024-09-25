@@ -8,8 +8,7 @@ import L from "leaflet";
 import SideButtonComponent from "@/components/side/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
 import { useMark } from "@/context/mark_context";
-import { SpeedDial } from "@/components/speed_dial_component";
-import PersonIcon from "@mui/icons-material/Person";
+import { SpeedDial } from "@/components/dial/speed_dial_component";
 import { LoginModal } from "@/components/modal/login_modal";
 import { LOGIN_MODAL } from "@/static/component/login_modal";
 import { useAuth } from "@/context/auth_context";
@@ -228,18 +227,7 @@ export default function Home() {
         }}
         registerCbFunc={registerFunc}
       ></RegisterModal>
-      <SpeedDial
-        actions={[
-          {
-            key: "login",
-            icon: <PersonIcon />,
-            tooltipTitle: "login",
-            onClick: () => {
-              setIsLoginModalOpen(true);
-            },
-          },
-        ]}
-      ></SpeedDial>
+      <SpeedDial onLoginClick={()=>{setIsLoginModalOpen(true)}} onRegisterClick={() => {setIsRegisterModalOpen(true)}} onLogoutClick={()=>{}} onProfileClick={()=>{}}/>
       <ToastComponent
         open={open}
         setOpen={setOpen}
