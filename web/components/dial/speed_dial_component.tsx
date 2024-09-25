@@ -1,37 +1,43 @@
 import {
-    SpeedDial as MUISpeedDial,
-    SpeedDialAction,
-    SpeedDialIcon,
-  } from "@mui/material";
-  import { MouseEventHandler } from "react";
-  
-  interface SpeedDialProps {
-    key: string;
-    icon: React.ReactNode;
-    tooltipTitle: string; // tooltipTile에서 tooltipTitle로 수정
-    onClick: MouseEventHandler;
-  }
-  
-  interface Props {
-    actions: SpeedDialProps[]; // props는 SpeedDialProps의 배열이어야 합니다.
-  }
-  
-  export const SpeedDial: React.FC<Props> = ({ actions }) => {
-    return (
-      <MUISpeedDial
-        ariaLabel="SpeedDial basic example"
-        sx={{ position: "absolute", bottom: 16, left: 16 }}
-        icon={<SpeedDialIcon />}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.key}
-            icon={action.icon}
-            tooltipTitle={action.tooltipTitle} // tooltipTitle 사용
-            onClick={action.onClick}
-          />
-        ))}
-      </MUISpeedDial>
-    );
-  };
-  
+  SpeedDial as MUISpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
+} from "@mui/material";
+import { MouseEventHandler } from "react";
+import PersonIcon from "@mui/icons-material/Person";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import { useAuth } from "@/context/auth_context";
+
+interface SpeedDialProps {
+  onLoginClick: MouseEventHandler;
+  onRegisterClick: MouseEventHandler;
+  onProfileClick: MouseEventHandler;
+  onLogoutClick: MouseEventHandler;
+}
+
+enum TOOLTIP_TITLE {
+  LOGIN = "Login",
+  LOGOUT = "Logout",
+  REGISTER = "Sign in"
+}
+
+export const SpeedDial: React.FC<SpeedDialProps> = ({ onLoginClick, onRegisterClick, onProfileClick, onLogoutClick }) => {
+  const { user } = useAuth();
+
+  return (
+    <MUISpeedDial
+      ariaLabel="SpeedDial basic example"
+      sx={{ position: "absolute", bottom: 16, left: 16 }}
+      icon={<SpeedDialIcon />}
+    >
+      {user === null ? <SpeedDialAction
+        icon={<PersonIcon />}
+        tooltipTitle={TOOLTIP_TITLE.LOGIN}
+        onClick={onLoginClick}
+      /> : <SpeedDialAction icon ={<PersonIcon color="success"/>} tooltipTitle={user.name} onClick={onProfileClick}/>}
+      {user === null && <SpeedDialAction icon={<PersonAddIcon/>} tooltipTitle={TOOLTIP_TITLE.REGISTER} onClick={onRegisterClick}/>}
+      {user && <SpeedDialAction icon={<DirectionsRunIcon/>} tooltipTitle={TOOLTIP_TITLE.LOGOUT} onClick={onLogoutClick}/>}
+    </MUISpeedDial>
+  );
+};
