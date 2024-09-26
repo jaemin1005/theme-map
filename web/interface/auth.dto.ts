@@ -17,6 +17,22 @@ export interface LoginRes {
     
 }
 
+export class RegisterReq {
+
+    @IsNotEmpty()
+    @IsEmail()
+    email!: string
+
+    @IsNotEmpty()
+    @IsString()
+    name!: string;
+
+    @IsNotEmpty()
+    @IsString()
+    password!: string;
+}
+
+
 //#region --login_service--
 
 export interface LoginUserRes {
@@ -36,3 +52,4 @@ export class LoginServiceRes {
 }
 
 //#endregion
+
