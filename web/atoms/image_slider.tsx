@@ -7,13 +7,13 @@ import {
   EffectCoverflow,
 } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Image from "next/image";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import "swiper/css/effect-coverflow";
+import Image from "next/image";
 
 interface ImageSliderProps {
   files: File[];
@@ -42,25 +42,22 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({ files }) => {
         modules={[Navigation, Pagination, Scrollbar, A11y, EffectCoverflow]}
         spaceBetween={-10}
         slidesPerView={1}
+        slidesPerGroup={1}
         navigation
         pagination={{ clickable: true }}
         scrollbar={{ draggable: true }}
-        onSwiper={(swiper) => console.log(swiper)}
-        onSlideChange={() => console.log("slide change")}
         loop={true}
         effect="coverflow"
         centerInsufficientSlides={true}
       >
         {imageUrlList?.map((val, key) => (
-          <SwiperSlide key={key} className="w-min relative">
+          <SwiperSlide key={key} className="w-full relative aspect-square">
             <Image
+              alt="slider"
+              className="object-cover aspect-square"
               src={val}
-              alt="image"
-              width={400}
-              height={400}
-              objectFit="contain"
-              className="overflow-visible"
-            ></Image>
+              fill={true}
+            />
           </SwiperSlide>
         ))}
       </Swiper>
