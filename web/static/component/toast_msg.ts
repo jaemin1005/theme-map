@@ -7,5 +7,7 @@ export enum TOAST_MSG {
     VALIDATE_FAIL = "Validation failed.",
 
     // 뒤에 문구의 추가가 필요
-    LOGIN_SUCCESS = "Welcome "
+    LOGIN_SUCCESS = "Welcome ",
+    NO_MARKER_INFO = "No marker info"
+    //  
 }
