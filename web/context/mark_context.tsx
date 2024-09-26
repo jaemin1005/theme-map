@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState, ReactNode, useContext } from "react";
+import { createContext, useState, ReactNode, useContext, useCallback } from "react";
 
 // 각 마크의 상세정보를 담기위한 인터페이스
 export interface Mark {
@@ -14,6 +14,7 @@ export interface Mark {
 interface MarkInfo {
   marks: Mark[];
   addMark: (mark: Mark) => void;
+  delMark: (idx: number) => void;
 }
 
 const MarkContext = createContext<MarkInfo | null>(null);
@@ -21,12 +22,20 @@ const MarkContext = createContext<MarkInfo | null>(null);
 export const MarkProvider = ({ children }: { children: ReactNode }) => {
   const [marks, setMarks] = useState<Mark[]>([]);
 
-  const addMark = (mark: Mark) => {
+  const addMark = useCallback((mark: Mark) => {
     setMarks((prev) => [...prev, mark]);
-  };
+  },[]);
+
+  const delMark = useCallback((index: number) => {
+    setMarks((prev) => {
+      const newMarks = [...prev]; 
+      newMarks.splice(index, 1); 
+      return newMarks; 
+    });
+  }, []);
 
   return (
-    <MarkContext.Provider value={{ marks, addMark }}>
+    <MarkContext.Provider value={{ marks, addMark, delMark }}>
       {children}
     </MarkContext.Provider>
   );
