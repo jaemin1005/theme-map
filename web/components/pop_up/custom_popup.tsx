@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Popup } from "react-leaflet";
 import "./popup.css";
+import { fileToUrl } from "@/Func/file_to_url";
 
 interface CustomPopupProps {
   file: File;
@@ -13,15 +14,10 @@ export const CustomPopup: React.FC<CustomPopupProps> = ({
   title,
   body,
 }) => {
-  // 파일 Url로 변환
-  const fileToUrl = (file: File) => {
-    const url = URL.createObjectURL(file);
-    return url;
-  };
 
   return (
     <Popup className="custom-popup">
-      <div className="h-full flex flex-row min-w-[300px] max-w-[600px] gap-x-2">
+      <div className="h-[100px] flex flex-row min-w-[300px] max-w-[600px] gap-x-2">
         {file && (
           <Image
             width={100}
