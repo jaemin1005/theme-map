@@ -13,11 +13,13 @@ import { ToggleButton } from "./toggle_button";
 interface SideButtonComponentProps {
   mapRef: React.MutableRefObject<L.Map | null>;
   toggleMark: [boolean, () => void];
+  clickMarkInfo: () => void
 }
 
 const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
   mapRef,
   toggleMark,
+  clickMarkInfo,
 }) => {
   const zoomInFunc = () => {
     mapRef.current?.zoomIn();
@@ -46,7 +48,7 @@ const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
         <IconButton className="mt-5" onClick={moveToCurrent}>
           <ControlCameraIcon className="text-white text-2xl group-hover:text-yellow-300" />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={clickMarkInfo}>
           <CommentIcon className="text-white text-2xl group-hover:text-green-300" />
         </IconButton>
         <IconButton>
