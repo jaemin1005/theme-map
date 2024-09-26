@@ -5,9 +5,11 @@ import IconButton from "./icon_button";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import CommentIcon from "@mui/icons-material/Comment";
+import MapIcon from '@mui/icons-material/Map';
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import L from "leaflet";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
+import RoomIcon from '@mui/icons-material/Room';
 import { ToggleButton } from "./toggle_button";
 
 interface SideButtonComponentProps {
@@ -48,15 +50,18 @@ const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
         <IconButton className="mt-5" onClick={moveToCurrent}>
           <ControlCameraIcon className="text-white text-2xl group-hover:text-yellow-300" />
         </IconButton>
-        <IconButton onClick={clickMarkInfo}>
-          <CommentIcon className="text-white text-2xl group-hover:text-green-300" />
-        </IconButton>
         <IconButton>
           <FavoriteIcon className="text-white text-2xl group-hover:text-pink-300" />
         </IconButton>
         <ToggleButton selected={toggleMark[0]} onChange={toggleMark[1]} originIconColor="white" changeIconColor="#93c5fd"> 
-          <BookmarkIcon className="text-white text-2xl group-hover:text-blue-300" />
+          <RoomIcon className="text-white text-2xl group-hover:text-blue-300" />
         </ToggleButton>
+        <IconButton className="mt-5" onClick={clickMarkInfo}>
+          <BookmarkIcon className="text-white text-2xl group-hover:text-green-300" />
+        </IconButton>
+        <IconButton>
+          <MapIcon className="text-white"/>
+        </IconButton>
       </div>
       {/* <div className="w-fit h-fit pt-5">
         <SearchBar/>
