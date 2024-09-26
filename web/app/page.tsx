@@ -17,8 +17,9 @@ import { ToastComponent } from "@/components/toast/toast_component";
 import { isValidEmail } from "@/Func/validate";
 import { TOAST_MSG } from "@/static/component/toast_msg";
 import { RegisterModal } from "@/components/modal/register_modal";
-import { RegisterReq } from "@/interface/register.dto";
+import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
+import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -50,9 +51,10 @@ export default function Home() {
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   // 로그인 모달
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
   // 회원가입 모달
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  // 마커정보 모달
+  const [isMarkerInfoModalOpen, setIsMarkerModalOpen] = useState(false);
 
   //#endregion
 
@@ -83,6 +85,8 @@ export default function Home() {
       console.log(ERROR_MSG.GEOLOCATION_NOT_AVAILABLE);
     }
   }, []);
+
+  //#region --이벤트 콜백 함수--
 
   const onMapClick = (event: L.LeafletMouseEvent) => {
     if (mark) {
@@ -181,6 +185,16 @@ export default function Home() {
     } catch (error) {}
   };
 
+  const clickMarkInfo = () => {
+    if(marks.length === 0)
+      showToast(TOAST_MSG.NO_MARKER_INFO, "warning");
+    else {
+      setIsMarkerModalOpen(true)
+    }
+  }
+
+  //#endregion
+
   return (
     <div className="w-screen h-screen relative">
       <MapComponent
@@ -201,6 +215,7 @@ export default function Home() {
             setMark((prev) => !prev);
           },
         ]}
+        clickMarkInfo={clickMarkInfo}
       />
       <WriteModal
         open={isWriteModalOpen}
@@ -228,6 +243,12 @@ export default function Home() {
         }}
         registerCbFunc={registerFunc}
       ></RegisterModal>
+      <MarkerInfoModal
+        open={isMarkerInfoModalOpen}
+        onOpenChange={() => {
+          setIsMarkerModalOpen((prev) => !prev);
+        }}
+      ></MarkerInfoModal>
       <SpeedDial
         onLoginClick={() => {
           setIsLoginModalOpen(true);
@@ -235,7 +256,7 @@ export default function Home() {
         onRegisterClick={() => {
           setIsRegisterModalOpen(true);
         }}
-        onLogoutClick={() => {}}
+        onLogoutClick={logout}
         onProfileClick={() => {}}
       />
       <ToastComponent
