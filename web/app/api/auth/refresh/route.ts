@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cookie from 'cookie';
-import { LoginServiceRes } from '@/interface/login.dto';
+import { LoginServiceRes } from '@/interface/auth.dto';
 import { convertUser } from '@/Func/convert_user';
 
 // 액세스 토큰 갱신 핸들러 (POST 메서드)
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': `refreshToken=${refreshToken}`,  // 쿠키에 리프레시 토큰 추가
+        'Cookie': `refreshToken=${refreshToken}`,
       },
     });
 
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         const refreshTokenCookie = cookie.serialize('refreshToken', data.refresh_token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          maxAge: 60 * 60 * 24 * 7, // 7일
+          maxAge: 60 * 60 * 24 * 7,
           path: '/',
         });
 

@@ -1,4 +1,4 @@
-import { RegisterReq } from "@/interface/register.dto";
+import { RegisterReq } from "@/interface/auth.dto";
 import { validateSync } from "class-validator";
 import { ERROR_MSG } from "@/static/log/error_msg";
 import { validateOptions } from "@/static/validate_option";

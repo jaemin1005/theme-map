@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import cookie from "cookie";
 import { plainToInstance } from "class-transformer";
 import { validateOptions } from "@/static/validate_option";
-import { LoginReq, LoginServiceRes } from "@/interface/login.dto";
+import { LoginReq, LoginServiceRes } from "@/interface/auth.dto";
 import { validateSync } from "class-validator";
 import { ERROR_MSG } from "@/static/log/error_msg";
 import { convertUser } from "@/Func/convert_user";

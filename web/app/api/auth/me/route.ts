@@ -1,5 +1,5 @@
 import { convertUser } from '@/Func/convert_user';
-import { LoginUserRes } from '@/interface/login.dto';
+import { LoginUserRes } from '@/interface/auth.dto';
 import { NextRequest, NextResponse } from 'next/server';
 
 // 사용자 정보를 반환하는 핸들러 (GET 메서드)
