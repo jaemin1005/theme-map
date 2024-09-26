@@ -18,17 +18,21 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { marks } = useMark();
+  const { marks, delMark } = useMark();
 
-  if(marks.length === 0)
-    return;
+  if (marks.length === 0) return;
 
+  const onClickDeleteCb = (idx: number) => {
+    delMark(idx);
+  };
+
+  // TODO Edit 버튼의 처리가 필요 :)
+  const onClickEditCb = () => {}
 
   return (
     <Modal
       backdrop="opaque"
       isOpen={open}
-      size="xl"
       placement="center"
       onOpenChange={onOpenChange}
       classNames={{
@@ -48,6 +52,8 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
                   file={mark.files[0]}
                   title={mark.title}
                   body={mark.body}
+                  onClickEdit={() => {onClickEditCb}}
+                  onClickDelete={() => {onClickDeleteCb(idx)}}
                 />
               ))}
             </ModalBody>
