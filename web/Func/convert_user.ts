@@ -1,4 +1,4 @@
-import { LoginUserRes } from "@/interface/login.dto";
+import { LoginUserRes } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 
 /**
