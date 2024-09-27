@@ -1,4 +1,4 @@
-import { useMap } from "@/context/mark_context";
+import { useMap } from "@/context/map_context";
 import { Button } from "@nextui-org/button";
 import {
   Modal,

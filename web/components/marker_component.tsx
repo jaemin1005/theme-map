@@ -1,4 +1,4 @@
-import { useMap } from "@/context/mark_context";
+import { useMap } from "@/context/map_context";
 import { Marker } from "react-leaflet";
 import { CustomPopup } from "./pop_up/custom_popup";
 
