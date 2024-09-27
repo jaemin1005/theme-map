@@ -24,15 +24,15 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
     <Card
       isFooterBlurred
       radius="lg"
-      className="border-none relative w-full h-auto"
+      className="border-none relative w-full h-min"
     >
       {file ? (
         <>
-          <div className="w-full aspect-square">
+          <div className="w-full aspect-video overscroll-none">
             <Image
               alt="Image"
               fill={true}
-              className="object-cover aspect-square w-full"
+              className="object-cover aspect-square w-full h-full"
               src={fileToUrl(file)}
             />
           </div>
@@ -50,10 +50,10 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
       )}
       <div className="absolute top-0 right-0 flex z-50">
         <IconButton onClick={onClickEdit}>
-          <EditIcon/>
+          <EditIcon />
         </IconButton>
         <IconButton onClick={onClickDelete}>
-          <DeleteIcon/>
+          <DeleteIcon />
         </IconButton>
       </div>
     </Card>
