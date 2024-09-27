@@ -1,9 +1,9 @@
-import { useMark } from "@/context/mark_context";
+import { useMap } from "@/context/mark_context";
 import { Marker } from "react-leaflet";
 import { CustomPopup } from "./pop_up/custom_popup";
 
 const MarkerComponent: React.FC = () => {
-  const { marks } = useMark();
+  const { marks } = useMap();
 
   return (
     <>

@@ -17,9 +17,9 @@ interface MarkInfo {
   delMark: (idx: number) => void;
 }
 
-const MarkContext = createContext<MarkInfo | null>(null);
+const MapContext = createContext<MarkInfo | null>(null);
 
-export const MarkProvider = ({ children }: { children: ReactNode }) => {
+export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [marks, setMarks] = useState<Mark[]>([]);
 
   const addMark = useCallback((mark: Mark) => {
@@ -35,16 +35,16 @@ export const MarkProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <MarkContext.Provider value={{ marks, addMark, delMark }}>
+    <MapContext.Provider value={{marks, addMark, delMark }}>
       {children}
-    </MarkContext.Provider>
+    </MapContext.Provider>
   );
 };
 
 // constext에 대한 커스텀 훅 정의
-export const useMark = () => {
+export const useMap = () => {
   try {
-    const context = useContext(MarkContext);
+    const context = useContext(MapContext);
     if (context === null) {
       console.error("useMarkInfo must be used within an MarkProvider");
       throw Error;

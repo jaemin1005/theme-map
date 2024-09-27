@@ -7,7 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import L from "leaflet";
 import SideButtonComponent from "@/components/side/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
-import { useMark } from "@/context/mark_context";
+import { useMap } from "@/context/mark_context";
 import { SpeedDial } from "@/components/dial/speed_dial_component";
 import { LoginModal } from "@/components/modal/login_modal";
 import { LOGIN_MODAL } from "@/static/component/login_modal";
@@ -63,7 +63,7 @@ export default function Home() {
 
   //#region  --context 관리--
 
-  const { marks, addMark } = useMark();
+  const { marks, addMark } = useMap();
 
   const { user, setUser, loading, logout, accessToken, setAccessToken } =
     useAuth();

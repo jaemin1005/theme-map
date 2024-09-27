@@ -1,4 +1,4 @@
-import { useMark } from "@/context/mark_context";
+import { useMap } from "@/context/mark_context";
 import { Button } from "@nextui-org/button";
 import {
   Modal,
@@ -23,7 +23,7 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { marks, delMark } = useMark();
+  const { marks, delMark } = useMap();
 
   const onClickDeleteCb = (idx: number) => {
     delMark(idx);

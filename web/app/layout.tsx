@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { MarkProvider } from "@/context/mark_context";
+import { MapProvider } from "@/context/mark_context";
 import { AuthProvider } from "@/context/auth_context";
 
 const geistSans = localFont({
@@ -28,13 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <AuthProvider>
-        <MarkProvider>
+        <MapProvider>
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
             {children}
           </body>
-        </MarkProvider>
+        </MapProvider>
       </AuthProvider>
     </html>
   );
