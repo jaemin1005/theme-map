@@ -10,7 +10,11 @@ import {
 import { useRef, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { CustomInput } from "./\bcustom_modal_input";
-import { hasContainSpecialCharacters, isCheckMinMaxLength, isValidEmail } from "@/Func/validate";
+import {
+  hasContainSpecialCharacters,
+  isCheckMinMaxLength,
+  isValidEmail,
+} from "@/Func/validate";
 
 enum MODAL_ERR_MSG {
   REF_ERROR = "REF_ERROR",
@@ -66,89 +70,97 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
       const passwordValue = passwordRef.current.value;
       const passwordCheckValue = passwordCheckRef.current.value;
 
-      if(isValidEmail(emailValue) === false) {
-        //어떻게 처리할까요 
-        return;
-      }
-
-      if(hasContainSpecialCharacters(nicknameValue) === true) {
-        //어떻게 처리하띾요
-        return;
-      }
-
-      if(isCheckMinMaxLength(passwordValue, 8, 15) === false) {
+      if (isValidEmail(emailValue) === false) {
         //어떻게 처리할까요
         return;
       }
 
-      if(passwordValue !== passwordCheckValue) {
+      if (hasContainSpecialCharacters(nicknameValue) === true) {
+        //어떻게 처리하띾요
+        return;
+      }
+
+      if (isCheckMinMaxLength(passwordValue, 8, 15) === false) {
+        //어떻게 처리할까요
+        return;
+      }
+
+      if (passwordValue !== passwordCheckValue) {
         //어떻게 처리할까요
         return;
       }
 
       registerCbFunc(emailValue, nicknameValue, passwordValue);
-
     } else {
       console.error(MODAL_ERR_MSG.REF_ERROR);
     }
   };
 
   return (
-    <div>
-      <Modal
-        backdrop="opaque"
-        isOpen={open}
-        placement="center"
-        onOpenChange={onOpenChange}
-        classNames={{
-          backdrop:
-            "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
-        }}
-        //scrollBehavior={"outside"}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                <h1>{"Register"}</h1>
-              </ModalHeader>
-              <ModalBody>
-                <CustomInput key={1} label="Email" type="email" inputRef={emailRef} />
-                <CustomInput
-                  key={2}
-                  label="Nickname"
-                  type="text"
-                  inputRef={nicknameRef}
-                />
-                <CustomInput
-                  key={3}
-                  label="Password"
-                  type="password"
-                  inputRef={passwordRef}
-                  showPassword={showPassword}
-                  handleClickShowPassword={handleClickShowPassword}
-                  handleMouseDownPassword={handleMouseDownPassword}
-                  handleMouseUpPassword={handleMouseUpPassword}
-                />
-                <CustomInput
-                  key={4}
-                  label="Password Check"
-                  type="password"
-                  inputRef={passwordCheckRef}
-                  showPassword={showPasswordCheck}
-                  handleClickShowPassword={handleClickShowPasswordCheck}
-                  handleMouseDownPassword={handleMouseDownPassword}
-                  handleMouseUpPassword={handleMouseUpPassword}
-                />
-                <Button radius="full" className="font-extrabold mt-5" onClick={() => {processRegister()}}>
-                  {"register"}
-                </Button>
-              </ModalBody>
-              <ModalFooter></ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </div>
+    <Modal
+      backdrop="opaque"
+      isOpen={open}
+      placement="center"
+      onOpenChange={onOpenChange}
+      classNames={{
+        backdrop:
+          "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
+      }}
+      //scrollBehavior={"outside"}
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              <h1>{"Register"}</h1>
+            </ModalHeader>
+            <ModalBody>
+              <CustomInput
+                key={1}
+                label="Email"
+                type="email"
+                inputRef={emailRef}
+              />
+              <CustomInput
+                key={2}
+                label="Nickname"
+                type="text"
+                inputRef={nicknameRef}
+              />
+              <CustomInput
+                key={3}
+                label="Password"
+                type="password"
+                inputRef={passwordRef}
+                showPassword={showPassword}
+                handleClickShowPassword={handleClickShowPassword}
+                handleMouseDownPassword={handleMouseDownPassword}
+                handleMouseUpPassword={handleMouseUpPassword}
+              />
+              <CustomInput
+                key={4}
+                label="Password Check"
+                type="password"
+                inputRef={passwordCheckRef}
+                showPassword={showPasswordCheck}
+                handleClickShowPassword={handleClickShowPasswordCheck}
+                handleMouseDownPassword={handleMouseDownPassword}
+                handleMouseUpPassword={handleMouseUpPassword}
+              />
+              <Button
+                radius="full"
+                className="font-extrabold mt-5"
+                onClick={() => {
+                  processRegister();
+                }}
+              >
+                {"register"}
+              </Button>
+            </ModalBody>
+            <ModalFooter></ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 };
