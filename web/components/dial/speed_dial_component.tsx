@@ -24,6 +24,7 @@ enum TOOLTIP_TITLE {
   REGISTER = "Sign in",
   SAVE = "Save",
 }
+
 export const SpeedDial: React.FC<SpeedDialProps> = ({
   onLoginClick,
   onRegisterClick,
@@ -44,45 +45,48 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({
       icon={<SpeedDialIcon />}
       onClose={handleClose}
       onOpen={handleOpen}
-      open={open} // <- Control the SpeedDial open state
+      open={open}
     >
-      {user === null ? (
-        <>
-          <SpeedDialAction
-            icon={<PersonIcon />}
-            tooltipTitle={TOOLTIP_TITLE.LOGIN}
-            onClick={onLoginClick}
-            open={open} // <- Pass the open prop
-          />
-          <SpeedDialAction
-            icon={<PersonAddIcon />}
-            tooltipTitle={TOOLTIP_TITLE.REGISTER}
-            onClick={onRegisterClick}
-            open={open} // <- Pass the open prop
-          />
-        </>
-      ) : (
-        <>
-          <SpeedDialAction
-            icon={<PersonIcon color="success" />}
-            tooltipTitle={user.name}
-            onClick={onProfileClick}
-            open={open}
-          />
-          <SpeedDialAction
-            icon={<DirectionsRunIcon />}
-            tooltipTitle={TOOLTIP_TITLE.LOGOUT}
-            onClick={onLogoutClick}
-            open={open} // <- Pass the open prop
-          />
-          <SpeedDialAction
-            icon={<SaveIcon />}
-            tooltipTitle={TOOLTIP_TITLE.SAVE}
-            onClick={onSaveClick}
-            open={open} // <- Pass the open prop
-          />
-        </>
-      )}
+      {user === null
+        ? [
+            <SpeedDialAction
+              key="login"
+              icon={<PersonIcon />}
+              tooltipTitle={TOOLTIP_TITLE.LOGIN}
+              onClick={onLoginClick}
+              open={open}
+            />,
+            <SpeedDialAction
+              key="register"
+              icon={<PersonAddIcon />}
+              tooltipTitle={TOOLTIP_TITLE.REGISTER}
+              onClick={onRegisterClick}
+              open={open}
+            />,
+          ]
+        : [
+            <SpeedDialAction
+              key="profile"
+              icon={<PersonIcon color="success" />}
+              tooltipTitle={user.name}
+              onClick={onProfileClick}
+              open={open}
+            />,
+            <SpeedDialAction
+              key="logout"
+              icon={<DirectionsRunIcon />}
+              tooltipTitle={TOOLTIP_TITLE.LOGOUT}
+              onClick={onLogoutClick}
+              open={open}
+            />,
+            <SpeedDialAction
+              key="save"
+              icon={<SaveIcon />}
+              tooltipTitle={TOOLTIP_TITLE.SAVE}
+              onClick={onSaveClick}
+              open={open}
+            />,
+          ]}
     </MUISpeedDial>
   );
 };
