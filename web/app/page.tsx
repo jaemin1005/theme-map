@@ -20,6 +20,7 @@ import { RegisterModal } from "@/components/modal/register_modal";
 import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
+import { MapSaveModal } from "@/components/modal/map_save_modal";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -55,6 +56,8 @@ export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   // 마커정보 모달
   const [isMarkerInfoModalOpen, setIsMarkerModalOpen] = useState(false);
+  // 맵 저장 모달
+  const [isSaveMapModalOpen, setIsSaveMapModalOpen] = useState(false);
 
   //#endregion
 
@@ -186,11 +189,14 @@ export default function Home() {
   };
 
   const clickMarkInfo = () => {
-    if(marks.length === 0)
-      showToast(TOAST_MSG.NO_MARKER_INFO, "warning");
+    if (marks.length === 0) showToast(TOAST_MSG.NO_MARKER_INFO, "warning");
     else {
-      setIsMarkerModalOpen(true)
+      setIsMarkerModalOpen(true);
     }
+  };
+
+  const clickSaveMapBtn = (title: string, body: string) => {
+    
   }
 
   //#endregion
@@ -249,6 +255,13 @@ export default function Home() {
           setIsMarkerModalOpen((prev) => !prev);
         }}
       ></MarkerInfoModal>
+      <MapSaveModal
+        open={isSaveMapModalOpen}
+        onOpenChange={() => {
+          setIsSaveMapModalOpen((prev) => !prev);
+        }}
+        clickSaveCb={clickSaveMapBtn}
+      ></MapSaveModal>
       <SpeedDial
         onLoginClick={() => {
           setIsLoginModalOpen(true);
@@ -258,6 +271,9 @@ export default function Home() {
         }}
         onLogoutClick={logout}
         onProfileClick={() => {}}
+        onSaveClick={() => {
+          setIsSaveMapModalOpen(true);
+        }}
       />
       <ToastComponent
         open={open}
