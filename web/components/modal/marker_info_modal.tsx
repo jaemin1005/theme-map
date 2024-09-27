@@ -9,6 +9,11 @@ import {
 } from "@nextui-org/modal";
 import { MarkerInfoComponent } from "./marker_info_component";
 
+enum MODAL_CONSTANT {
+  TITLE = "Marker Info",
+  CLOSE = "Close",
+}
+
 interface MarkerInfoModalProps {
   open: boolean;
   onOpenChange: () => void;
@@ -43,7 +48,7 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-                <h1>Marker Info</h1>
+              <h1>{MODAL_CONSTANT.TITLE}</h1>
             </ModalHeader>
             <ModalBody>
               {marks.map((mark, idx) => (
@@ -63,7 +68,7 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="light" onPress={onClose}>
-                Close
+                {MODAL_CONSTANT.CLOSE}
               </Button>
             </ModalFooter>
           </>
