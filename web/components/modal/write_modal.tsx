@@ -13,11 +13,13 @@ import { useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { ImageSlider } from "@/atoms/image_slider";
+import { validateImage } from "@/Func/validate_img";
+import { compressAndConvertToWebP } from "@/Func/compression_img";
 
 interface WriteModalProps {
   open: boolean;
   onOpenChange: () => void;
-  cbSaveBtn: (file: File[], title: string, body: string) => void;
+  cbSaveBtn: (file: Blob[], title: string, body: string) => void;
 }
 
 export const WriteModal: React.FC<WriteModalProps> = ({
@@ -26,14 +28,14 @@ export const WriteModal: React.FC<WriteModalProps> = ({
   cbSaveBtn,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [files, setFiles] = useState<File[]>([]);
+  const [blobs, setBlobs] = useState<Blob[]>([]);
 
   const titleRef = useRef<HTMLInputElement | null>(null);
   const bodyRef = useRef<HTMLInputElement | null>(null);
 
   // 도달창을 닫을 때, 리액트훅 초기화
   const handlerClose = () => {
-    setFiles([]);
+    setBlobs([]);
   };
 
   // 버튼 클릭했을 때, input DOM을 클릭하게 한다.
@@ -41,10 +43,16 @@ export const WriteModal: React.FC<WriteModalProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      setFiles((prev) => [...prev, ...Array.from(files)]);
+      // 이미지 유효성 검사
+      const filterArr = Array.from(files).filter((file) => validateImage(file));
+
+      const promises = filterArr.map((file) => compressAndConvertToWebP(file));
+      const blobArr = await Promise.all(promises);
+
+      setBlobs((prev) => [...prev, ...blobArr] )
     }
   };
 
@@ -76,7 +84,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
                 </MuiButton>
               </ModalHeader>
               <ModalBody>
-                <ImageSlider files={files}></ImageSlider>
+                <ImageSlider blobs={blobs}></ImageSlider>
                 <TextField inputRef={titleRef} label="Title" variant="outlined" />
                 <TextField inputRef={bodyRef} label="Body" multiline rows={10} />
               </ModalBody>
@@ -89,7 +97,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
                   onPress={() => {
                     if (titleRef.current && bodyRef.current) {
                       cbSaveBtn(
-                        files,
+                        blobs,
                         titleRef.current?.value,
                         bodyRef.current?.value
                       );

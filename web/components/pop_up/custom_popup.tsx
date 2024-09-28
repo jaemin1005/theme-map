@@ -4,13 +4,13 @@ import "./popup.css";
 import { fileToUrl } from "@/Func/file_to_url";
 
 interface CustomPopupProps {
-  file: File;
+  blob: Blob;
   title: string;
   body: string;
 }
 
 export const CustomPopup: React.FC<CustomPopupProps> = ({
-  file,
+  blob,
   title,
   body,
 }) => {
@@ -18,11 +18,11 @@ export const CustomPopup: React.FC<CustomPopupProps> = ({
   return (
     <Popup className="custom-popup">
       <div className="h-[100px] flex flex-row min-w-[300px] max-w-[600px] gap-x-2">
-        {file && (
+        {blob && (
           <Image
             width={100}
             height={100}
-            src={fileToUrl(file)}
+            src={fileToUrl(blob)}
             alt="이미지"
             objectFit="fit"
             className="rounded-md"

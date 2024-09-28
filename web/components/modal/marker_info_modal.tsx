@@ -54,7 +54,7 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
               {marks.map((mark, idx) => (
                 <MarkerInfoComponent
                   key={idx}
-                  file={mark.files[0]}
+                  blob={mark.blobs[0]}
                   title={mark.title}
                   body={mark.body}
                   onClickEdit={() => {

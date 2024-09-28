@@ -16,17 +16,17 @@ import "swiper/css/effect-coverflow";
 import Image from "next/image";
 
 interface ImageSliderProps {
-  files: File[];
+  blobs: Blob[];
 }
 
-export const ImageSlider: React.FC<ImageSliderProps> = ({ files }) => {
+export const ImageSlider: React.FC<ImageSliderProps> = ({ blobs }) => {
   const [imageUrlList, setImageUrlList] = useState<string[] | null>(null);
 
   useEffect(() => {
     const urlList: string[] = [];
 
-    for (const file of files) {
-      urlList.push(URL.createObjectURL(file));
+    for (const blob of blobs) {
+      urlList.push(URL.createObjectURL(blob));
     }
 
     setImageUrlList(urlList);
@@ -34,7 +34,7 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({ files }) => {
     return () => {
       setImageUrlList([]);
     };
-  }, [files]);
+  }, [blobs]);
 
   return (
     <div className="w-full min-h-max">
