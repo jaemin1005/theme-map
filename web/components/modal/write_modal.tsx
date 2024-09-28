@@ -28,7 +28,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
   cbSaveBtn,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [blob, setBlobs] = useState<Blob[]>([]);
+  const [blobs, setBlobs] = useState<Blob[]>([]);
 
   const titleRef = useRef<HTMLInputElement | null>(null);
   const bodyRef = useRef<HTMLInputElement | null>(null);
@@ -84,7 +84,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
                 </MuiButton>
               </ModalHeader>
               <ModalBody>
-                <ImageSlider blobs={files}></ImageSlider>
+                <ImageSlider blobs={blobs}></ImageSlider>
                 <TextField inputRef={titleRef} label="Title" variant="outlined" />
                 <TextField inputRef={bodyRef} label="Body" multiline rows={10} />
               </ModalBody>
@@ -97,7 +97,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
                   onPress={() => {
                     if (titleRef.current && bodyRef.current) {
                       cbSaveBtn(
-                        files,
+                        blobs,
                         titleRef.current?.value,
                         bodyRef.current?.value
                       );
