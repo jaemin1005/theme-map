@@ -10,7 +10,7 @@ import {
 
 // 각 마크의 상세정보를 담기위한 인터페이스
 export interface Mark {
-  files: File[];
+  blobs: Blob[];
   title: string;
   body: string;
   point: [number, number];

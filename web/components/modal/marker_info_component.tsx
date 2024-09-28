@@ -6,7 +6,7 @@ import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/card";
 import Image from "next/image";
 
 interface MarkerInfoComponent {
-  file: File;
+  blob: Blob;
   title: string;
   body: string;
   onClickEdit: React.MouseEventHandler;
@@ -14,7 +14,7 @@ interface MarkerInfoComponent {
 }
 
 export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
-  file,
+  blob,
   title,
   body,
   onClickEdit,
@@ -26,14 +26,14 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
       radius="lg"
       className="border-none relative w-full h-min"
     >
-      {file ? (
+      {blob ? (
         <>
           <div className="w-full aspect-video overscroll-none">
             <Image
               alt="Image"
               fill={true}
               className="object-cover aspect-square w-full h-full"
-              src={fileToUrl(file)}
+              src={fileToUrl(blob)}
             />
           </div>
           <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">

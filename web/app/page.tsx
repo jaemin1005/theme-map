@@ -98,11 +98,11 @@ export default function Home() {
     }
   };
 
-  const cbSaveBtn = (files: File[], title: string, body: string) => {
+  const cbSaveBtn = (blobs: Blob[], title: string, body: string) => {
     if (clickPosition === null) return;
 
     addMark({
-      files,
+      blobs,
       title,
       body,
       point: clickPosition,
