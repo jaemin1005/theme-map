@@ -33,3 +33,35 @@ class MarkerInfo {
   @IsNumber({}, { each: true }) // 배열의 각 요소가 숫자인지 확인
   point!: [number, number]
 }
+
+export class MapSaveSeviceReq {
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
+
+  @IsString()
+  body!: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MarkerInfo)
+  marker_infos!: MarkerServiceInfo[];
+}
+
+export class MarkerServiceInfo {
+  @IsArray()
+  @IsString({ each: true }) 
+  urls!: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
+
+  @IsString()
+  body!: string;
+
+  @IsArray()
+  @ArrayMinSize(2)
+  @IsNumber({}, { each: true })
+  point!: [number, number];
+}
