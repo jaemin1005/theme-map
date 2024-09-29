@@ -1,7 +1,14 @@
 import { Type } from "class-transformer";
 import { ArrayMinSize, IsArray, IsInstance, IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator";
+import "reflect-metadata"
 
-export class MapSaveReq {
+export interface IMapSaveReq {
+  title: string;
+  body: string;
+  marker_infos: MarkerInfo[]
+}
+
+export class MapSaveReq implements IMapSaveReq {
   @IsString()
   @IsNotEmpty()
   title!: string;
@@ -43,8 +50,8 @@ export class MapSaveSeviceReq {
   body!: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => MarkerInfo)
+  //@ValidateNested({ each: true })
+  //@Type(() => MarkerServiceInfo)
   marker_infos!: MarkerServiceInfo[];
 }
 
