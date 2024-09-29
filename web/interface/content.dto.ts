@@ -16,9 +16,10 @@ export class MapSaveReq {
 }
 
 class MarkerInfo {
-  @IsInstance(Blob) // Blob 객체인지 확인
-  @IsNotEmpty() // Blob이 비어있지 않은지 확인 (선택적으로 추가)
-  blob!: Blob;
+  @IsArray() // 배열 타입인지 확인
+  @IsInstance(Blob, { each: true }) // 배열의 각 요소가 Blob 타입인지 확인
+  @IsNotEmpty() // Blob 배열이 비어있지 않은지 확인
+  blobs!: Blob[];
   
   @IsString()
   @IsNotEmpty()
@@ -30,5 +31,5 @@ class MarkerInfo {
   @IsArray() // 배열인지 확인
   @ArrayMinSize(2) // 배열 길이가 2인지 확인
   @IsNumber({}, { each: true }) // 배열의 각 요소가 숫자인지 확인
-  position!: [number, number]
+  point!: [number, number]
 }
