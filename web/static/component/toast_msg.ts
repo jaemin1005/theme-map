@@ -8,6 +8,8 @@ export enum TOAST_MSG {
 
     // 뒤에 문구의 추가가 필요
     LOGIN_SUCCESS = "Welcome ",
-    NO_MARKER_INFO = "No marker info"
-    //  
+    NO_MARKER_INFO = "No marker info",
+
+    MAP_SAVE_FAIL = "Failed map save",
+    MAP_SAVE_ERROR = "An error occurred during save"
 }
