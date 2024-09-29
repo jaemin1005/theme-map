@@ -197,22 +197,31 @@ export default function Home() {
   };
 
   const clickSaveMapBtn = async (title: string, body: string) => {
-    const postData: MapSaveReq = {
-      title,
-      body,
-      marker_infos: marks,
-    };
+
+    // formData는 중첩배열을 보낼수가 없음.
+    // ! 평탄화 작업이 필요 
+    
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('body', body);
+    formData.append('marker_infos', JSON.stringify(marks));
+    
+    marks.forEach((mark, index) => {
+      mark.blobs.forEach((blob, blobIndex) => {
+        formData.append(`marker_infos[${index}][files][${blobIndex}]`, blob);
+      });
+    });
+
     try {
       const response = await fetch("/api/contents/map_save", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(postData),
+        body: formData,
       });
 
       if (response.ok) {
-        // 생각 :)
         showToast("Success", "success");
       } else {
         showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
