@@ -1,4 +1,4 @@
-import { convertUser } from '@/Func/convert_user';
+import { convertUser } from '@/utils/convert_user';
 import { LoginUserRes } from '@/interface/auth.dto';
 import { NextRequest, NextResponse } from 'next/server';
 

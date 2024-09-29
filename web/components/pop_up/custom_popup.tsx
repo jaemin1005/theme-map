@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Popup } from "react-leaflet";
 import "./popup.css";
-import { fileToUrl } from "@/Func/file_to_url";
+import { fileToUrl } from "@/utils/file_to_url";
 
 interface CustomPopupProps {
   blob: Blob;

@@ -14,7 +14,7 @@ import { LOGIN_MODAL } from "@/static/component/login_modal";
 import { useAuth } from "@/context/auth_context";
 import { useToast } from "@/components/toast/toast_hook";
 import { ToastComponent } from "@/components/toast/toast_component";
-import { isValidEmail } from "@/Func/validate";
+import { isValidEmail } from "@/utils/validate";
 import { TOAST_MSG } from "@/static/component/toast_msg";
 import { RegisterModal } from "@/components/modal/register_modal";
 import { RegisterReq } from "@/interface/auth.dto";

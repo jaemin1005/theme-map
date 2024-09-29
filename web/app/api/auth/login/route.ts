@@ -5,7 +5,7 @@ import { validateOptions } from "@/static/validate_option";
 import { LoginReq, LoginServiceRes } from "@/interface/auth.dto";
 import { validateSync } from "class-validator";
 import { ERROR_MSG } from "@/static/log/error_msg";
-import { convertUser } from "@/Func/convert_user";
+import { convertUser } from "@/utils/convert_user";
 
 // 로그인 핸들러 POST 메서드
 export async function POST(req: NextRequest) {

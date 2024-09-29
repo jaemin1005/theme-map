@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cookie from 'cookie';
 import { LoginServiceRes } from '@/interface/auth.dto';
-import { convertUser } from '@/Func/convert_user';
+import { convertUser } from '@/utils/convert_user';
 
 // 액세스 토큰 갱신 핸들러 (POST 메서드)
 export async function POST(req: NextRequest) {

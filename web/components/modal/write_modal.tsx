@@ -13,8 +13,8 @@ import { useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { ImageSlider } from "@/atoms/image_slider";
-import { validateImage } from "@/Func/validate_img";
-import { compressAndConvertToWebP } from "@/Func/compression_img";
+import { validateImage } from "@/utils/validate_img";
+import { compressAndConvertToWebP } from "@/utils/compression_img";
 
 interface WriteModalProps {
   open: boolean;

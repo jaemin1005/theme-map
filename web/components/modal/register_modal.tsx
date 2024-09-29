@@ -14,7 +14,7 @@ import {
   hasContainSpecialCharacters,
   isCheckMinMaxLength,
   isValidEmail,
-} from "@/Func/validate";
+} from "@/utils/validate";
 
 enum MODAL_ERR_MSG {
   REF_ERROR = "REF_ERROR",
