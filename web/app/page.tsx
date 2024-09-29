@@ -21,6 +21,7 @@ import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
 import { MapSaveModal } from "@/components/modal/map_save_modal";
+import { MapSaveReq } from "@/interface/content.dto";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -195,9 +196,31 @@ export default function Home() {
     }
   };
 
-  const clickSaveMapBtn = (title: string, body: string) => {
-    
-  }
+  const clickSaveMapBtn = async (title: string, body: string) => {
+    const postData: MapSaveReq = {
+      title,
+      body,
+      marker_infos: marks,
+    };
+    try {
+      const response = await fetch("/api/contents/map_save", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (response.ok) {
+        // 생각 :)
+        showToast("Success", "success");
+      } else {
+        showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
+      }
+    } catch (error) {
+      showToast(TOAST_MSG.MAP_SAVE_ERROR, "error");
+    }
+  };
 
   //#endregion
 
