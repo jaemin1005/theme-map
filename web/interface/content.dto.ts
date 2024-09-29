@@ -2,13 +2,7 @@ import { Type } from "class-transformer";
 import { ArrayMinSize, IsArray, IsInstance, IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator";
 import "reflect-metadata"
 
-export interface IMapSaveReq {
-  title: string;
-  body: string;
-  marker_infos: MarkerInfo[]
-}
-
-export class MapSaveReq implements IMapSaveReq {
+export class MapSaveReq {
   @IsString()
   @IsNotEmpty()
   title!: string;
@@ -22,7 +16,7 @@ export class MapSaveReq implements IMapSaveReq {
   marker_infos!: MarkerInfo[]
 }
 
-class MarkerInfo {
+export class MarkerInfo {
   @IsArray() // 배열 타입인지 확인
   @IsInstance(Blob, { each: true }) // 배열의 각 요소가 Blob 타입인지 확인
   @IsNotEmpty() // Blob 배열이 비어있지 않은지 확인
