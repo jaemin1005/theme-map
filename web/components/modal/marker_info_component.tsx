@@ -1,12 +1,13 @@
-import { fileToUrl } from "@/utils/file_to_url";
+import { ImageData } from "@/interface/content.dto";
+import { useImageUrl } from "@/utils/use_image_url";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
-import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/card";
+import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import Image from "next/image";
 
 interface MarkerInfoComponent {
-  blob: Blob;
+  imageData: ImageData;
   title: string;
   body: string;
   onClickEdit: React.MouseEventHandler;
@@ -14,26 +15,30 @@ interface MarkerInfoComponent {
 }
 
 export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
-  blob,
+  imageData,
   title,
   body,
   onClickEdit,
   onClickDelete,
 }) => {
+
+
+  const url = useImageUrl(imageData);
+
   return (
     <Card
       isFooterBlurred
       radius="lg"
       className="border-none relative w-full h-min"
     >
-      {blob ? (
+      {url ? (
         <>
-          <div className="w-full aspect-video overscroll-none">
+          <div className="w-full aspect-video overscroll-none relative">
             <Image
               alt="Image"
               fill={true}
               className="object-cover aspect-square w-full h-full"
-              src={fileToUrl(blob)}
+              src={url}
             />
           </div>
           <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
