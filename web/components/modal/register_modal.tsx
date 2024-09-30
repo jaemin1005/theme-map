@@ -109,57 +109,48 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
       //scrollBehavior={"outside"}
     >
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="flex flex-col gap-1">
-              <h1>{"Register"}</h1>
-            </ModalHeader>
-            <ModalBody>
-              <CustomInput
-                key={1}
-                label="Email"
-                type="email"
-                inputRef={emailRef}
-              />
-              <CustomInput
-                key={2}
-                label="Nickname"
-                type="text"
-                inputRef={nicknameRef}
-              />
-              <CustomInput
-                key={3}
-                label="Password"
-                type="password"
-                inputRef={passwordRef}
-                showPassword={showPassword}
-                handleClickShowPassword={handleClickShowPassword}
-                handleMouseDownPassword={handleMouseDownPassword}
-                handleMouseUpPassword={handleMouseUpPassword}
-              />
-              <CustomInput
-                key={4}
-                label="Password Check"
-                type="password"
-                inputRef={passwordCheckRef}
-                showPassword={showPasswordCheck}
-                handleClickShowPassword={handleClickShowPasswordCheck}
-                handleMouseDownPassword={handleMouseDownPassword}
-                handleMouseUpPassword={handleMouseUpPassword}
-              />
-              <Button
-                radius="full"
-                className="font-extrabold mt-5"
-                onClick={() => {
-                  processRegister();
-                }}
-              >
-                {"register"}
-              </Button>
-            </ModalBody>
-            <ModalFooter></ModalFooter>
-          </>
-        )}
+        <ModalHeader className="flex flex-col gap-1">
+          <h1>{"Register"}</h1>
+        </ModalHeader>
+        <ModalBody>
+          <CustomInput key={1} label="Email" type="email" inputRef={emailRef} />
+          <CustomInput
+            key={2}
+            label="Nickname"
+            type="text"
+            inputRef={nicknameRef}
+          />
+          <CustomInput
+            key={3}
+            label="Password"
+            type="password"
+            inputRef={passwordRef}
+            showPassword={showPassword}
+            handleClickShowPassword={handleClickShowPassword}
+            handleMouseDownPassword={handleMouseDownPassword}
+            handleMouseUpPassword={handleMouseUpPassword}
+          />
+          <CustomInput
+            key={4}
+            label="Password Check"
+            type="password"
+            inputRef={passwordCheckRef}
+            showPassword={showPasswordCheck}
+            handleClickShowPassword={handleClickShowPasswordCheck}
+            handleMouseDownPassword={handleMouseDownPassword}
+            handleMouseUpPassword={handleMouseUpPassword}
+          />
+          <Button
+            radius="full"
+            className="font-extrabold mt-5"
+            onClick={() => {
+              processRegister();
+            }}
+          >
+            {"register"}
+          </Button>
+        </ModalBody>
+        <ModalFooter></ModalFooter>
       </ModalContent>
     </Modal>
   );
