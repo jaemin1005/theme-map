@@ -4,7 +4,6 @@ import AddIcon from "@mui/icons-material/Add";
 import IconButton from "./icon_button";
 import RemoveIcon from "@mui/icons-material/Remove";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
-import CommentIcon from "@mui/icons-material/Comment";
 import MapIcon from '@mui/icons-material/Map';
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import L from "leaflet";
