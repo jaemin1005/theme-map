@@ -87,45 +87,41 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       //scrollBehavior={"outside"}
     >
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="flex flex-col gap-1">
-              <h1>{title}</h1>
-            </ModalHeader>
-            <ModalBody onKeyDown={handleEnterKeyDown}>
-              <CustomInput label="Email" type="email" inputRef={emailRef} />
-              <CustomInput
-                label="Password"
-                type="password"
-                inputRef={passwordRef}
-                showPassword={showPassword}
-                handleClickShowPassword={handleClickShowPassword}
-                handleMouseDownPassword={handleMouseDownPassword}
-                handleMouseUpPassword={handleMouseUpPassword}
-              />
-              <button className="whitespace-nowrap text-blue-500 ml-2 w-min">
-                {forgetPasswordMsg}
-              </button>
-              <Button
-                radius="full"
-                className="font-extrabold mt-5"
-                onClick={handleLoginBtnClick}
-              >
-                {loginMsg}
-              </Button>
-              <span>
-                {registerMsg}
-                <button
-                  className="whitespace-nowrap text-blue-500 ml-2"
-                  onClick={handleRegisterClick}
-                >
-                  {registerBtnMsg}
-                </button>
-              </span>
-            </ModalBody>
-            <ModalFooter></ModalFooter>
-          </>
-        )}
+        <ModalHeader className="flex flex-col gap-1">
+          <h1>{title}</h1>
+        </ModalHeader>
+        <ModalBody onKeyDown={handleEnterKeyDown}>
+          <CustomInput label="Email" type="email" inputRef={emailRef} />
+          <CustomInput
+            label="Password"
+            type="password"
+            inputRef={passwordRef}
+            showPassword={showPassword}
+            handleClickShowPassword={handleClickShowPassword}
+            handleMouseDownPassword={handleMouseDownPassword}
+            handleMouseUpPassword={handleMouseUpPassword}
+          />
+          <button className="whitespace-nowrap text-blue-500 ml-2 w-min">
+            {forgetPasswordMsg}
+          </button>
+          <Button
+            radius="full"
+            className="font-extrabold mt-5"
+            onClick={handleLoginBtnClick}
+          >
+            {loginMsg}
+          </Button>
+          <span>
+            {registerMsg}
+            <button
+              className="whitespace-nowrap text-blue-500 ml-2"
+              onClick={handleRegisterClick}
+            >
+              {registerBtnMsg}
+            </button>
+          </span>
+        </ModalBody>
+        <ModalFooter></ModalFooter>
       </ModalContent>
     </Modal>
   );
