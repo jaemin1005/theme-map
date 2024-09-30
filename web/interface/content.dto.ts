@@ -2,6 +2,21 @@ import { Type } from "class-transformer";
 import { ArrayMinSize, IsArray, IsInstance, IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator";
 import "reflect-metadata"
 
+export interface ImageData {
+  blob?: Blob;
+  url?: string;
+  isNew: boolean;
+  isDeleted: boolean;
+}
+
+// 각 마크의 상세정보를 담기위한 인터페이스
+export interface Mark {
+  imageDatas: ImageData[];
+  title: string;
+  body: string;
+  point: [number, number]
+}
+
 export class MapSaveReq {
   @IsString()
   @IsNotEmpty()
