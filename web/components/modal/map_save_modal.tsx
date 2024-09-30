@@ -5,7 +5,7 @@ import {
   ModalHeader,
   ModalFooter,
 } from "@nextui-org/modal";
-import { MouseEventHandler, useRef } from "react";
+import { useRef } from "react";
 import { TextField } from "@mui/material";
 import { Button } from "@nextui-org/button";
 
