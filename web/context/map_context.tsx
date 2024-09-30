@@ -1,5 +1,6 @@
 "use client";
 
+import { Mark } from "@/interface/content.dto";
 import {
   createContext,
   useState,
@@ -7,14 +8,6 @@ import {
   useContext,
   useCallback,
 } from "react";
-
-// 각 마크의 상세정보를 담기위한 인터페이스
-export interface Mark {
-  blobs: Blob[];
-  title: string;
-  body: string;
-  point: [number, number];
-}
 
 // context의 타입
 interface MapInfo {
@@ -27,6 +20,13 @@ interface MapInfo {
   setUserId: (userId: string) => void;
   setTitle: (title: string) => void;
   setBody: (body: string) => void;
+
+  // Map State
+  isNew: boolean,
+  isEdited: boolean,
+
+  setIsNew: (isNew: boolean) => void,
+  setIsEdited: (isEdited: boolean) => void,
 
   // Mark Info
   marks: Mark[];
@@ -41,6 +41,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [userId, setUserId] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [body, setBody] = useState<string>("");
+
+  const [isNew, setIsNew] = useState<boolean>(true);
+  const [isEdited, setIsEdited] = useState<boolean>(false);
 
   const [marks, setMarks] = useState<Mark[]>([]);
 
@@ -63,10 +66,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         userId,
         title,
         body,
+        isNew,
+        isEdited,
         setId,
         setUserId,
         setTitle,
         setBody,
+        setIsNew,
+        setIsEdited,
         marks,
         addMark,
         delMark,
