@@ -1,28 +1,30 @@
 import Image from "next/image";
 import { Popup } from "react-leaflet";
 import "./popup.css";
-import { fileToUrl } from "@/utils/file_to_url";
+import { ImageData } from "@/interface/content.dto";
+import { useImageUrl } from "@/utils/use_image_url";
 
 interface CustomPopupProps {
-  blob: Blob;
+  imageData: ImageData;
   title: string;
   body: string;
 }
 
 export const CustomPopup: React.FC<CustomPopupProps> = ({
-  blob,
+  imageData,
   title,
   body,
 }) => {
+  const url = useImageUrl(imageData);
 
   return (
     <Popup className="custom-popup">
       <div className="h-[100px] flex flex-row min-w-[300px] max-w-[600px] gap-x-2">
-        {blob && (
+        {url && (
           <Image
             width={100}
             height={100}
-            src={fileToUrl(blob)}
+            src={url}
             alt="이미지"
             objectFit="fit"
             className="rounded-md"
