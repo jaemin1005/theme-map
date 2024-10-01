@@ -21,7 +21,8 @@ import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
 import { MapSaveModal } from "@/components/modal/map_save_modal";
-import { ImageData } from "@/interface/content.dto";
+import { ImageData, MapSaveReq } from "@/interface/content.dto";
+import { createFormDataFromMapSaveReq } from "@/utils/create_formdata";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -64,7 +65,7 @@ export default function Home() {
 
   //#region  --context 관리--
 
-  const { marks, addMark } = useMap();
+  const {  id, marks, addMark } = useMap();
 
   const { setUser, logout, accessToken, setAccessToken } =
     useAuth();
@@ -198,37 +199,32 @@ export default function Home() {
 
   const clickSaveMapBtn = async (title: string, body: string) => {
 
-    // formData는 중첩배열을 보낼수가 없음.
-    // ! 평탄화 작업이 필요 
-    
-    // const formData = new FormData();
-    // formData.append('title', title);
-    // formData.append('body', body);
-    // formData.append('marker_infos', JSON.stringify(marks));
-    
-    // marks.forEach((mark, index) => {
-    //   mark.blobs.forEach((blob, blobIndex) => {
-    //     formData.append(`marker_infos[${index}][files][${blobIndex}]`, blob);
-    //   });
-    // });
+    const mapSaveReq : MapSaveReq = {
+      _id: id,
+      title,
+      body,
+      marks,
+    }
 
-    // try {
-    //   const response = await fetch("/api/contents/map_save", {
-    //     method: "POST",
-    //     headers: {
-    //       Authorization: `Bearer ${accessToken}`,
-    //     },
-    //     body: formData,
-    //   });
+    const formData = createFormDataFromMapSaveReq(mapSaveReq)
 
-    //   if (response.ok) {
-    //     showToast("Success", "success");
-    //   } else {
-    //     showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
-    //   }
-    // } catch (error) {
-    //   showToast(TOAST_MSG.MAP_SAVE_ERROR, "error");
-    // }
+    try {
+      const response = await fetch("/api/contents/map_save", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        showToast("Success", "success");
+      } else {
+        showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
+      }
+    } catch (error) {
+      showToast(TOAST_MSG.MAP_SAVE_ERROR, "error");
+    }
   };
 
   //#endregion
