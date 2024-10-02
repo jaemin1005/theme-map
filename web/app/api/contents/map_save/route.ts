@@ -10,11 +10,9 @@ import { ERROR_MSG } from "@/static/log/error_msg";
 import { generateUniqueName } from "@/utils/generate_unique_name";
 import {
   DeleteObjectCommand,
-  ObjectCannedACL,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
-import { s3 } from "@/static/aws/s3_client";
-//import { uploadFileToS3 } from 'your-s3-service';
+import { s3 } from "@/static/aws/s3_client";;
 
 // https://stackoverflow.com/questions/66674834/how-to-read-formdata-in-nextjs
 export async function POST(req: NextRequest) {
@@ -43,7 +41,7 @@ export async function POST(req: NextRequest) {
     );
   }
   const mark: Mark[] = await Promise.all(
-    mapSaveReq.marks.map(async (mark) => {
+    body.marks.map(async (mark) => {
       // {url: string, isNew: boolean, isDeleted: boolean}
       const data: ImageData[] = (
         await Promise.all(
@@ -59,15 +57,13 @@ export async function POST(req: NextRequest) {
                   Key: `images/${uniqueFileName}-${index}`,
                   Body: Buffer.from(arrayBuffer),
                   ContentType: "image/webp",
-                  ACL: ObjectCannedACL.public_read,
-                  Resource: `arn:aws:s3:::${process.env.AWS_S3_BUCKET_NAME}/images/`
                 };
 
                 const command = new PutObjectCommand(uploadParams);
                 await s3.send(command);
 
                 // 업로드된 파일의 URL 생성
-                const imgUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/uploads/${uniqueFileName}-${index}`;
+                const imgUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/images/${uniqueFileName}-${index}`;
                 return {
                   url: imgUrl,
                   isNew: imageData.isNew,
