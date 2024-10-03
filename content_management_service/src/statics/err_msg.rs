@@ -1,0 +1,1 @@
+pub const DB_ERR_MSG: &str = "DB_ERROR";
