@@ -1,13 +1,13 @@
 use crate::models::map::MapSaveReq;
 use mongodb::{
-    bson::{self, bson, doc},
-    ClientSession, Database,
+    bson::{self, doc}, Client, Database
 };
 
 pub async fn map_save(
     map: MapSaveReq,
+    user_id: &str,
     db: &Database,
-    session: &mut ClientSession,
+    client: &Client,
 ) -> Result<MapSaveReq, Box<dyn std::error::Error>> {
     let maps = db.collection::<MapSaveReq>("maps");
 
@@ -27,6 +27,11 @@ pub async fn map_save(
 
         Ok(map)
     } else {
+
+        // session 생성
+        let mut session = client.start_session(None).await?;
+
+        // `db`에서 MongoDB 클라이언트를 가져옴
         // 맵이 존재했을 때, 저장 ( 일괄 삭제 및 추가 ), 트랜잭션으로 일관성을 보장한다
         // 트랜잭션 시작
         session.start_transaction(None).await?;
@@ -37,7 +42,7 @@ pub async fn map_save(
           "$unset" : { "title": "", "body": "", "marks": "" }
         };
 
-        maps.update_one_with_session(filter.clone(), unset, None, session)
+        maps.update_one_with_session(filter.clone(), unset, None, &mut session)
             .await?;
 
         let marks_bson_value = bson::to_bson(&map.marks)?;
@@ -46,16 +51,17 @@ pub async fn map_save(
           "$set": {"title": map.title, "body": map.body, "marks": marks_bson_value}
         };
 
-        maps.update_one_with_session(filter.clone(), set, None, session)
+        maps.update_one_with_session(filter.clone(), set, None, &mut session)
             .await?;
 
         let update_map = maps
-            .find_one_with_session(filter.clone(), None, session)
+            .find_one_with_session(filter.clone(), None, &mut session)
             .await?
             .ok_or("업데이트 된 맵을 찾지 못했습니다")?;
-          
+
         session.commit_transaction().await?;
 
         Ok(update_map)
     }
 }
+
