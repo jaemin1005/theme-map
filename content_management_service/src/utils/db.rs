@@ -1,8 +1,8 @@
 use mongodb::{Client, Database, options::ClientOptions, error::Error};
 use std::env;
 
-// 데이터베이스 연결 함수
-pub async fn get_database() -> Result<Database, Error> {
+// 클라이언트 가져오기
+pub async fn get_client() -> Result<Client, Error> {
     // 환경 변수에서 MONGODB_URI를 가져오고, 없으면 기본값 사용
     let mongodb_uri = env::var("MONGODB_URI")
         .unwrap_or_else(|_| {
@@ -17,5 +17,10 @@ pub async fn get_database() -> Result<Database, Error> {
     let client = Client::with_options(client_options)?;
 
     // "auth_db" 데이터베이스에 연결된 클라이언트를 반환
-    Ok(client.database("auth_db"))
+    Ok(client)
+}
+
+// 데이터 베이스 반환
+pub fn get_database(clinet: &Client, name: &str) -> Database {
+    clinet.database(name)
 }
