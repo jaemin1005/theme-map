@@ -23,6 +23,6 @@ pub async fn map_save(
           Some(id) => HttpResponse::Ok().json(MapSaveRes::new(id)),
           None => HttpResponse::InternalServerError().json(ErrorRes::new(err_msg::DB_ERR_MSG)),
       }
-      Err(_) => HttpResponse::InternalServerError().json(ErrorRes::new(err_msg::DB_ERR_MSG))
+      Err(err) => HttpResponse::InternalServerError().json(ErrorRes::new(&err.to_string()))
     }
 }
