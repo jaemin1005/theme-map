@@ -29,10 +29,17 @@ pub struct LoginRequest {
 // 로그인 성공했을 때, 반환할 데이터 정의 (res.body)
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
-    pub user: User,
+    pub user: UserRes,
     pub access_token: String,
     pub refresh_token: String,
 }
+
+#[derive(Debug, Serialize)]
+pub struct UserRes {
+    pub name: String,
+    pub email: String,
+}
+
 
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
@@ -46,3 +53,4 @@ impl ErrorResponse {
         }
     }
 }
+
