@@ -5,7 +5,6 @@ use crate::models::err::ErrorRes;
 use crate::models::map::MapSaveReq;
 use crate::statics::err_msg;
 use crate::utils::get_user_info::get_user_info;
-use crate::services::user_service;
 use crate::services::map_service;
 
 pub async fn map_save(
@@ -19,12 +18,12 @@ pub async fn map_save(
       Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
     };
 
-    let email = match user_service::get_user_email_by_id(&user_id, &db).await  {
-        Ok(email) => email,
-        Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string()))
-    }; 
+    // let email = match user_service::get_user_email_by_id(&user_id, &db).await  {
+    //     Ok(email) => email,
+    //     Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string()))
+    // }; 
 
-    match map_service::map_save(body.into_inner(), &email, &db, &client).await{
+    match map_service::map_save(body.into_inner(), &user_id, &db, &client).await{
       Ok(map) => match map.id {
           Some(id) => HttpResponse::Ok().json(id),
           None => HttpResponse::InternalServerError().json(ErrorRes::new(err_msg::DB_ERR_MSG)),
