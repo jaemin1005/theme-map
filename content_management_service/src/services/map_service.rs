@@ -3,21 +3,23 @@ use crate::{
     statics::err_msg::{DB_FIND_FAIL, DB_INCORRECT_TOKEN_ID},
 };
 use mongodb::{
-    bson::{self, doc},
+    bson::{self, doc, oid::ObjectId},
     Client, Database,
 };
 
 pub async fn map_save(
     map_save_req: MapSaveReq,
-    email: &str,
+    user_id: &str,
     db: &Database,
     client: &Client,
 ) -> Result<Map, Box<dyn std::error::Error>> {
     let maps = db.collection::<Map>("maps");
 
+    let object_id = ObjectId::parse_str(user_id)?;
+
     // _id가 없을 경우, 새로운 맵이라고 판단한다.
     if let None = map_save_req.id {
-        let map = Map::new_with_req(email, map_save_req);
+        let map = Map::new_with_req(object_id, map_save_req);
 
         let insert_result = maps.insert_one(map, None).await?;
 
@@ -41,7 +43,7 @@ pub async fn map_save(
             .await?
             .ok_or(DB_FIND_FAIL)?;
 
-        if find_map.email != email {
+        if find_map.user_id != object_id {
             return Err(DB_INCORRECT_TOKEN_ID.into())
         }
 
