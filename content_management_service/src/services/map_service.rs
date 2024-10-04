@@ -9,7 +9,7 @@ use mongodb::{
 
 pub async fn map_save(
     map_save_req: MapSaveReq,
-    user_id: &str,
+    email: &str,
     db: &Database,
     client: &Client,
 ) -> Result<Map, Box<dyn std::error::Error>> {
@@ -17,7 +17,7 @@ pub async fn map_save(
 
     // _id가 없을 경우, 새로운 맵이라고 판단한다.
     if let None = map_save_req.id {
-        let map = Map::new_with_req(user_id, map_save_req);
+        let map = Map::new_with_req(email, map_save_req);
 
         let insert_result = maps.insert_one(map, None).await?;
 
@@ -27,7 +27,7 @@ pub async fn map_save(
             .ok_or("삽입된 ID를 가져오지 못했습니다.")?;
 
         let new_map = maps
-            .find_one(doc! {"_id": result_id}, None)
+            .find_one(doc! {"_id": result_id.clone()}, None)
             .await?
             .ok_or("맵을 찾지 못했습니다")?;
 
@@ -41,7 +41,7 @@ pub async fn map_save(
             .await?
             .ok_or(DB_FIND_FAIL)?;
 
-        if find_map.user_id != user_id {
+        if find_map.email != email {
             return Err(DB_INCORRECT_TOKEN_ID.into())
         }
 
