@@ -36,12 +36,8 @@ export class RegisterReq {
 //#region --login_service--
 
 export interface LoginUserRes {
-    _id: { $oid: string }
     email: string
     name: string
-
-    //! password는 빈값으로 들어올 예정
-    password: string
 }
 
 // Actix_Web에서 Res 구조
