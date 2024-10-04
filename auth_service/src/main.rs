@@ -18,6 +18,7 @@ mod utils {
     pub mod jwt;
     pub mod password;
     pub mod db;
+    pub mod user;
 }
 
 
