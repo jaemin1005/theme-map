@@ -17,5 +17,5 @@ pub async fn get_database() -> Result<Database, Error> {
     let client = Client::with_options(client_options)?;
 
     // "auth_db" 데이터베이스에 연결된 클라이언트를 반환
-    Ok(client.database("auth_db"))
+    Ok(client.database("map_project"))
 }
