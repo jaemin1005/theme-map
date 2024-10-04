@@ -1,4 +1,3 @@
-import { convertUser } from '@/utils/convert_user';
 import { LoginUserRes } from '@/interface/auth.dto';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -24,8 +23,7 @@ export async function GET(req: NextRequest) {
 
     if (response.ok) {
       const data = await response.json() as LoginUserRes;
-      const user = convertUser(data);
-      return NextResponse.json(user, { status: 200 });
+      return NextResponse.json(data, { status: 200 });
     } else {
       return NextResponse.json({ message: '사용자 정보를 가져올 수 없습니다.' }, { status: response.status });
     }

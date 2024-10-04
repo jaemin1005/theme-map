@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cookie from 'cookie';
 import { LoginServiceRes } from '@/interface/auth.dto';
-import { convertUser } from '@/utils/convert_user';
 
 // 액세스 토큰 갱신 핸들러 (POST 메서드)
 export async function POST(req: NextRequest) {
@@ -23,7 +22,6 @@ export async function POST(req: NextRequest) {
 
     if (response.ok) {
       const data = await response.json() as LoginServiceRes;
-      const user = convertUser(data.user);
 
       // 새로운 리프레시 토큰이 있으면 쿠키에 다시 저장
       if (data.refresh_token) {
@@ -34,12 +32,12 @@ export async function POST(req: NextRequest) {
           path: '/',
         });
 
-        const res = NextResponse.json({ user, accessToken: data.access_token }, { status: 200 });
+        const res = NextResponse.json({ user: data.user, accessToken: data.access_token }, { status: 200 });
         res.headers.append('Set-Cookie', refreshTokenCookie);
         return res;
       }
 
-      return NextResponse.json({ user, accessToken: data.access_token }, { status: 200 });
+      return NextResponse.json({user: data.user, accessToken: data.access_token }, { status: 200 });
     } else {
       return NextResponse.json({ message: '리프레시 토큰이 유효하지 않습니다.' }, { status: 401 });
     }
