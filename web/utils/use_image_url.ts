@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
  * @returns 이미지를 표시하기 위한 URL
  */
 export const useImageUrl = (imageData: ImageData) => {
+  
   const [url, setUrl] = useState<string>("");
 
   useEffect(() => {
@@ -63,6 +64,9 @@ export const useImageUrls = (imageDatas: ImageData[]) => {
  * @returns url을 해제하는 함수를 반환
  */
 const getImageUrl = (imageData: ImageData, setUrl: (url: string) => void) => {
+
+  if(!imageData) return
+
   if (imageData.url) {
     setUrl(imageData.url);
   } else if (imageData.blob) {
