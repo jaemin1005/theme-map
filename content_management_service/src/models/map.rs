@@ -5,18 +5,18 @@ use serde::{Deserialize, Serialize};
 pub struct Map {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub email: String,
+    pub user_id: ObjectId,
     pub title: String,
     pub body: String,
     pub marks: Vec<Mark>,
 }
 
 impl Map {
-    pub fn new_with_req(user_id: &str, map_save_req: MapSaveReq) -> Self {
+    pub fn new_with_req(user_id: ObjectId, map_save_req: MapSaveReq) -> Self {
         Self {
             id:  map_save_req.id,
             title: map_save_req.title,
-            email: user_id.to_string(),
+            user_id: user_id,
             body: map_save_req.body,
             marks: map_save_req.marks
         }
