@@ -65,3 +65,7 @@ export class MapSaveReq {
   @Type(() => Mark) // MarkerInfo 클래스로 변환
   marks!: Mark[]
 }
+
+export interface MapSaveRes {
+  _id: string,
+}
