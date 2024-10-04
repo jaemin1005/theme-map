@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use dotenv::dotenv;
 use std::io;
 use utils::db;
@@ -9,11 +9,13 @@ mod controllers {
 
 mod services {
     pub mod map_service;
+    pub mod user_service;
 }
 
 mod models {
     pub mod err;
     pub mod map;
+    pub mod user;
 }
 
 mod utils {
@@ -32,7 +34,7 @@ mod routes;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    // 세션을 시작하기 위한 client 생성 ()
+    //세션을 시작하기 위한 client 생성 ()
     let client_mongodb = match utils::db::get_client().await {
         Ok(client) => client,
         Err(e) => {
@@ -44,7 +46,7 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
-    let db = db::get_database(&client_mongodb, "maps");
+    let db = db::get_database(&client_mongodb, "map_project");
 
     HttpServer::new(move || {
         App::new()
@@ -52,7 +54,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(client_mongodb.clone()))
             .configure(routes::init)
     })
-    .bind("127.0.0.1:8080")?
+    .bind("127.0.0.1:3001")?
     .run()
     .await
 }
