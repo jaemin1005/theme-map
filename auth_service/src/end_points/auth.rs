@@ -3,6 +3,7 @@ use mongodb::Database;
 
 use crate::models::user::{ErrorResponse, LoginRequest, RegisterRequest};
 use crate::services::auth_service;
+use crate::utils::user::user_to_user_res;
 
 pub async fn register(
     req_body: web::Json<RegisterRequest>,
@@ -49,7 +50,7 @@ pub async fn me(
     db: web::Data<Database>,
 ) -> impl Responder {
     match auth_service::get_user_info(&req, &db).await {
-        Ok(user) => HttpResponse::Ok().json(user),
+        Ok(user) => HttpResponse::Ok().json(user_to_user_res(user)),
         Err(e) => HttpResponse::Unauthorized().json(ErrorResponse::new(e.to_string())),
     }
 }
