@@ -1,16 +1,16 @@
 use actix_web::HttpRequest;
 use chrono::{Duration, Utc};
-use mongodb::{bson::doc, bson::oid::ObjectId ,Database};
+use mongodb::{bson::doc, bson::oid::ObjectId, Database};
 
 use crate::models::refresh_token::RefreshToken;
-use crate::models::user::{LoginRequest, LoginResponse, RegisterRequest, User};
+use crate::models::user::{LoginRequest, LoginResponse, RegisterRequest, User, UserRes};
 use crate::utils::{jwt, password};
 
 // 유저 회원가입
 pub async fn register_user(
     register_info: RegisterRequest,
     db: &Database,
-) -> Result<User, Box<dyn std::error::Error>> {
+) -> Result<UserRes, Box<dyn std::error::Error>> {
     let users = db.collection::<User>("users");
 
     // 이메일 중복 확인
@@ -48,7 +48,10 @@ pub async fn register_user(
         .await?
         .ok_or("사용자를 찾을 수 없습니다.")?;
 
-    Ok(user)
+    Ok(UserRes {
+        email: user.email,
+        name: user.name,
+    })
 }
 
 // 유저 로그인
@@ -69,14 +72,14 @@ pub async fn login_user(
         return Err("이메일 또는 비밀번호가 잘못되었습니다.".into());
     }
 
-    let user_id = user.id.as_ref().unwrap().to_hex(); 
+    let user_id = user.id.as_ref().unwrap().to_hex();
 
     // _id를 이용한 액세스 및 리프레시 토큰 생성
     let access_token = jwt::create_access_token(&user_id)?;
     let refresh_token = jwt::create_refresh_token(&user_id)?;
 
     // 리프레시 토큰을 데이터베이스에 저장
-    // 컬랙션 접근 
+    // 컬랙션 접근
     let refresh_tokens = db.collection::<RefreshToken>("refresh_tokens");
 
     let new_refresh_token = RefreshToken {
@@ -86,12 +89,15 @@ pub async fn login_user(
         expiry: Utc::now() + Duration::days(7),
     };
 
-      // 유저 id, 토큰 저장
+    // 유저 id, 토큰 저장
     refresh_tokens.insert_one(new_refresh_token, None).await?;
 
     // 응답 반환
     Ok(LoginResponse {
-        user: user_without_password(user),
+        user: UserRes {
+            email: user.email,
+            name: user.name,
+        },
         access_token,
         refresh_token,
     })
@@ -136,7 +142,10 @@ pub async fn refresh_token(
     let user = get_user_by_id(&user_id, db).await?;
 
     Ok(LoginResponse {
-        user,
+        user: UserRes {
+            email: user.email,
+            name: user.name,
+        },
         access_token,
         refresh_token: new_refresh_token,
     })
@@ -222,6 +231,6 @@ fn user_without_password(user: User) -> User {
         id: user.id.clone(),
         name: user.name,
         email: user.email,
-        password: String::new(),  // 비밀번호는 비워둡니다.
+        password: String::new(), // 비밀번호는 비워둡니다.
     }
 }
