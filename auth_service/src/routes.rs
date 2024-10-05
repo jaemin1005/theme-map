@@ -9,6 +9,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .route("/login", web::post().to(auth::login))
             .route("/refresh", web::post().to(auth::refresh))
             .route("/logout", web::post().to(auth::logout))
-            .route("/me", web::get().to(auth::me)),
+            .route("/me", web::get().to(auth::me))
+            .route("/refresh_token", web::get().to(auth::refresh_aceess_token))
     );
 }
