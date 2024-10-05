@@ -9,6 +9,8 @@ import React, {
 } from "react";
 
 import {User} from "@/interface/user"
+import { AccessTokenRes } from "@/interface/auth.dto";
+import { ErrMsg } from "@/interface/err.dto";
 
 
 // 컨텍스트 타입 정의
@@ -49,21 +51,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
           return;
         }
-
-        // 액세스 토큰이 있는 경우 사용자 정보 가져오기
-        const response = await fetch("/api/auth/me", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (response.ok) {
-          const user = await response.json() as User;
-          setUser(user);
-        } else {
-          setUser(null);
-        }
       } catch (error) {
         console.error("사용자 정보를 가져오는 데 실패했습니다:", error);
         setUser(null);
@@ -73,6 +60,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch("/api/auth/access_token", {
+          method: "POST",
+          credentials: "include",
+        });
+
+
+        if (response.ok) {
+          const refreshData = await response.json() as AccessTokenRes
+          refreshData.access_token && setAccessToken(refreshData.access_token);
+    
+        } else {
+          const refreshData = await response.json() as ErrMsg
+          console.error(refreshData.message);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("토큰 갱신 중 오류 발생:", error);
+        setUser(null);
+      }
+    }, 10 * 60 * 1000); // 10분 (10 * 60 * 1000 ms)
+
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 타이머 정리
   }, [accessToken]);
 
   // 로그아웃 함수
