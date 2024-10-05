@@ -13,6 +13,7 @@ mod services {
 mod models {
     pub mod user;
     pub mod refresh_token;
+    pub mod err;
 }
 mod utils {
     pub mod jwt;
