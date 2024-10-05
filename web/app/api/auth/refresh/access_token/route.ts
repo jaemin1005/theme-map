@@ -1,8 +1,8 @@
 import { ERROR_MSG } from "@/static/log/error_msg";
 import { NextRequest, NextResponse } from "next/server";
 
-// 액세스 토큰 갱신 핸들러 (POST 메서드)
-export async function POST(req: NextRequest) {
+// 액세스 토큰 갱신 핸들러 (GET 메서드)
+export async function GET(req: NextRequest) {
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
   if (!refreshToken) {

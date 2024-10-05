@@ -65,15 +65,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const response = await fetch("/api/auth/access_token", {
-          method: "POST",
+        const response = await fetch("/api/auth/refresh/access_token", {
+          method: "GET",
           credentials: "include",
         });
 
 
         if (response.ok) {
           const refreshData = await response.json() as AccessTokenRes
-          refreshData.access_token && setAccessToken(refreshData.access_token);
+          setAccessToken(refreshData.access_token);
     
         } else {
           const refreshData = await response.json() as ErrMsg
