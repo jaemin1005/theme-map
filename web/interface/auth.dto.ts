@@ -49,3 +49,7 @@ export class LoginServiceRes {
 
 //#endregion
 
+// access_token 재발급 객체
+export class AccessTokenRes {
+    access_token!: string;
+}
