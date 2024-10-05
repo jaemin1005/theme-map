@@ -11,3 +11,8 @@ pub struct RefreshToken {
     pub token: String,
     pub expiry: chrono::DateTime<chrono::Utc>,
 }
+
+#[derive(Debug, Serialize)]
+pub struct AccessTokenRes {
+    pub access_token: String
+}
