@@ -2,8 +2,9 @@ use actix_web::HttpRequest;
 use chrono::{Duration, Utc};
 use mongodb::{bson::doc, bson::oid::ObjectId, Database};
 
-use crate::models::refresh_token::RefreshToken;
+use crate::models::refresh_token::{AccessTokenRes, RefreshToken};
 use crate::models::user::{LoginRequest, LoginResponse, RegisterRequest, User, UserRes};
+use crate::statics::err_msg::INVALID_REFESH_TOKEN;
 use crate::utils::{jwt, password};
 
 // 유저 회원가입
@@ -123,7 +124,7 @@ pub async fn refresh_token(
 
     // 해당 토큰이 db에 존재하지 않을 떄
     if stored_token.is_none() {
-        return Err("유효하지 않은 리프레시 토큰입니다.".into());
+        return Err(INVALID_REFESH_TOKEN.into());
     }
 
     // 새로운 토큰 생성, 리프레쉬 토큰 재생성
@@ -148,6 +149,33 @@ pub async fn refresh_token(
         },
         access_token,
         refresh_token: new_refresh_token,
+    })
+}
+
+pub async fn refresh_aceess_token(
+    req: &HttpRequest,
+    db: &Database,
+) -> Result<AccessTokenRes, Box<dyn std::error::Error>> {
+    let refresh_token = extract_refresh_token_from_request(req)?;
+
+    let token_data = jwt::verify_refresh_token(&refresh_token)?;
+
+    let user_id = token_data.claims.sub;
+
+    let refresh_tokens = db.collection::<RefreshToken>("refresh_tokens");
+    let filter = doc! { "user_id": ObjectId::parse_str(&user_id)?, "token": &refresh_token };
+
+    // 토큰이 존재하는지 확인
+    let stored_token = refresh_tokens.find_one(filter, None).await?;
+
+    if stored_token.is_none() {
+        return Err(INVALID_REFESH_TOKEN.into());
+    }
+
+    let access_token = jwt::create_access_token(&user_id)?;
+
+    Ok(AccessTokenRes{
+        access_token,
     })
 }
 
