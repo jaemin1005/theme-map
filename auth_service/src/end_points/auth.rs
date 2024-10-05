@@ -54,3 +54,10 @@ pub async fn me(
         Err(e) => HttpResponse::Unauthorized().json(ErrorResponse::new(e.to_string())),
     }
 }
+
+pub async fn refresh_aceess_token (req: HttpRequest, db:web::Data<Database>) -> impl Responder {
+    match auth_service::refresh_aceess_token(&req, &db).await {
+        Ok(res) => HttpResponse::Ok().json(res),
+        Err(e) => HttpResponse::Unauthorized().json(ErrorResponse::new(e.to_string())),    
+    }
+}
