@@ -31,3 +31,18 @@ pub async fn map_save(
       Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string()))
     }
 }
+
+pub async fn map_me (
+  req: HttpRequest,
+  db: web::Data<Database>,
+) -> impl Responder {
+  let user_id = match get_user_info(&req){
+    Ok(user_id) => user_id,
+    Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
+  };
+
+  match map_service::map_me(&user_id, &db).await{
+    Ok(maps) => HttpResponse::Ok().json(maps),
+    Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string()))
+  }
+}
