@@ -21,6 +21,10 @@ mod utils {
     pub mod user;
 }
 
+mod statics {
+    pub mod err_msg;
+}
+
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
