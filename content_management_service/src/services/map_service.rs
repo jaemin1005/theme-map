@@ -1,11 +1,13 @@
 use crate::{
     models::map::{Map, MapSaveReq},
-    statics::err_msg::{DB_FIND_FAIL, DB_INCORRECT_TOKEN_ID},
+    statics::err_msg::{DB_FIND_FAIL, DB_FIND_MAP_FAIL, DB_INCORRECT_TOKEN_ID},
 };
 use mongodb::{
     bson::{self, doc, oid::ObjectId},
     Client, Database,
 };
+
+use futures_util::TryStreamExt;
 
 pub async fn map_save(
     map_save_req: MapSaveReq,
@@ -31,7 +33,7 @@ pub async fn map_save(
         let new_map = maps
             .find_one(doc! {"_id": result_id.clone()}, None)
             .await?
-            .ok_or("맵을 찾지 못했습니다")?;
+            .ok_or(DB_FIND_MAP_FAIL)?;
 
         Ok(new_map)
     } else {
@@ -80,4 +82,23 @@ pub async fn map_save(
 
         Ok(update_map)
     }
+}
+
+pub async fn map_me (
+    user_id: &str,
+    db: &Database,
+) -> Result<Vec<Map>, Box<dyn std::error::Error>> {
+    let maps = db.collection::<Map>("maps");
+
+    let object_id_user = ObjectId::parse_str(user_id)?;
+    let find_doc = doc! {"user_id": object_id_user};
+
+    let mut cursor = maps.find(find_doc, None).await?;
+
+    let mut find_maps: Vec<Map> = Vec::new();
+    while let Some(map) = cursor.try_next().await? {
+        find_maps.push(map);
+    }
+
+    Ok(find_maps)
 }
