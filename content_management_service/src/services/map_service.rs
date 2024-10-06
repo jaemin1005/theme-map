@@ -123,6 +123,10 @@ pub async fn map_me (
     Ok(res)
 }
 
+/**
+ * _id를 통해 맵을 가져오는 로직
+ * MongoDB의 저장된 user_id 와 access_token의 user_id를 비교하여 수정가능한지 판단한다.
+ */
 pub async fn map_read (_id: &ObjectId, user_id: &str, db: &Database) -> Result<MapReadRes, Box<dyn std::error::Error>> {
 
     let maps = db.collection::<Map>("maps");
