@@ -1,6 +1,7 @@
 import { Type } from "class-transformer";
 import { ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import "reflect-metadata"
+import { ObjectId } from "./objectId";
 
 export class ImageData {
   @Type(() => Blob)
@@ -41,9 +42,9 @@ export class Mark {
 
 export class MapSaveReq {
 
-  @IsString()
+  @Type(() => ObjectId)
   @IsOptional()
-  _id?: string;
+  id?: ObjectId;
 
   @IsString()
   @IsNotEmpty()
@@ -68,4 +69,15 @@ export class MapSaveReq {
 
 export interface MapSaveRes {
   _id: string,
+}
+
+export interface MapSearchMeRes {
+  _id: ObjectId,
+  title: string,
+  body: string,
+}
+
+export class MapReadReq {
+  @Type(() => ObjectId)
+  _id!: ObjectId
 }
