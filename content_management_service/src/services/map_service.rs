@@ -1,5 +1,5 @@
 use crate::{
-    models::map::{Map, MapSaveReq},
+    models::map::{Map, MapReadRes, MapSaveReq, MapSearchRes},
     statics::err_msg::{DB_FIND_FAIL, DB_FIND_MAP_FAIL, DB_INCORRECT_TOKEN_ID},
 };
 use mongodb::{
@@ -9,6 +9,12 @@ use mongodb::{
 
 use futures_util::TryStreamExt;
 
+/**
+ * 맵을 저장하는 로직
+ * _id가 없을 경우, 새로운 맵을 저장
+ * _id가 있을 경우, 맵을 일괄 삭제 및 추가하는 과정을 거친다 (트랜잭션으로 일관성 보장)
+ * ! 부분 업데이트, 부분 삭제를 할 수 있는지? 비용에 대한 계산이 필요,
+ */
 pub async fn map_save(
     map_save_req: MapSaveReq,
     user_id: &str,
@@ -84,10 +90,14 @@ pub async fn map_save(
     }
 }
 
+/**
+ * 자기가 저장한 맵을 불러온다.
+ * user_id를 통해, 자기의 맵을 불러옴
+ */
 pub async fn map_me (
     user_id: &str,
     db: &Database,
-) -> Result<Vec<Map>, Box<dyn std::error::Error>> {
+) -> Result<Vec<MapSearchRes>, Box<dyn std::error::Error>> {
     let maps = db.collection::<Map>("maps");
 
     let object_id_user = ObjectId::parse_str(user_id)?;
@@ -100,5 +110,39 @@ pub async fn map_me (
         find_maps.push(map);
     }
 
-    Ok(find_maps)
+    // ObjectId가 None일때 에러를 반환.
+    let res: Vec<MapSearchRes> = find_maps.iter().map(|map| {
+        let id = map.id.clone().ok_or("Map ID is missing")?; 
+        Ok(MapSearchRes {
+            id,
+            title: map.title.clone(),
+            body: map.body.clone(),
+        })
+    }).collect::<Result<_, Box<dyn std::error::Error>>>()?; 
+
+    Ok(res)
+}
+
+pub async fn map_read (_id: &ObjectId, user_id: &str, db: &Database) -> Result<MapReadRes, Box<dyn std::error::Error>> {
+
+    let maps = db.collection::<Map>("maps");
+    let find_doc = doc! {"_id": _id};
+
+    let object_id_user = ObjectId::parse_str(user_id)?;
+
+    let find_map = maps.find_one(find_doc, None).await?.ok_or(DB_FIND_FAIL)?;
+
+    let map_save_req = MapSaveReq {
+        id: find_map.id,
+        title: find_map.title,
+        body: find_map.body,
+        marks: find_map.marks
+    };
+
+    Ok(
+        MapReadRes {
+            map: map_save_req,
+            is_edit: find_map.user_id == object_id_user,
+        }
+    )
 }
