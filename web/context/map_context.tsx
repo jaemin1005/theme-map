@@ -1,6 +1,7 @@
 "use client";
 
 import { Mark } from "@/interface/content.dto";
+import { ObjectId } from "@/interface/objectId";
 import {
   createContext,
   useState,
@@ -12,11 +13,11 @@ import {
 // context의 타입
 interface MapInfo {
   // Map Info
-  id: string;
+  id?: ObjectId;
   userId: string;
   title: string;
   body: string;
-  setId: (id: string) => void;
+  setId: (id: ObjectId) => void;
   setUserId: (userId: string) => void;
   setTitle: (title: string) => void;
   setBody: (body: string) => void;
@@ -37,7 +38,7 @@ interface MapInfo {
 const MapContext = createContext<MapInfo | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
-  const [id, setId] = useState<string>("");
+  const [id, setId] = useState<ObjectId>();
   const [userId, setUserId] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [body, setBody] = useState<string>("");
