@@ -21,8 +21,10 @@ import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
 import { MapSaveModal } from "@/components/modal/map_save_modal";
-import { ImageData, MapSaveReq } from "@/interface/content.dto";
+import { ImageData, MapReadReq, MapSaveReq } from "@/interface/content.dto";
 import { createFormDataFromMapSaveReq } from "@/utils/create_formdata";
+import { ObjectId } from "@/interface/objectId";
+import { MapSearchMeModal } from "@/components/modal/map_search_me_modal";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -48,30 +50,6 @@ export default function Home() {
 
   const { open, type, msg, time, setOpen, showToast } = useToast();
 
-  //#region  --modal 상태관리--
-
-  // 글쓰기 모달
-  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
-  // 로그인 모달
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  // 회원가입 모달
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  // 마커정보 모달
-  const [isMarkerInfoModalOpen, setIsMarkerModalOpen] = useState(false);
-  // 맵 저장 모달
-  const [isSaveMapModalOpen, setIsSaveMapModalOpen] = useState(false);
-
-  //#endregion
-
-  //#region  --context 관리--
-
-  const {  id, marks, addMark } = useMap();
-
-  const { setUser, logout, accessToken, setAccessToken } =
-    useAuth();
-
-  //#endregion
-
   useEffect(() => {
     // 현 위치 좌표가져오기
     if ("geolocation" in navigator) {
@@ -90,6 +68,48 @@ export default function Home() {
       console.log(ERROR_MSG.GEOLOCATION_NOT_AVAILABLE);
     }
   }, []);
+
+  //#region --modal 상태관리--
+
+  // 글쓰기 모달
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  // 로그인 모달
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  // 회원가입 모달
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  // 마커정보 모달
+  const [isMarkerInfoModalOpen, setIsMarkerModalOpen] = useState(false);
+  // 맵 저장 모달
+  const [isSaveMapModalOpen, setIsSaveMapModalOpen] = useState(false);
+  // 자기 맵 검색 모달
+  const [isMapSearchMeModalOpen, setIsMapSearchMeModalOpen] = useState(false);
+  //#endregion
+
+  //#region --context 관리--
+
+  const { id, setId, marks, addMark } = useMap();
+
+  const { setUser, logout, accessToken, setAccessToken } = useAuth();
+
+  //#endregion
+
+  //#region --Side Button Eventhandler--
+
+  const clickMarkInfo = () => {
+    if (marks.length === 0) showToast(TOAST_MSG.NO_MARKER_INFO, "warning");
+    else {
+      setIsMarkerModalOpen(true);
+    }
+  };
+
+  const clickMapMe = () => {
+    if (accessToken === null) showToast(TOAST_MSG.NEED_LOGIN, "warning");
+    else {
+      setIsMapSearchMeModalOpen(true);
+    }
+  };
+
+  //#endregion
 
   //#region --이벤트 콜백 함수--
 
@@ -190,23 +210,15 @@ export default function Home() {
     } catch (error) {}
   };
 
-  const clickMarkInfo = () => {
-    if (marks.length === 0) showToast(TOAST_MSG.NO_MARKER_INFO, "warning");
-    else {
-      setIsMarkerModalOpen(true);
-    }
-  };
-
   const clickSaveMapBtn = async (title: string, body: string) => {
-
-    const mapSaveReq : MapSaveReq = {
-      _id: id,
+    const mapSaveReq: MapSaveReq = {
+      id: id,
       title,
       body,
       marks,
-    }
+    };
 
-    const formData = createFormDataFromMapSaveReq(mapSaveReq)
+    const formData = createFormDataFromMapSaveReq(mapSaveReq);
 
     try {
       const response = await fetch("/api/contents/map_save", {
@@ -219,12 +231,29 @@ export default function Home() {
 
       if (response.ok) {
         showToast("Success", "success");
+        const data = (await response.json()) as ObjectId;
+        setId(data);
       } else {
         showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
       }
     } catch (error) {
       showToast(TOAST_MSG.MAP_SAVE_ERROR, "error");
     }
+  };
+
+  const readMap = async (_id: ObjectId) => {
+
+    const body: MapReadReq = {
+      _id
+    }
+
+    const res = await fetch("api/contents/read", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(body),
+    })
   };
 
   //#endregion
@@ -250,6 +279,7 @@ export default function Home() {
           },
         ]}
         clickMarkInfo={clickMarkInfo}
+        clickMapMe={clickMapMe}
       />
       <WriteModal
         open={isWriteModalOpen}
@@ -290,6 +320,14 @@ export default function Home() {
         }}
         clickSaveCb={clickSaveMapBtn}
       ></MapSaveModal>
+      <MapSearchMeModal
+        isOpen={isMapSearchMeModalOpen}
+        onOpenChange={() => {
+          setIsMapSearchMeModalOpen((prev) => !prev);
+        }}
+        accessToken={accessToken}
+        onClickComponentCb={}
+      ></MapSearchMeModal>
       <SpeedDial
         onLoginClick={() => {
           setIsLoginModalOpen(true);
