@@ -2,7 +2,7 @@ use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use mongodb::{Client, Database};
 
 use crate::models::err::ErrorRes;
-use crate::models::map::MapSaveReq;
+use crate::models::map::{MapReadReq, MapSaveReq};
 use crate::statics::err_msg;
 use crate::utils::get_user_info::get_user_info;
 use crate::services::map_service;
@@ -44,5 +44,23 @@ pub async fn map_me (
   match map_service::map_me(&user_id, &db).await{
     Ok(maps) => HttpResponse::Ok().json(maps),
     Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string()))
+  }
+}
+
+pub async fn map_read (
+  req: HttpRequest,
+  body: web::Json<MapReadReq>,
+  db: web::Data<Database>,
+) -> impl Responder {
+  let user_id = match get_user_info(&req){
+    Ok(user_id) => user_id,
+    Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
+  };
+
+  let MapReadReq { id } = body.into_inner();
+
+  match map_service::map_read(&id, &user_id, &db).await {
+    Ok(res) => HttpResponse::Ok().json(res),
+    Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
   }
 }
