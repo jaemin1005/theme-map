@@ -14,13 +14,13 @@ pub struct Map {
 impl Map {
     pub fn new_with_req(user_id: ObjectId, map_save_req: MapSaveReq) -> Self {
         Self {
-            id:  map_save_req.id,
+            id: map_save_req.id,
             title: map_save_req.title,
             user_id: user_id,
             body: map_save_req.body,
-            marks: map_save_req.marks
+            marks: map_save_req.marks,
         }
-    } 
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -46,6 +46,28 @@ pub struct ImageData {
     pub isNew: bool,
     pub isDeleted: bool,
 }
+
+#[derive(Debug, Serialize)]
+pub struct MapSearchRes {
+    #[serde(rename = "_id")]
+    pub id: ObjectId,
+    pub title: String,
+    pub body: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MapReadReq {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    pub id: ObjectId,
+}
+
+#[derive(Debug, Serialize)]
+pub struct MapReadRes {
+    pub map: MapSaveReq,
+    pub is_edit: bool,
+}
+
+
 
 // #[derive(Serialize)]
 // pub struct MapSaveRes {
