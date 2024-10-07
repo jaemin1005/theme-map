@@ -4,7 +4,7 @@ use actix_web::web;
 use futures_util::TryStreamExt;
 use uuid::Uuid;
 
-use crate::statics::err_msg::FILE_NO_METADATA;
+use crate::statics::err_msg::{FILE_NO_FILENAME, FILE_NO_METADATA};
 
 pub async fn upload_images(
     s3_client: &Client,
@@ -17,7 +17,7 @@ pub async fn upload_images(
         // 파일의 메타 정보를 가져온다. 없을 경우 에러
         let content_disposition = field.content_disposition().ok_or(FILE_NO_METADATA)?;
         // 파일 이름을 가져온다. 파일의 이름이 없을 경우 default: file
-        let filename = content_disposition.get_filename().unwrap_or("file");
+        let filename = content_disposition.get_filename().ok_or(FILE_NO_FILENAME)?;
 
         let file_id = Uuid::new_v4().to_string();
         
@@ -37,6 +37,7 @@ pub async fn upload_images(
             .put_object()
             .bucket(bucket_name)
             .key(&s3_key)
+            .content_type("image/webp")
             .body(byte_stream)
             .send()
             .await?;
