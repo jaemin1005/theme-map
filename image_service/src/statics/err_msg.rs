@@ -1,0 +1,1 @@
+pub const FILE_NO_METADATA: &str = "File don't have MeteData";
