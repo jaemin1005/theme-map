@@ -17,6 +17,7 @@ interface MapInfo {
   userId: string;
   title: string;
   body: string;
+
   setId: (id: ObjectId) => void;
   setUserId: (userId: string) => void;
   setTitle: (title: string) => void;
@@ -32,6 +33,7 @@ interface MapInfo {
   // Mark Info
   marks: Mark[];
   addMark: (mark: Mark) => void;
+  setMarks: (marks: Mark[]) => void;
   delMark: (idx: number) => void;
 }
 
@@ -60,6 +62,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
+  const setMarksFunc = useCallback((marks: Mark[]) => {
+    setMarks(marks);
+  }, []);
+
   return (
     <MapContext.Provider
       value={{
@@ -77,6 +83,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setIsEdited,
         marks,
         addMark,
+        setMarks: setMarksFunc,
         delMark,
       }}
     >
