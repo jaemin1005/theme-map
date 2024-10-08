@@ -10,8 +10,11 @@ export enum TOAST_MSG {
     LOGIN_SUCCESS = "Welcome ",
     NO_MARKER_INFO = "No marker info",
 
+    MAP_SAVE_SUCCESS = "Success map save",
     MAP_SAVE_FAIL = "Failed map save",
     MAP_SAVE_ERROR = "An error occurred during save",
+    MAP_READ_FAIL = "Map read fail",
 
     NEED_LOGIN = "Need Login using Service",
+
 }
