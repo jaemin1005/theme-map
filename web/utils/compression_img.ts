@@ -5,7 +5,7 @@ import imageCompression from "browser-image-compression";
  * @param file 이미지 파일
  * @returns WebP로 변환된 Blob 객체
  */
-export const compressAndConvertToWebP = async (file: File): Promise<Blob> => {
+export const compressAndConvertToWebP = async (file: File): Promise<File> => {
   try {
     // 이미지 압축
     const options = {
@@ -17,7 +17,18 @@ export const compressAndConvertToWebP = async (file: File): Promise<Blob> => {
 
     // 압축된 이미지를 WebP로 변환
     const webpBlob = await convertToWebP(compressedFile);
-    return webpBlob;
+
+    // Blob을 File로 변환
+    const webpFile = new File(
+      [webpBlob],
+      file.name.replace(/\.[^/.]+$/, "") + ".webp",
+      {
+        type: "image/webp",
+        lastModified: Date.now(),
+      }
+    );
+
+    return webpFile;
   } catch (error) {
     console.error("이미지 압축 및 WebP 변환 실패:", error);
     throw error;
@@ -45,16 +56,13 @@ const convertToWebP = (file: File): Promise<Blob> => {
           ctx.drawImage(img, 0, 0);
 
           // Canvas API를 사용하여 WebP로 변환
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                resolve(blob);
-              } else {
-                reject(new Error("WebP 변환 실패"));
-              }
-            },
-            "image/webp",
-          );
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("WebP 변환 실패"));
+            }
+          }, "image/webp");
         } else {
           reject(new Error("Canvas context를 가져올 수 없습니다."));
         }
