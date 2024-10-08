@@ -74,6 +74,7 @@ export interface MapSearchMeRes {
   _id: ObjectId,
   title: string,
   body: string,
+  is_edit: boolean,
 }
 
 export class MapReadReq {
