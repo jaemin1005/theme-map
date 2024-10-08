@@ -23,9 +23,8 @@ export class ImageData {
 
 export class Mark {
   @IsArray()
-  @ValidateNested({each: true})
-  @Type(() => ImageData)
-  imageDatas!: ImageData[];
+  @IsString({each: true})
+  urls!: string[];
 
   @IsNotEmpty()
   @IsString()
@@ -44,7 +43,7 @@ export class MapSaveReq {
 
   @Type(() => ObjectId)
   @IsOptional()
-  id?: ObjectId;
+  _id?: ObjectId;
 
   @IsString()
   @IsNotEmpty()
@@ -79,5 +78,11 @@ export interface MapSearchMeRes {
 
 export class MapReadReq {
   @Type(() => ObjectId)
+  @ValidateNested()
   _id!: ObjectId
+}
+
+export interface MapReadRes {
+  map: MapSaveReq;
+  is_edit: boolean;
 }
