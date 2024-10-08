@@ -6,6 +6,7 @@ import { plainToInstance } from "class-transformer";
 import { validateOptions } from "@/static/validate_option";
 import { validateSync } from "class-validator";
 import { ERROR_MSG } from "@/static/log/error_msg";
+import { ErrMsg } from "@/interface/err.dto";
 
 // https://stackoverflow.com/questions/66674834/how-to-read-formdata-in-nextjs
 export async function POST(req: NextRequest) {
@@ -32,19 +33,29 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+  try {
+    const response = await fetch("http://localhost:3001/map_save", {
+      method: "POST",
+      headers: {
+        Authorization: `${authHeader}`, // 액세스 토큰을 헤더에 포함
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
 
-  const response = await fetch('http://localhost:3001/map_save', {
-    method: 'POST',
-    headers: {
-      'Authorization': `${authHeader}`, // 액세스 토큰을 헤더에 포함
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body),
-  });
-
-  console.log(response.status);
-  
-  const data = await response.json();
-
-  return NextResponse.json(data, { status: response.status });
+    if (response.ok) {
+      const data = await response.json();
+      return NextResponse.json(data, { status: response.status });
+    } else {
+      const data = (await response.json()) as ErrMsg;
+      console.error(data.message);
+      return NextResponse.json(data, { status: response.status });
+    }
+  } catch (error) {
+    console.error(ERROR_MSG.INTERNAL_SERVER_ERROR, error);
+    return NextResponse.json(
+      { message: ERROR_MSG.INTERNAL_SERVER_ERROR },
+      { status: 500 }
+    );
+  }
 }
