@@ -47,6 +47,8 @@ export default function Home() {
     null
   );
 
+  const [isGetPositionReady, setIsGetPositionReady] = useState<boolean>(false);
+
   const [mark, setMark] = useState<boolean>(false);
 
   const { open, type, msg, time, setOpen, showToast } = useToast();
@@ -56,17 +58,22 @@ export default function Home() {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log(`current position: ${position.coords.latitude} ${position.coords.latitude}` )
           setCurrentLocation([
             position.coords.latitude,
             position.coords.longitude,
           ]);
+
+          setIsGetPositionReady(true);
         },
         (error) => {
           console.error(ERROR_MSG.GEOLOCATION_GETTING_FAIL, error);
+          setIsGetPositionReady(true);
         }
       );
     } else {
       console.log(ERROR_MSG.GEOLOCATION_NOT_AVAILABLE);
+      setIsGetPositionReady(true);
     }
   }, []);
 
@@ -309,7 +316,7 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen relative">
-      <MapComponent
+      {isGetPositionReady && <MapComponent
         center={currentLocation}
         zoom={INIT_LOCATION_INFO.ZOOM}
         onMapReady={(map) => {
@@ -318,7 +325,7 @@ export default function Home() {
         onMapClick={onMapClick}
       >
         <MarkerComponent></MarkerComponent>
-      </MapComponent>
+      </MapComponent>}
       <SideButtonComponent
         mapRef={mapRef}
         toggleMark={[
