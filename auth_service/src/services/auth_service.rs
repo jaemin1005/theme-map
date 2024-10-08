@@ -83,15 +83,39 @@ pub async fn login_user(
     // 컬랙션 접근
     let refresh_tokens = db.collection::<RefreshToken>("refresh_tokens");
 
+    let obejct_id_user = ObjectId::parse_str(&user_id)?;
+
+    let set_time = Utc::now() + Duration::days(7);
+
     let new_refresh_token = RefreshToken {
         id: None,
-        user_id: ObjectId::parse_str(&user_id)?,
+        user_id: obejct_id_user,
         token: refresh_token.clone(),
-        expiry: Utc::now() + Duration::days(7),
+        expiry: set_time,
     };
 
-    // 유저 id, 토큰 저장
-    refresh_tokens.insert_one(new_refresh_token, None).await?;
+    let update = doc! {
+        "$set": {
+            "token": refresh_token.clone(),
+            "expiry": set_time.to_rfc3339(),
+        }
+    };
+
+    let filter_find_id = doc! {"user_id": obejct_id_user};
+
+    match refresh_tokens
+        .find_one(filter_find_id.clone(), None)
+        .await?
+    {
+        Some(_) => {
+            refresh_tokens
+                .update_one(filter_find_id, update, None)
+                .await?;
+        }
+        None => {
+            refresh_tokens.insert_one(new_refresh_token, None).await?;
+        }
+    }
 
     // 응답 반환
     Ok(LoginResponse {
@@ -174,9 +198,7 @@ pub async fn refresh_aceess_token(
 
     let access_token = jwt::create_access_token(&user_id)?;
 
-    Ok(AccessTokenRes{
-        access_token,
-    })
+    Ok(AccessTokenRes { access_token })
 }
 
 // 토큰을 이용해, 해재함으로 인해 권한 해제 및 세션 종료 관리가 가능
