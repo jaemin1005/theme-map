@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Actix Web 서버로 사용자 정보 요청 전송
-    const response = await fetch('http://localhost:3001/map_read', {
+    const response = await fetch('http://localhost:3001/map_me', {
       method: 'GET',
       headers: {
         'Authorization': `${authHeader}`, // 액세스 토큰을 헤더에 포함
