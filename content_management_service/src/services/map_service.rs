@@ -117,6 +117,7 @@ pub async fn map_me (
             id,
             title: map.title.clone(),
             body: map.body.clone(),
+            is_edit: object_id_user == map.user_id,
         })
     }).collect::<Result<_, Box<dyn std::error::Error>>>()?; 
 
