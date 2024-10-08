@@ -34,18 +34,18 @@ pub struct MapSaveReq {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Mark {
-    pub imageDatas: Vec<ImageData>,
+    pub urls: Vec<String>,
     pub title: String,
     pub body: String,
     pub point: (f64, f64),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ImageData {
-    pub url: String,
-    pub isNew: bool,
-    pub isDeleted: bool,
-}
+// #[derive(Debug, Deserialize, Serialize)]
+// pub struct ImageData {
+//     pub url: String,
+//     pub isNew: bool,
+//     pub isDeleted: bool,
+// }
 
 #[derive(Debug, Serialize)]
 pub struct MapSearchRes {
@@ -67,18 +67,3 @@ pub struct MapReadRes {
     pub is_edit: bool,
 }
 
-
-
-// #[derive(Serialize)]
-// pub struct MapSaveRes {
-//     #[serde(rename = "_id")]
-//     pub id: ObjectId,
-// }
-
-// impl MapSaveRes {
-//     pub fn new(id: ObjectId) -> Self {
-//         Self {
-//             id,
-//         }
-//     }
-// }
