@@ -1397,23 +1397,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "image_service"
-version = "0.1.0"
-dependencies = [
- "actix-multipart",
- "actix-web",
- "aws-config",
- "aws-sdk-s3",
- "bcrypt",
- "dotenv",
- "futures-util",
- "jsonwebtoken",
- "serde",
- "serde_json",
- "uuid",
-]
-
-[[package]]
 name = "impl-more"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2381,6 +2364,23 @@ name = "untrusted"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
+
+[[package]]
+name = "upload_service"
+version = "0.1.0"
+dependencies = [
+ "actix-multipart",
+ "actix-web",
+ "aws-config",
+ "aws-sdk-s3",
+ "bcrypt",
+ "dotenv",
+ "futures-util",
+ "jsonwebtoken",
+ "serde",
+ "serde_json",
+ "uuid",
+]
 
 [[package]]
 name = "url"
