@@ -21,7 +21,7 @@ interface MapSaerchMeModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   accessToken: string | null;
-  onClickComponentCb: (_id: ObjectId) => void;
+  onClickComponentCb: (_id: ObjectId) => Promise<boolean>;
 }
 
 export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
@@ -59,9 +59,11 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
     }
   }, [isOpen, fetchMapsData]);
 
-  const onClickCb = (idx: number) => {
+  const onClickCb = async (idx: number) => {
     const { _id } = mapsData[idx];
-    onClickComponentCb(_id);
+    if (await onClickComponentCb(_id)) {
+      onOpenChange();
+    };
   };
 
   return (
