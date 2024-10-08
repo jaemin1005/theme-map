@@ -21,10 +21,12 @@ import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
 import { MapSaveModal } from "@/components/modal/map_save_modal";
-import { ImageData, MapReadReq, MapSaveReq } from "@/interface/content.dto";
-import { createFormDataFromMapSaveReq } from "@/utils/create_formdata";
+import { MapReadReq, MapReadRes, MapSaveReq } from "@/interface/content.dto";
 import { ObjectId } from "@/interface/objectId";
 import { MapSearchMeModal } from "@/components/modal/map_search_me_modal";
+import { useMapSet } from "@/utils/setMap";
+import { UploadImageRes } from "@/interface/upload.dto";
+import { ErrMsg } from "@/interface/err.dto";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -120,15 +122,48 @@ export default function Home() {
     }
   };
 
-  const cbSaveBtn = (imageDatas: ImageData[], title: string, body: string) => {
+  const cbSaveBtn = async (imageDatas: File[], title: string, body: string) => {
     if (clickPosition === null) return;
 
-    addMark({
-      imageDatas,
-      title,
-      body,
-      point: clickPosition,
+    const formData = new FormData();
+    imageDatas.forEach((image, index) => {
+      formData.append(`file${index}`, image); // 배열 형태로 추가하여 덮어쓰지 않도록 수정
     });
+
+    if (imageDatas.length > 0) {
+      try {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: formData,
+        });
+        if (response.ok) {
+          const result = (await response.json()) as UploadImageRes;
+          addMark({
+            urls: result.img_urls,
+            title,
+            body,
+            point: clickPosition,
+          });
+        } else {
+          const result = (await response.json()) as ErrMsg;
+          showToast(result.message, "error");
+        }
+      } catch (error) {
+        showToast(ERROR_MSG.INTERNAL_SERVER_ERROR, "error");
+      }
+    }
+
+    else {
+      addMark({
+        urls: [],
+        title,
+        body,
+        point: clickPosition,
+      })
+    }
   };
 
   // 로그인 모달 창 회원가입 버튼 클릭 이벤트 함수
@@ -212,13 +247,11 @@ export default function Home() {
 
   const clickSaveMapBtn = async (title: string, body: string) => {
     const mapSaveReq: MapSaveReq = {
-      id: id,
+      _id: id,
       title,
       body,
       marks,
     };
-
-    const formData = createFormDataFromMapSaveReq(mapSaveReq);
 
     try {
       const response = await fetch("/api/contents/map_save", {
@@ -226,7 +259,7 @@ export default function Home() {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: formData,
+        body: JSON.stringify(mapSaveReq),
       });
 
       if (response.ok) {
@@ -242,18 +275,24 @@ export default function Home() {
   };
 
   const readMap = async (_id: ObjectId) => {
-
     const body: MapReadReq = {
-      _id
-    }
+      _id,
+    };
 
     const res = await fetch("api/contents/read", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(body),
-    })
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      const mapReadRes = (await res.json()) as MapReadRes;
+      //useMapSet(mapReadRes);
+    } else {
+      showToast(TOAST_MSG.MAP_READ_FAIL, "error");
+    }
   };
 
   //#endregion
@@ -326,7 +365,7 @@ export default function Home() {
           setIsMapSearchMeModalOpen((prev) => !prev);
         }}
         accessToken={accessToken}
-        onClickComponentCb={}
+        onClickComponentCb={readMap}
       ></MapSearchMeModal>
       <SpeedDial
         onLoginClick={() => {
