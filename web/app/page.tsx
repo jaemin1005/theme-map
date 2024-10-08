@@ -24,7 +24,6 @@ import { MapSaveModal } from "@/components/modal/map_save_modal";
 import { MapReadReq, MapReadRes, MapSaveReq } from "@/interface/content.dto";
 import { ObjectId } from "@/interface/objectId";
 import { MapSearchMeModal } from "@/components/modal/map_search_me_modal";
-import { useMapSet } from "@/utils/setMap";
 import { UploadImageRes } from "@/interface/upload.dto";
 import { ErrMsg } from "@/interface/err.dto";
 
@@ -89,7 +88,7 @@ export default function Home() {
 
   //#region --context 관리--
 
-  const { id, setId, marks, addMark } = useMap();
+  const { id, setId, marks, addMark, setMarks, setTitle, setBody, setIsEdited } = useMap();
 
   const { setUser, logout, accessToken, setAccessToken } = useAuth();
 
@@ -290,9 +289,19 @@ export default function Home() {
 
     if (res.ok) {
       const mapReadRes = (await res.json()) as MapReadRes;
-      //useMapSet(mapReadRes);
+      const map = mapReadRes.map;
+
+      if(map._id) setId(map._id)
+
+      setTitle(map.title);
+      setBody(map.body);
+      setMarks(map.marks);
+      setIsEdited(mapReadRes.is_edit);
+      
+      return true;
     } else {
       showToast(TOAST_MSG.MAP_READ_FAIL, "error");
+      return false;
     }
   };
 
