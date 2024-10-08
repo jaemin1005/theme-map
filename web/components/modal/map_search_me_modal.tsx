@@ -24,7 +24,12 @@ interface MapSaerchMeModalProps {
   onClickComponentCb: (_id: ObjectId) => void;
 }
 
-export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({ isOpen, onOpenChange, accessToken, onClickComponentCb }) => {
+export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
+  isOpen,
+  onOpenChange,
+  accessToken,
+  onClickComponentCb,
+}) => {
   const [mapsData, setMapsData] = useState<MapSearchMeRes[]>([]);
 
   const fetchMapsData = useCallback(async () => {
@@ -37,8 +42,12 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({ isOpen, onOp
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      const data = (await response.json()) as MapSearchMeRes[];
-      setMapsData(data);
+      if (response.ok) {
+        const data = (await response.json()) as MapSearchMeRes[];
+        setMapsData(data);
+      } else {
+        setMapsData([]);
+      }
     } catch (error) {
       console.error("Failed to fetch maps data", error);
     }
@@ -74,14 +83,15 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({ isOpen, onOp
             </ModalHeader>
             <ModalBody>
               {mapsData.map((map, idx) => (
-                <MapInfoComponent
-                  key={idx}
-                  title={map.title}
-                  body={map.body}
-                  onClick={() => {onClickCb(idx)}}
-                  onClickEdit={() => {}}
-                  onClickDelete={() => {}}
-                />
+                <div key={idx} onClick={() => {onClickCb(idx)}}>
+                  <MapInfoComponent
+                    title={map.title}
+                    body={map.body}
+                    isEdited={map.is_edit}
+                    onClickEdit={() => {}}
+                    onClickDelete={() => {}}
+                  />
+                </div>
               ))}
             </ModalBody>
             <ModalFooter>
