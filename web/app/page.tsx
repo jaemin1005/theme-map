@@ -263,9 +263,10 @@ export default function Home() {
       });
 
       if (response.ok) {
-        showToast("Success", "success");
+        showToast(TOAST_MSG.MAP_SAVE_SUCCESS, "success")
         const data = (await response.json()) as ObjectId;
         setId(data);
+        setIsSaveMapModalOpen(false);
       } else {
         showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
       }
