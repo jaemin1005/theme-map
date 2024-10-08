@@ -13,15 +13,21 @@ import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import "swiper/css/effect-coverflow";
 import Image from "next/image";
-import { ImageData } from "@/interface/content.dto";
-import { useImageUrls } from "@/utils/use_image_url";
+import { useEffect, useState } from "react";
+import { fileToUrl } from "@/utils/file_to_url";
 
 interface ImageSliderProps {
-  imageDatas: ImageData[];
+  imageDatas: File[];
 }
 
 export const ImageSlider: React.FC<ImageSliderProps> = ({ imageDatas }) => {
-  const urls = useImageUrls(imageDatas);
+  const [urls, setUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    const urls = imageDatas.map((img) => fileToUrl(img))
+    setUrls(urls)
+    return () => urls.forEach((url) => URL.revokeObjectURL(url))
+  }, [imageDatas]);
 
   return (
     <div className="w-full min-h-max">

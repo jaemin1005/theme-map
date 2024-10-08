@@ -1,21 +1,18 @@
 import Image from "next/image";
 import { Popup } from "react-leaflet";
 import "./popup.css";
-import { ImageData } from "@/interface/content.dto";
-import { useImageUrl } from "@/utils/use_image_url";
 
 interface CustomPopupProps {
-  imageData: ImageData;
+  url: string;
   title: string;
   body: string;
 }
 
 export const CustomPopup: React.FC<CustomPopupProps> = ({
-  imageData,
+  url,
   title,
   body,
 }) => {
-  const url = useImageUrl(imageData);
 
   return (
     <Popup className="custom-popup">

@@ -1,5 +1,4 @@
-import { ImageData } from "@/interface/content.dto";
-import { useImageUrl } from "@/utils/use_image_url";
+import { useMap } from "@/context/map_context";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
@@ -7,7 +6,7 @@ import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import Image from "next/image";
 
 interface MarkerInfoComponent {
-  imageData: ImageData;
+  url: string;
   title: string;
   body: string;
   onClickEdit: React.MouseEventHandler;
@@ -15,15 +14,14 @@ interface MarkerInfoComponent {
 }
 
 export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
-  imageData,
+  url,
   title,
   body,
   onClickEdit,
   onClickDelete,
 }) => {
 
-
-  const url = useImageUrl(imageData);
+  const { isEdited } = useMap();
 
   return (
     <Card
@@ -53,14 +51,16 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
           <p className="line-clamp-2 overflow-hidden">{body}</p>
         </CardBody>
       )}
-      <div className="absolute top-0 right-0 flex z-50">
-        <IconButton onClick={onClickEdit}>
-          <EditIcon />
-        </IconButton>
-        <IconButton onClick={onClickDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </div>
+      {isEdited && (
+        <div className="absolute top-0 right-0 flex z-50">
+          <IconButton onClick={onClickEdit}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={onClickDelete}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
+      )}
     </Card>
   );
 };

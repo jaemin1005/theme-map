@@ -10,7 +10,7 @@ const MarkerComponent: React.FC = () => {
       {marks.map((value, idx) => (
         <Marker key={idx} position={value.point}>
           <CustomPopup
-            imageData={value.imageDatas[0]}
+            url={value.urls[0]}
             title={value.title}
             body={value.body}
           ></CustomPopup>
