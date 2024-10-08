@@ -53,6 +53,7 @@ pub struct MapSearchRes {
     pub id: ObjectId,
     pub title: String,
     pub body: String,
+    pub is_edit: bool,
 }
 
 #[derive(Debug, Deserialize)]
