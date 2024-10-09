@@ -15,18 +15,29 @@ import "swiper/css/effect-coverflow";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { fileToUrl } from "@/utils/file_to_url";
+import CloseIcon from "@mui/icons-material/Close";
+import { IconButton } from "@mui/material";
 
 interface ImageSliderProps {
-  imageDatas: File[];
+  imageDatas: Array<File | string>;
+  deleteCb?: (idx: number) => void;
 }
 
-export const ImageSlider: React.FC<ImageSliderProps> = ({ imageDatas }) => {
+export const ImageSlider: React.FC<ImageSliderProps> = ({
+  imageDatas,
+  deleteCb,
+}) => {
   const [urls, setUrls] = useState<string[]>([]);
 
   useEffect(() => {
-    const urls = imageDatas.map((img) => fileToUrl(img))
-    setUrls(urls)
-    return () => urls.forEach((url) => URL.revokeObjectURL(url))
+    // url인지 file인지 구분하여 업데이트
+    const urls = imageDatas.map((img) => {
+      if (typeof img != "string") return fileToUrl(img);
+      else return img;
+    });
+
+    setUrls(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [imageDatas]);
 
   return (
@@ -52,6 +63,15 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({ imageDatas }) => {
                 src={val}
                 fill={true}
               />
+              {deleteCb && (
+                <IconButton
+                  aria-label="delete"
+                  size="large"
+                  className="absolute top-0 right-0 hover:text-red-500"
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              )}
             </SwiperSlide>
           ))}
         </Swiper>
