@@ -18,12 +18,15 @@ const MapComponent: React.FC<MapComponentProps> = ({
   onMapReady,
   onMapClick,
 }) => {
+
   useEffect(() => {
     // 기본 마커 아이콘 설정
     L.Icon.Default.mergeOptions({
-      iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+      iconRetinaUrl:
+        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
       iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-      shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png"
+      shadowUrl:
+        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
     });
   }, []);
 
@@ -39,7 +42,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {children}
-      <MapEventsHandler onMapReady={onMapReady} click={onMapClick} />
+      <MapEventsHandler
+        onMapReady={onMapReady}
+        click={onMapClick}
+        center={center}
+        zoom={zoom}
+      />
     </MapContainer>
   );
 };
@@ -48,7 +56,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
 const MapEventsHandler: React.FC<{
   onMapReady: (mapInstance: L.Map) => void;
   click?: L.LeafletMouseEventHandlerFn;
-}> = ({ onMapReady, click }) => {
+  center: L.LatLngExpression;
+  zoom: number;
+}> = ({ onMapReady, click, center, zoom }) => {
   const map = useMapEvents({
     click,
   });
@@ -57,7 +67,14 @@ const MapEventsHandler: React.FC<{
     if (map) {
       onMapReady(map);
     }
-  }, [map]);
+  }, [map, onMapReady]);
+
+  // map.setView(center, zoom)을 호출하여 맵의 중심 좌표와 줌 레벨을 업데이트
+  useEffect(() => {
+    if (map) {
+      map.setView(center, zoom);
+    }
+  }, [center, zoom, map]);
 
   return null;
 };
