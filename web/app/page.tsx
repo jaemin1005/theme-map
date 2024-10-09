@@ -62,7 +62,20 @@ export default function Home() {
           ]);
         },
         (error) => {
-          console.error('Error watching position:', error);
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              console.error(ERROR_MSG.GEOLOCATION_PERMISSION_DENIED);
+              break;
+            case error.POSITION_UNAVAILABLE:
+              console.error(ERROR_MSG.GEOLOCATION_POSITION_UNAVAILABLE);
+              break;
+            case error.TIMEOUT:
+              console.error(ERROR_MSG.GEOLOCATION_TIMEOUT);
+              break;
+            default:
+              console.error(ERROR_MSG.GEOLOCATION_GETTING_FAIL);
+              break;
+          }
         },
         {
           enableHighAccuracy: true,
@@ -72,7 +85,6 @@ export default function Home() {
       );
     } else {
       console.log(ERROR_MSG.GEOLOCATION_NOT_AVAILABLE);
-      //setIsGetPositionReady(true);
     }
   }, []);
 
@@ -94,7 +106,16 @@ export default function Home() {
 
   //#region --context 관리--
 
-  const { id, setId, marks, addMark, setMarks, setTitle, setBody, setIsEdited } = useMap();
+  const {
+    id,
+    setId,
+    marks,
+    addMark,
+    setMarks,
+    setTitle,
+    setBody,
+    setIsEdited,
+  } = useMap();
 
   const { setUser, logout, accessToken, setAccessToken } = useAuth();
 
@@ -127,47 +148,74 @@ export default function Home() {
     }
   };
 
-  const cbSaveBtn = async (imageDatas: File[], title: string, body: string) => {
+  /**
+   * Write Modal의 callback
+   * Save Mark
+   * @param imageDatas : 이미지에 대한 데이터,
+   * @param title : 마커 제목
+   * @param body : 마커 본문
+   * @param editIndex : 수정 여부 및 인덱스
+   * @returns
+   */
+  const saveMarkCb = async (
+    imageDatas: Array<File | string>,
+    title: string,
+    body: string
+  ) => {
     if (clickPosition === null) return;
 
     const formData = new FormData();
+    const fileIndices: number[] = [];
+
     imageDatas.forEach((image, index) => {
-      formData.append(`file${index}`, image); // 배열 형태로 추가하여 덮어쓰지 않도록 수정
+      if (image instanceof File) {
+        formData.append(`file${index}`, image);
+        fileIndices.push(index);
+      }
     });
 
-    if (imageDatas.length > 0) {
-      try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: formData,
-        });
-        if (response.ok) {
-          const result = (await response.json()) as UploadImageRes;
-          addMark({
-            urls: result.img_urls,
-            title,
-            body,
-            point: clickPosition,
-          });
-        } else {
-          const result = (await response.json()) as ErrMsg;
-          showToast(result.message, "error");
-        }
-      } catch (error) {
-        showToast(ERROR_MSG.INTERNAL_SERVER_ERROR, "error");
-      }
-    }
-
-    else {
+    if (fileIndices.length === 0) {
       addMark({
-        urls: [],
+        urls: imageDatas.filter((item) => typeof item === "string") as string[],
         title,
         body,
         point: clickPosition,
-      })
+      });
+
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as ErrMsg;
+        showToast(errorData.message, "error");
+        return;
+      }
+
+      const { img_urls: urls } = (await response.json()) as UploadImageRes;
+
+      fileIndices.forEach((index) => {
+        if (urls.length) {
+          imageDatas[index] = urls.shift()!;
+        }
+      });
+
+      addMark({
+        urls: imageDatas.filter((item) => typeof item === "string"),
+        title,
+        body,
+        point: clickPosition,
+      });
+    } catch {
+      showToast(ERROR_MSG.INTERNAL_SERVER_ERROR, "error");
     }
   };
 
@@ -268,7 +316,7 @@ export default function Home() {
       });
 
       if (response.ok) {
-        showToast(TOAST_MSG.MAP_SAVE_SUCCESS, "success")
+        showToast(TOAST_MSG.MAP_SAVE_SUCCESS, "success");
         const data = (await response.json()) as ObjectId;
         setId(data);
         setIsSaveMapModalOpen(false);
@@ -297,13 +345,13 @@ export default function Home() {
       const mapReadRes = (await res.json()) as MapReadRes;
       const map = mapReadRes.map;
 
-      if(map._id) setId(map._id)
+      if (map._id) setId(map._id);
 
       setTitle(map.title);
       setBody(map.body);
       setMarks(map.marks);
       setIsEdited(mapReadRes.is_edit);
-      
+
       return true;
     } else {
       showToast(TOAST_MSG.MAP_READ_FAIL, "error");
@@ -341,7 +389,7 @@ export default function Home() {
         onOpenChange={() => {
           setIsWriteModalOpen((prev) => !prev);
         }}
-        cbSaveBtn={cbSaveBtn}
+        cbSaveBtn={saveMarkCb}
       />
       <LoginModal
         title={LOGIN_MODAL.TITLE}
