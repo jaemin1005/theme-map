@@ -9,29 +9,48 @@ import {
 } from "@nextui-org/modal";
 import { Button } from "@nextui-org/button";
 import { Button as MuiButton } from "@mui/material";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { ImageSlider } from "@/atoms/image_slider";
 import { validateImage } from "@/utils/validate_img";
 import { compressAndConvertToWebP } from "@/utils/compression_img";
+import { Mark } from "@/interface/content.dto";
 
 interface WriteModalProps {
   open: boolean;
   onOpenChange: () => void;
-  cbSaveBtn: (imageDatas: File[], title: string, body: string) => void;
+  cbSaveBtn: (imageDatas: Array<File | string>, title: string, body: string) => void;
+  mark?: Mark;
 }
 
 export const WriteModal: React.FC<WriteModalProps> = ({
   open,
   onOpenChange,
   cbSaveBtn,
+  mark,
 }) => {
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<Array<File | string>>([]);
 
   const titleRef = useRef<HTMLInputElement | null>(null);
   const bodyRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if(mark) {
+      if(titleRef.current && bodyRef.current) {
+        titleRef.current.value = mark.title
+        bodyRef.current.value = mark.body
+        setFiles(mark.urls);
+      }
+    } else {
+      if(titleRef.current && bodyRef.current) {
+        titleRef.current.value = "";
+        bodyRef.current.value = "";
+      }
+    }
+  }, [open])
 
   // 도달창을 닫을 때, 리액트훅 초기화
   const handlerClose = () => {
@@ -99,7 +118,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
                       cbSaveBtn(
                         files,
                         titleRef.current?.value,
-                        bodyRef.current?.value
+                        bodyRef.current?.value,
                       );
                     }
                     onClose();
