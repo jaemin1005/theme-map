@@ -33,6 +33,7 @@ interface MapInfo {
   // Mark Info
   marks: Mark[];
   addMark: (mark: Mark) => void;
+  updateMark: (mark: Mark, idx: number) => void;
   setMarks: (marks: Mark[]) => void;
   delMark: (idx: number) => void;
 }
@@ -66,6 +67,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     setMarks(marks);
   }, []);
 
+  const updateMark = useCallback((mark: Mark, index: number) => {
+    setMarks((prev) => {
+      const newMarks = [...prev];
+      newMarks[index] = mark;
+      return newMarks;
+    })
+  }, []);
+
   return (
     <MapContext.Provider
       value={{
@@ -83,6 +92,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setIsEdited,
         marks,
         addMark,
+        updateMark,
         setMarks: setMarksFunc,
         delMark,
       }}
