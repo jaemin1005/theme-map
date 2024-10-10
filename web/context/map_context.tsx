@@ -1,4 +1,5 @@
 "use client";
+import L from "leaflet";
 
 import { Mark } from "@/interface/content.dto";
 import { ObjectId } from "@/interface/objectId";
@@ -12,6 +13,11 @@ import {
 
 // context의 타입
 interface MapInfo {
+
+  //Leaflet
+  map?: L.Map;
+  setMap: (map: L.Map) => void;
+
   // Map Info
   id?: ObjectId;
   userId: string;
@@ -41,6 +47,9 @@ interface MapInfo {
 const MapContext = createContext<MapInfo | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
+
+  const [map, setMap] = useState<L.Map>();
+
   const [id, setId] = useState<ObjectId>();
   const [userId, setUserId] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -78,6 +87,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   return (
     <MapContext.Provider
       value={{
+        map,
+        setMap,
         id,
         userId,
         title,
