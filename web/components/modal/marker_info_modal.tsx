@@ -33,7 +33,6 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
   open,
   onOpenChange,
 }) => {
-
   const { accessToken } = useAuth();
 
   const { marks, delMark } = useMap();
@@ -44,6 +43,8 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
 
   const [clickIdx, setClickIdx] = useState<number>();
 
+  const [disabled, setDisabled] = useState<boolean>(false);
+
   const {
     open: openToast,
     type,
@@ -53,16 +54,16 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
     showToast,
   } = useToast();
 
-  let { updateMark } = useMap();
+  const { updateMark } = useMap();
 
   const onClickDeleteCb = (idx: number) => {
     delMark(idx);
   };
 
-  // TODO Edit 버튼의 처리가 필요 :)
-  const onClickEditCb = (index: number) => {
+  const onClickCb = (index: number, editable: boolean) => {
     setClickIdx(index);
     setClickMark(marks[index]);
+    setDisabled(editable);
     setModalOpen(true);
   };
 
@@ -123,9 +124,8 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
         }
       });
 
-      clickMark.urls = imageDatas as string[]
+      clickMark.urls = imageDatas as string[];
       updateMark(clickMark, clickIdx);
-      
     } catch {
       showToast(ERROR_MSG.INTERNAL_SERVER_ERROR, "error");
     }
@@ -152,20 +152,25 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
                 <h1>{MODAL_CONSTANT.TITLE}</h1>
               </ModalHeader>
               <ModalBody>
-                {marks.map((mark, idx) => (
-                  <MarkerInfoComponent
-                    key={idx}
-                    url={mark.urls[0]}
-                    title={mark.title}
-                    body={mark.body}
-                    onClickEdit={() => {
-                      onClickEditCb(idx);
-                    }}
-                    onClickDelete={() => {
-                      onClickDeleteCb(idx);
-                    }}
-                  />
-                ))}
+                <div className="h-auto min-h-max overflow-y-auto">
+                  {marks.map((mark, idx) => (
+                    <MarkerInfoComponent
+                      key={idx}
+                      url={mark.urls[0]}
+                      title={mark.title}
+                      body={mark.body}
+                      onPressCb={() => {
+                        onClickCb(idx, false);
+                      }}
+                      onClickEdit={() => {
+                        onClickCb(idx, true);
+                      }}
+                      onClickDelete={() => {
+                        onClickDeleteCb(idx);
+                      }}
+                    />
+                  ))}
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -183,6 +188,7 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
         }}
         cbSaveBtn={updateMarkCb}
         mark={clickMark}
+        writeable={disabled}
       />
       <ToastComponent
         open={openToast}
