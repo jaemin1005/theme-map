@@ -9,6 +9,7 @@ interface MarkerInfoComponent {
   url: string;
   title: string;
   body: string;
+  onPressCb: () => void;
   onClickEdit: React.MouseEventHandler;
   onClickDelete: React.MouseEventHandler;
 }
@@ -17,6 +18,7 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
   url,
   title,
   body,
+  onPressCb,
   onClickEdit,
   onClickDelete,
 }) => {
@@ -28,6 +30,9 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
       isFooterBlurred
       radius="lg"
       className="border-none relative w-full h-min"
+      isPressable
+      isHoverable
+      onPress={() => {onPressCb()}}
     >
       {url ? (
         <>
@@ -39,7 +44,7 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
               src={url}
             />
           </div>
-          <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
+          <CardFooter className="black justify-between before:bg-white/10 bg-gray-500/30 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
             <p className="text-large text-white/80">{title}</p>
           </CardFooter>
         </>
