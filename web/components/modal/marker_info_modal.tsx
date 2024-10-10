@@ -54,7 +54,7 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
     showToast,
   } = useToast();
 
-  const { updateMark } = useMap();
+  const { map, updateMark } = useMap();
 
   const onClickDeleteCb = (idx: number) => {
     delMark(idx);
@@ -65,6 +65,10 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
     setClickMark(marks[index]);
     setDisabled(editable);
     setModalOpen(true);
+  };
+
+  const mapMove = (position: [number, number]) => {
+    map?.setView(position, map.getZoom());
   };
 
   /**
@@ -152,23 +156,31 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
                 <h1>{MODAL_CONSTANT.TITLE}</h1>
               </ModalHeader>
               <ModalBody>
-                <div className="h-auto min-h-max overflow-y-auto">
+                <div className="flex flex-col h-auto min-h-max overflow-y-auto gap-y-2">
                   {marks.map((mark, idx) => (
-                    <MarkerInfoComponent
-                      key={idx}
-                      url={mark.urls[0]}
-                      title={mark.title}
-                      body={mark.body}
-                      onPressCb={() => {
-                        onClickCb(idx, false);
-                      }}
-                      onClickEdit={() => {
-                        onClickCb(idx, true);
-                      }}
-                      onClickDelete={() => {
-                        onClickDeleteCb(idx);
-                      }}
-                    />
+                    <>
+                      <MarkerInfoComponent
+                        key={idx}
+                        url={mark.urls[0]}
+                        title={mark.title}
+                        body={mark.body}
+                        onClickMapMove={(e) => {
+                          e.stopPropagation();
+                          mapMove(mark.point);
+                        }}
+                        onClickCb={() => {
+                          onClickCb(idx, false);
+                        }}
+                        onClickEdit={(e) => {
+                          e.stopPropagation();
+                          onClickCb(idx, true);
+                        }}
+                        onClickDelete={(e) => {
+                          e.stopPropagation();
+                          onClickDeleteCb(idx);
+                        }}
+                      />
+                    </>
                   ))}
                 </div>
               </ModalBody>
