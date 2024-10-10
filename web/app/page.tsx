@@ -42,7 +42,7 @@ export default function Home() {
   const [currentLocation, setCurrentLocation] = useState<[number, number]>(
     INIT_LOCATION_INFO.COORDINATE
   );
-  const mapRef = useRef<L.Map | null>(null);
+
   const [clickPosition, setClickPosition] = useState<[number, number] | null>(
     null
   );
@@ -107,6 +107,8 @@ export default function Home() {
   //#region --context 관리--
 
   const {
+    map,
+    setMap,
     id,
     setId,
     marks,
@@ -140,6 +142,10 @@ export default function Home() {
   //#endregion
 
   //#region --이벤트 콜백 함수--
+
+  const onMapReady = (map: L.Map) => {
+    setMap(map);
+  }
 
   const onMapClick = (event: L.LeafletMouseEvent) => {
     if (mark) {
@@ -366,15 +372,13 @@ export default function Home() {
       <MapComponent
         center={currentLocation}
         zoom={INIT_LOCATION_INFO.ZOOM}
-        onMapReady={(map) => {
-          mapRef.current = map;
-        }}
+        onMapReady={onMapReady}
         onMapClick={onMapClick}
       >
         <MarkerComponent></MarkerComponent>
       </MapComponent>
       <SideButtonComponent
-        mapRef={mapRef}
+        map={map}
         toggleMark={[
           mark,
           () => {
