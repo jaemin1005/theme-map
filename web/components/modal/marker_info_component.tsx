@@ -4,12 +4,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import Image from "next/image";
+import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 
 interface MarkerInfoComponent {
   url: string;
   title: string;
   body: string;
-  onPressCb: () => void;
+  onClickCb: () => void;
+  onClickMapMove: React.MouseEventHandler;
   onClickEdit: React.MouseEventHandler;
   onClickDelete: React.MouseEventHandler;
 }
@@ -18,12 +20,12 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
   url,
   title,
   body,
-  onPressCb,
+  onClickCb,
+  onClickMapMove,
   onClickEdit,
   onClickDelete,
 }) => {
-
-  const { isEdited } = useMap();
+  const { map, isEdited } = useMap();
 
   return (
     <Card
@@ -32,7 +34,9 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
       className="border-none relative w-full h-min"
       isPressable
       isHoverable
-      onPress={() => {onPressCb()}}
+      onClick={() => {
+        onClickCb();
+      }}
     >
       {url ? (
         <>
@@ -56,16 +60,21 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
           <p className="line-clamp-2 overflow-hidden">{body}</p>
         </CardBody>
       )}
-      {isEdited && (
-        <div className="absolute top-0 right-0 flex z-50">
-          <IconButton onClick={onClickEdit}>
-            <EditIcon />
-          </IconButton>
-          <IconButton onClick={onClickDelete}>
-            <DeleteIcon />
-          </IconButton>
-        </div>
-      )}
+      <div className="absolute top-0 right-0 flex z-[9999]">
+        <IconButton onClick={onClickMapMove} className="hover:text-blue-400">
+          <ControlCameraIcon />
+        </IconButton>
+        {isEdited && (
+          <>
+            <IconButton onClick={onClickEdit} className="hover:text-blue-400">
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={onClickDelete} className="hover:text-blue-400">
+              <DeleteIcon />
+            </IconButton>
+          </>
+        )}
+      </div>
     </Card>
   );
 };
