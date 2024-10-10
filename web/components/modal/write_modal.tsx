@@ -20,7 +20,12 @@ import { Mark } from "@/interface/content.dto";
 interface WriteModalProps {
   open: boolean;
   onOpenChange: () => void;
-  cbSaveBtn: (imageDatas: Array<File | string>, title: string, body: string) => void;
+  cbSaveBtn: (
+    imageDatas: Array<File | string>,
+    title: string,
+    body: string
+  ) => void;
+  writeable: boolean;
   mark?: Mark;
 }
 
@@ -28,9 +33,9 @@ export const WriteModal: React.FC<WriteModalProps> = ({
   open,
   onOpenChange,
   cbSaveBtn,
+  writeable,
   mark,
 }) => {
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<Array<File | string>>([]);
 
@@ -38,19 +43,19 @@ export const WriteModal: React.FC<WriteModalProps> = ({
   const bodyRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if(mark) {
-      if(titleRef.current && bodyRef.current) {
-        titleRef.current.value = mark.title
-        bodyRef.current.value = mark.body
-        setFiles(mark.urls);
+    if (mark) {
+      setFiles(mark.urls);
+      if (writeable && titleRef.current && bodyRef.current) {
+        titleRef.current.value = mark.title;
+        bodyRef.current.value = mark.body;
       }
     } else {
-      if(titleRef.current && bodyRef.current) {
+      if (titleRef.current && bodyRef.current) {
         titleRef.current.value = "";
         bodyRef.current.value = "";
       }
     }
-  }, [open])
+  }, [open, writeable, mark]);
 
   // 도달창을 닫을 때, 리액트훅 초기화
   const handlerClose = () => {
@@ -62,7 +67,9 @@ export const WriteModal: React.FC<WriteModalProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       // 이미지 유효성 검사
@@ -71,7 +78,7 @@ export const WriteModal: React.FC<WriteModalProps> = ({
       const promises = filterArr.map((file) => compressAndConvertToWebP(file));
       const fileArr = await Promise.all(promises);
 
-      setFiles((prev) => [...prev, ...fileArr])
+      setFiles((prev) => [...prev, ...fileArr]);
     }
   };
 
@@ -93,39 +100,61 @@ export const WriteModal: React.FC<WriteModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <MuiButton
-                  variant="contained"
-                  startIcon={<AddAPhotoIcon />}
-                  className="w-fit"
-                  onClick={handleButtonClick}
-                >
-                  Add Photo
-                </MuiButton>
+                {writeable ? (
+                  <MuiButton
+                    variant="contained"
+                    startIcon={<AddAPhotoIcon />}
+                    className="w-fit"
+                    onClick={handleButtonClick}
+                  >
+                    Add Photo
+                  </MuiButton>
+                ) : (
+                  <h1 className="overflow-hidden">{mark?.title}</h1>
+                )}
               </ModalHeader>
               <ModalBody>
-                <ImageSlider imageDatas={files}></ImageSlider>
-                <TextField inputRef={titleRef} label="Title" variant="outlined" />
-                <TextField inputRef={bodyRef} label="Body" multiline rows={10} />
+                <ImageSlider
+                  imageDatas={files}
+                  isRemove={writeable}
+                ></ImageSlider>
+                {writeable ? (
+                  <>
+                    <TextField
+                      inputRef={titleRef}
+                      label="Title"
+                      variant="outlined"
+                    />
+                    <TextField
+                      inputRef={bodyRef}
+                      label="Body"
+                      multiline
+                      rows={10}
+                    />
+                  </>
+                ) : (
+                  <p className="h-auto break-words">{mark?.body}</p>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <Button
+                {writeable && <Button
                   color="primary"
                   onPress={() => {
                     if (titleRef.current && bodyRef.current) {
                       cbSaveBtn(
                         files,
                         titleRef.current?.value,
-                        bodyRef.current?.value,
+                        bodyRef.current?.value
                       );
                     }
                     onClose();
                   }}
                 >
                   Save
-                </Button>
+                </Button>}
               </ModalFooter>
               <input
                 type="file"
