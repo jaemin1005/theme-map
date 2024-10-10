@@ -10,32 +10,34 @@ import L from "leaflet";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import RoomIcon from '@mui/icons-material/Room';
 import { ToggleButton } from "./toggle_button";
+import { useMap } from "@/context/map_context";
 
 interface SideButtonComponentProps {
-  mapRef: React.MutableRefObject<L.Map | null>;
+  map?: L.Map
   toggleMark: [boolean, () => void];
   clickMarkInfo: () => void,
   clickMapMe: () => void,
 }
 
 const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
-  mapRef,
+  map,
   toggleMark,
   clickMarkInfo,
   clickMapMe
 }) => {
+
   const zoomInFunc = () => {
-    mapRef.current?.zoomIn();
+    map?.zoomIn();
   };
 
   const zoomOutFunc = () => {
-    mapRef.current?.zoomOut();
+    map?.zoomOut();
   };
 
   const moveToCurrent = () => {
-    mapRef.current?.locate({
+    map?.locate({
       setView: true,
-      maxZoom: mapRef.current?.getZoom(),
+      maxZoom: map.getZoom(),
     });
   };
 
