@@ -20,12 +20,12 @@ import { IconButton } from "@mui/material";
 
 interface ImageSliderProps {
   imageDatas: Array<File | string>;
-  deleteCb?: (idx: number) => void;
+  isRemove: boolean
 }
 
 export const ImageSlider: React.FC<ImageSliderProps> = ({
   imageDatas,
-  deleteCb,
+  isRemove,
 }) => {
   const [urls, setUrls] = useState<string[]>([]);
 
@@ -39,6 +39,15 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({
     setUrls(urls);
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [imageDatas]);
+
+  const deleteCb = (idx: number) => {
+    setUrls((prev) => {
+        const newArr = [...prev];
+        newArr.slice(idx, 1);
+
+        return newArr;
+    })
+  }
 
   return (
     <div className="w-full min-h-max">
@@ -59,15 +68,16 @@ export const ImageSlider: React.FC<ImageSliderProps> = ({
             <SwiperSlide key={key} className="w-full relative aspect-square">
               <Image
                 alt="slider"
-                className="object-cover aspect-square"
+                className="object-cover aspect-square rounded-lg"
                 src={val}
                 fill={true}
               />
-              {deleteCb && (
+              {isRemove && (
                 <IconButton
                   aria-label="delete"
                   size="large"
                   className="absolute top-0 right-0 hover:text-red-500"
+                  onClick={() => {deleteCb(key)}}
                 >
                   <CloseIcon fontSize="inherit" />
                 </IconButton>
