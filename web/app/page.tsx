@@ -390,6 +390,7 @@ export default function Home() {
           setIsWriteModalOpen((prev) => !prev);
         }}
         cbSaveBtn={saveMarkCb}
+        writeable={true}
       />
       <LoginModal
         title={LOGIN_MODAL.TITLE}
