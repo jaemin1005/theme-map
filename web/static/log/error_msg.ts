@@ -19,4 +19,5 @@ export enum ERROR_MSG {
     REGISTER_VALIDATE_FAIL = "Register Validate Fail",
 
     LOGOUT_FAIL = "Logout fail",
+    FAILED_GET_USER_INFO = "Failed get uesr info",
 }
