@@ -1,4 +1,7 @@
 export enum ERROR_MSG {
+
+    FAILED_ENV_SETUP = "Failed env setup",
+
     // gps에 관련된 
     GEOLOCATION_GETTING_FAIL = "Error Getting Loaction: ",
     GEOLOCATION_NOT_AVAILABLE = "Geolocation is not available in your browser",
@@ -7,8 +10,9 @@ export enum ERROR_MSG {
     GEOLOCATION_TIMEOUT = "The request to get user location timed out",
 
     //api
-    NO_REFRESH_TOKEN = "Don't have refresh token",
-
+    NONE_REFRESH_TOKEN = "Don't have refresh token",
+    NONE_ACCESS_TOKEN = "Don't have access token",
+    FAILED_VALIDATE_BODY = "Failed validate body",
 
     INTERNAL_SERVER_ERROR = "Internal Server Error",
     UNAVAILABLE_HTTP_METHOD = "Unavailable Http Method",
