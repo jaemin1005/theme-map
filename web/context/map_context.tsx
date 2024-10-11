@@ -14,7 +14,7 @@ import {
 // context의 타입
 interface MapInfo {
 
-  //Leaflet
+  // Leaflet
   map?: L.Map;
   setMap: (map: L.Map) => void;
 
@@ -42,6 +42,9 @@ interface MapInfo {
   updateMark: (mark: Mark, idx: number) => void;
   setMarks: (marks: Mark[]) => void;
   delMark: (idx: number) => void;
+
+  // Utils
+  init: () => void;
 }
 
 const MapContext = createContext<MapInfo | null>(null);
@@ -56,7 +59,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [body, setBody] = useState<string>("");
 
   const [isNew, setIsNew] = useState<boolean>(true);
-  const [isEdited, setIsEdited] = useState<boolean>(false);
+  const [isEdited, setIsEdited] = useState<boolean>(true);
 
   const [marks, setMarks] = useState<Mark[]>([]);
 
@@ -84,6 +87,16 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     })
   }, []);
 
+  const init = useCallback(() => {
+    setId(undefined);
+    setUserId("");
+    setTitle("");
+    setBody("");
+
+    setIsEdited(true);
+    setMarks([]);
+  }, []);
+
   return (
     <MapContext.Provider
       value={{
@@ -106,6 +119,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         updateMark,
         setMarks: setMarksFunc,
         delMark,
+        init
       }}
     >
       {children}
