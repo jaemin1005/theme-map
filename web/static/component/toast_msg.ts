@@ -16,5 +16,7 @@ export enum TOAST_MSG {
     MAP_READ_FAIL = "Map read fail",
 
     NEED_LOGIN = "Need Login using Service",
+    MAP_DELETE_FAIL = "Failed delete map",
 
+    INTERNAL_SERVER_ERROR = "Internal Server Error"
 }
