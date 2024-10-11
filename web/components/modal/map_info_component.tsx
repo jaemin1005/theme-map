@@ -1,5 +1,4 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import { Chip, IconButton } from "@mui/material";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -9,7 +8,6 @@ interface MapsInfoComponentProps {
   body: string;
   isEdited: boolean;
   onClickCb: React.MouseEventHandler;
-  onClickEdit: React.MouseEventHandler;
   onClickDelete: React.MouseEventHandler;
 }
 
