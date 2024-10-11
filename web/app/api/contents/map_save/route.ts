@@ -2,39 +2,33 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { MapSaveReq } from "@/interface/content.dto";
-import { plainToInstance } from "class-transformer";
 import { validateOptions } from "@/static/validate_option";
-import { validateSync } from "class-validator";
-import { ERROR_MSG } from "@/static/log/error_msg";
 import { ErrMsg } from "@/interface/err.dto";
+import { checkAccessToken } from "@/utils/api/check_access_token";
+import {
+  FAILED_VALIDATE_BODY,
+  INTERNAL_SERVER_ERROR,
+  NONE_ACCESS_TOKEN,
+} from "@/static/api/res";
+import { validateBody } from "@/utils/api/validate_body";
+import { GET_ENV, getEnv } from "@/utils/api/get_env";
 
 // https://stackoverflow.com/questions/66674834/how-to-read-formdata-in-nextjs
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json(
-      { message: "인증 토큰이 없습니다." },
-      { status: 401 }
-    );
+  const authHeader = checkAccessToken(req);
+  if (authHeader === false) {
+    return NONE_ACCESS_TOKEN;
   }
 
-  const body = await req.json();
-
-  const mapSaveReq = plainToInstance(MapSaveReq, body);
-  const errors = validateSync(mapSaveReq, validateOptions);
-
-  if (errors.length > 0) {
-    return NextResponse.json(
-      {
-        message: ERROR_MSG.REGISTER_VALIDATE_FAIL,
-        details: errors.map((err) => err.toString()),
-      },
-      { status: 400 }
-    );
+  const body = await validateBody(req, MapSaveReq, validateOptions);
+  if (Array.isArray(body)) {
+    return FAILED_VALIDATE_BODY;
   }
+
+  const CONTENT_SERVICE_URL = getEnv(GET_ENV.CONTENT_SERVICE_URL);
+
   try {
-    const response = await fetch("http://localhost:3001/map_save", {
+    const response = await fetch(CONTENT_SERVICE_URL + "/map_save", {
       method: "POST",
       headers: {
         Authorization: `${authHeader}`, // 액세스 토큰을 헤더에 포함
@@ -52,10 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(data, { status: response.status });
     }
   } catch (error) {
-    console.error(ERROR_MSG.INTERNAL_SERVER_ERROR, error);
-    return NextResponse.json(
-      { message: ERROR_MSG.INTERNAL_SERVER_ERROR },
-      { status: 500 }
-    );
+    console.error(error);
+    return INTERNAL_SERVER_ERROR;
   }
 }
