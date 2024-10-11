@@ -14,5 +14,6 @@ export enum API_ROUTE {
   MAP_READ = "/api/contents/read",
 
   // UPLOAD
-  UPLOAD = "/api/upload"
+  UPLOAD = "/api/upload",
+  DELETE = "/api/delete"
 }
