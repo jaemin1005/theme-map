@@ -43,7 +43,6 @@ pub async fn map_save(
 
         Ok(new_map)
     } else {
-
         let find_doc = doc! {"_id": map_save_req.id};
 
         let find_map = maps
@@ -52,7 +51,7 @@ pub async fn map_save(
             .ok_or(DB_FIND_FAIL)?;
 
         if find_map.user_id != object_id {
-            return Err(DB_INCORRECT_TOKEN_ID.into())
+            return Err(DB_INCORRECT_TOKEN_ID.into());
         }
 
         // session 생성
@@ -94,7 +93,7 @@ pub async fn map_save(
  * 자기가 저장한 맵을 불러온다.
  * user_id를 통해, 자기의 맵을 불러옴
  */
-pub async fn map_me (
+pub async fn map_me(
     user_id: &str,
     db: &Database,
 ) -> Result<Vec<MapSearchRes>, Box<dyn std::error::Error>> {
@@ -111,15 +110,18 @@ pub async fn map_me (
     }
 
     // ObjectId가 None일때 에러를 반환.
-    let res: Vec<MapSearchRes> = find_maps.iter().map(|map| {
-        let id = map.id.clone().ok_or("Map ID is missing")?; 
-        Ok(MapSearchRes {
-            id,
-            title: map.title.clone(),
-            body: map.body.clone(),
-            is_edit: object_id_user == map.user_id,
+    let res: Vec<MapSearchRes> = find_maps
+        .iter()
+        .map(|map| {
+            let id = map.id.clone().ok_or("Map ID is missing")?;
+            Ok(MapSearchRes {
+                id,
+                title: map.title.clone(),
+                body: map.body.clone(),
+                is_edit: object_id_user == map.user_id,
+            })
         })
-    }).collect::<Result<_, Box<dyn std::error::Error>>>()?; 
+        .collect::<Result<_, Box<dyn std::error::Error>>>()?;
 
     Ok(res)
 }
@@ -128,8 +130,11 @@ pub async fn map_me (
  * _id를 통해 맵을 가져오는 로직
  * MongoDB의 저장된 user_id 와 access_token의 user_id를 비교하여 수정가능한지 판단한다.
  */
-pub async fn map_read (_id: &ObjectId, user_id: &str, db: &Database) -> Result<MapReadRes, Box<dyn std::error::Error>> {
-
+pub async fn map_read(
+    _id: &ObjectId,
+    user_id: &str,
+    db: &Database,
+) -> Result<MapReadRes, Box<dyn std::error::Error>> {
     let maps = db.collection::<Map>("maps");
     let find_doc = doc! {"_id": _id};
 
@@ -141,13 +146,44 @@ pub async fn map_read (_id: &ObjectId, user_id: &str, db: &Database) -> Result<M
         id: find_map.id,
         title: find_map.title,
         body: find_map.body,
-        marks: find_map.marks
+        marks: find_map.marks,
     };
 
-    Ok(
-        MapReadRes {
-            map: map_save_req,
-            is_edit: find_map.user_id == object_id_user,
-        }
-    )
+    Ok(MapReadRes {
+        map: map_save_req,
+        is_edit: find_map.user_id == object_id_user,
+    })
+}
+
+/**
+ * _id를 통해 맵을 삭제하는 로직
+ * MongoDB의 저장된 user_id 와 access_token의 user_id를 비교하여 삭제 가능한지 판단
+ */
+pub async fn map_remove(
+    _id: &ObjectId,
+    user_id: &str,
+    db: &Database,
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let maps = db.collection::<Map>("maps");
+    let find_doc = doc! {"_id": _id};
+
+    let find_map = maps
+        .find_one(find_doc.clone(), None)
+        .await?
+        .ok_or(DB_FIND_FAIL)?;
+
+    if find_map.user_id != ObjectId::parse_str(user_id)? {
+        return Err(DB_INCORRECT_TOKEN_ID.into());
+    }
+
+    let urls = find_map
+        .marks
+        .iter()
+        .flat_map(|mark| mark.urls.clone())
+        .collect();
+
+    // 맵 삭제
+    maps.delete_one(find_doc, None).await?;
+
+    return Ok(urls);
 }
