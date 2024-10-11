@@ -19,3 +19,15 @@ export const FAILED_VALIDATE_BODY = NextResponse.json<ErrMsg>(
     status: 400,
   }
 );
+
+export const SIMPLE_OK_POST = new NextResponse(null, {
+  status: 201,
+});
+
+export const SIMPLE_OK_GET = new NextResponse(null, {
+  status: 200,
+});
+
+export const INTERNAL_SERVER_ERROR = new NextResponse(null, {
+  status: 500,
+})
