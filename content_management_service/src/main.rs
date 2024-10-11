@@ -16,6 +16,7 @@ mod models {
     pub mod err;
     pub mod map;
     pub mod user;
+    pub mod upload_model;
 }
 
 mod utils {
