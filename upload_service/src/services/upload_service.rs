@@ -1,10 +1,10 @@
-use aws_sdk_s3::{primitives::ByteStream, Client};
 use actix_multipart::Multipart;
 use actix_web::web;
+use aws_sdk_s3::{primitives::ByteStream, Client};
 use futures_util::TryStreamExt;
 use uuid::Uuid;
 
-use crate::statics::err_msg::{FILE_NO_FILENAME, FILE_NO_METADATA};
+use crate::statics::err_msg::{FILE_NO_FILENAME, FILE_NO_METADATA, INVALID_URL_FORMAT};
 
 pub async fn upload_images(
     s3_client: &Client,
@@ -20,7 +20,7 @@ pub async fn upload_images(
         let filename = content_disposition.get_filename().ok_or(FILE_NO_FILENAME)?;
 
         let file_id = Uuid::new_v4().to_string();
-        
+
         let s3_key = format!("uploads/{}/{}", file_id, filename);
 
         let mut bytes = web::BytesMut::new();
@@ -48,4 +48,27 @@ pub async fn upload_images(
     }
 
     Ok(image_urls)
+}
+
+pub async fn remove_images(
+    urls: Vec<String>,
+    s3_client: &Client,
+    bucket_name: &str,
+) -> Result<bool, Box<dyn std::error::Error>> {
+    for url_str in urls {
+        // Parse the URL to extract the S3 key
+        let base_url = format!("https://{}.s3.amazonaws.com/", bucket_name);
+        let s3_key = url_str.strip_prefix(&base_url)
+            .ok_or(INVALID_URL_FORMAT)?;
+
+        // Delete the object from S3
+        s3_client
+            .delete_object()
+            .bucket(bucket_name)
+            .key(s3_key)
+            .send()
+            .await?;
+    }
+
+    Ok(true)
 }
