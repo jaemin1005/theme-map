@@ -9,5 +9,6 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .route("/map_save", web::post().to(map::map_save))
             .route("/map_me", web::get().to(map::map_me))
             .route("/map_read", web::post().to(map::map_read))
+            .route("/map_remove", web::post().to(map::map_remove))
     );
 }
