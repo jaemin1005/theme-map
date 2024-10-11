@@ -2,6 +2,15 @@ import { ErrMsg } from "@/interface/err.dto";
 import { NextResponse } from "next/server";
 import { ERROR_MSG } from "../log/error_msg";
 
+export const NONE_REFRESH_TOKEN = NextResponse.json<ErrMsg>(
+  {
+    message: ERROR_MSG.NONE_REFRESH_TOKEN,
+  },
+  {
+    status: 401,
+  }
+)
+
 export const NONE_ACCESS_TOKEN = NextResponse.json<ErrMsg>(
   {
     message: ERROR_MSG.NONE_ACCESS_TOKEN,
