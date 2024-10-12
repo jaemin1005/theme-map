@@ -26,6 +26,7 @@ import { ObjectId } from "@/interface/objectId";
 import { MapSearchMeModal } from "@/components/modal/map_search_me_modal";
 import { UploadImageRes } from "@/interface/upload.dto";
 import { ErrMsg } from "@/interface/err.dto";
+import { MapSearchModal } from "@/components/modal/map_search_modal";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -103,6 +104,9 @@ export default function Home() {
   const [isSaveMapNew, setIsSaveMapNew] = useState(false);
   // 자기 맵 검색 모달
   const [isMapSearchMeModalOpen, setIsMapSearchMeModalOpen] = useState(false);
+  // 맵 검색 모달
+  const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
+
   //#endregion
 
   //#region --context 관리--
@@ -145,19 +149,23 @@ export default function Home() {
     init();
   };
 
+  const clickSearch = () => {
+    setIsMapSearchModalOpen(true);
+  };
+
   //#endregion
 
-  //#region 
+  //#region --Speed Dial Eventhandler--
 
   const onClickMapSave = () => {
     setIsSaveMapNew(false);
     setIsSaveMapModalOpen(true);
-  }
+  };
 
   const onClickNewMapSave = () => {
     setIsSaveMapNew(true);
     setIsSaveMapModalOpen(true);
-  }
+  };
 
   //#endregion
 
@@ -408,6 +416,7 @@ export default function Home() {
         clickMarkInfo={clickMarkInfo}
         clickMapMe={clickMapMe}
         clickInitMap={clickInitMap}
+        clickSearch={clickSearch}
       />
       <WriteModal
         open={isWriteModalOpen}
@@ -458,6 +467,14 @@ export default function Home() {
         accessToken={accessToken}
         onClickComponentCb={readMap}
       ></MapSearchMeModal>
+      <MapSearchModal
+        isOpen={isMapSearchModalOpen}
+        onOpenChange={() => {
+          setIsMapSearchModalOpen((prev) => !prev);
+        }}
+        accessToken={accessToken}
+        onClickComponentCb={readMap}
+      ></MapSearchModal>
       <SpeedDial
         onLoginClick={() => {
           setIsLoginModalOpen(true);
