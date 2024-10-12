@@ -10,20 +10,22 @@ import L from "leaflet";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import RoomIcon from '@mui/icons-material/Room';
 import { ToggleButton } from "./toggle_button";
-import { useMap } from "@/context/map_context";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 interface SideButtonComponentProps {
   map?: L.Map
   toggleMark: [boolean, () => void];
   clickMarkInfo: () => void,
   clickMapMe: () => void,
+  clickInitMap: () => void,
 }
 
 const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
   map,
   toggleMark,
   clickMarkInfo,
-  clickMapMe
+  clickMapMe,
+  clickInitMap
 }) => {
 
   const zoomInFunc = () => {
@@ -64,6 +66,9 @@ const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
         </IconButton>
         <IconButton onClick={clickMapMe}>
           <MapIcon className="text-white group-hover:text-purple-300"/>
+        </IconButton>
+        <IconButton className="mt-5" onClick={clickInitMap}>
+          <DeleteForeverIcon className="text-white text-2xl group-hover:text-gray-500" />
         </IconButton>
       </div>
       {/* <div className="w-fit h-fit pt-5">
