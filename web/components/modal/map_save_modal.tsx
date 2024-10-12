@@ -5,9 +5,10 @@ import {
   ModalHeader,
   ModalFooter,
 } from "@nextui-org/modal";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { TextField } from "@mui/material";
 import { Button } from "@nextui-org/button";
+import { useMap } from "@/context/map_context";
 
 enum MODAL_CONSTANT {
   TITLE = "MAP SAVE",
@@ -18,20 +19,38 @@ enum MODAL_CONSTANT {
 interface MapSaveModalProps {
   open: boolean;
   onOpenChange: () => void;
+  isNew: boolean;
   clickSaveCb: (title: string, body: string) => void;
 }
 
 export const MapSaveModal: React.FC<MapSaveModalProps> = ({
   open,
   onOpenChange,
+  isNew,
   clickSaveCb,
 }) => {
+  const { title, body } = useMap();
+
   const titleRef = useRef<HTMLInputElement | null>(null);
   const bodyRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() => {
+    if (!titleRef.current || !bodyRef.current) return;
+
+    if(isNew) {
+      titleRef.current.value = "";
+      bodyRef.current.value = "";
+    }
+
+    else {
+      titleRef.current.value = title;
+      bodyRef.current.value = body;
+    }
+
+  }, [open ,isNew, title, body]);
+
   const clickSaveBtn = () => {
     if (titleRef.current && bodyRef.current) {
-
       const titleVal = titleRef.current.value;
       const bodyVal = bodyRef.current.value;
 
