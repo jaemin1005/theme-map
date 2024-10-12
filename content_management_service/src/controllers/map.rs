@@ -50,14 +50,10 @@ pub async fn map_read(
     body: web::Json<MapReadReq>,
     db: web::Data<Database>,
 ) -> impl Responder {
-    let user_id = match get_user_info(&req) {
-        Ok(user_id) => user_id,
-        Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
-    };
-
+    let user_id = get_user_info(&req).ok();
     let MapReadReq { id } = body.into_inner();
 
-    match map_service::map_read(&id, &user_id, &db).await {
+    match map_service::map_read(&id, user_id.as_deref(), &db).await {
         Ok(res) => HttpResponse::Ok().json(res),
         Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
     }
