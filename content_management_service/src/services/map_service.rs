@@ -132,15 +132,20 @@ pub async fn map_me(
  */
 pub async fn map_read(
     _id: &ObjectId,
-    user_id: &str,
+    user_id: Option<&str>,
     db: &Database,
 ) -> Result<MapReadRes, Box<dyn std::error::Error>> {
     let maps = db.collection::<Map>("maps");
     let find_doc = doc! {"_id": _id};
 
-    let object_id_user = ObjectId::parse_str(user_id)?;
+    let object_id_user = if let Some(user_id) = user_id {
+        Some(ObjectId::parse_str(user_id)?)
+    } else {
+        None
+    };
 
     let find_map = maps.find_one(find_doc, None).await?.ok_or(DB_FIND_FAIL)?;
+    let is_edit = object_id_user.map_or(false, |obj_id| obj_id == find_map.user_id);
 
     let map_save_req = MapSaveReq {
         id: find_map.id,
@@ -151,7 +156,7 @@ pub async fn map_read(
 
     Ok(MapReadRes {
         map: map_save_req,
-        is_edit: find_map.user_id == object_id_user,
+        is_edit
     })
 }
 
