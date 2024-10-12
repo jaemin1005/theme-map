@@ -9,6 +9,8 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import { useAuth } from "@/context/auth_context";
 import SaveIcon from "@mui/icons-material/Save";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import { useMap } from "@/context/map_context";
 
 interface SpeedDialProps {
   onLoginClick: MouseEventHandler;
@@ -16,6 +18,7 @@ interface SpeedDialProps {
   onProfileClick: MouseEventHandler;
   onLogoutClick: MouseEventHandler;
   onSaveClick: MouseEventHandler;
+  onSaveAsNewClick: MouseEventHandler;
 }
 
 enum TOOLTIP_TITLE {
@@ -23,6 +26,7 @@ enum TOOLTIP_TITLE {
   LOGOUT = "Logout",
   REGISTER = "Sign in",
   SAVE = "Save",
+  SAVE_AS_NEW = "Save as New",
 }
 
 export const SpeedDial: React.FC<SpeedDialProps> = ({
@@ -31,8 +35,10 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({
   onProfileClick,
   onLogoutClick,
   onSaveClick,
+  onSaveAsNewClick,
 }) => {
   const { user } = useAuth();
+  const { id } = useMap();
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
@@ -84,6 +90,16 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({
               icon={<SaveIcon />}
               tooltipTitle={TOOLTIP_TITLE.SAVE}
               onClick={onSaveClick}
+              open={open}
+              FabProps={{
+                disabled: id === undefined,  // disabled 상태로 설정
+              }}
+            />,
+            <SpeedDialAction
+              key={TOOLTIP_TITLE.SAVE_AS_NEW}
+              icon={<SaveAsIcon />}
+              tooltipTitle={TOOLTIP_TITLE.SAVE_AS_NEW}
+              onClick={onSaveAsNewClick}
               open={open}
             />,
           ]}
