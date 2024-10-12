@@ -8,7 +8,7 @@ interface MapsInfoComponentProps {
   body: string;
   isEdited: boolean;
   onClickCb: React.MouseEventHandler;
-  onClickDelete: React.MouseEventHandler;
+  onClickDelete?: React.MouseEventHandler;
 }
 
 export const MapInfoComponent: React.FC<MapsInfoComponentProps> = ({
@@ -37,7 +37,7 @@ export const MapInfoComponent: React.FC<MapsInfoComponentProps> = ({
       <CardFooter>
         <Chip icon={<FavoriteIcon />} label="+9999" />
       </CardFooter>
-      {isEdited && (
+      {(isEdited && onClickDelete) && (
         <div className="absolute top-0 right-0 flex z-50">
           <IconButton onClick={onClickDelete}>
             <DeleteIcon />
