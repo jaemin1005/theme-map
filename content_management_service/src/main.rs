@@ -1,22 +1,25 @@
-use actix_web::{web, App, HttpServer, Responder, HttpResponse};
+use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use std::io;
 use utils::db;
 
 mod controllers {
-   pub mod map;
+    pub mod map;
+    pub mod search;
 }
 
 mod services {
     pub mod map_service;
+    pub mod search_service;
     pub mod user_service;
 }
 
 mod models {
     pub mod err;
     pub mod map;
-    pub mod user;
     pub mod upload_model;
+    pub mod user;
+    pub mod search_model;
 }
 
 mod utils {
