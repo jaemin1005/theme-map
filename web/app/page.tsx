@@ -3,7 +3,7 @@
 import { ERROR_MSG } from "@/static/log/error_msg";
 import { INIT_LOCATION_INFO } from "@/static/location";
 import dynamic from "next/dynamic";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import L from "leaflet";
 import SideButtonComponent from "@/components/side/side_button_component";
 import { WriteModal } from "@/components/modal/write_modal";
@@ -100,6 +100,7 @@ export default function Home() {
   const [isMarkerInfoModalOpen, setIsMarkerModalOpen] = useState(false);
   // 맵 저장 모달
   const [isSaveMapModalOpen, setIsSaveMapModalOpen] = useState(false);
+  const [isSaveMapNew, setIsSaveMapNew] = useState(false);
   // 자기 맵 검색 모달
   const [isMapSearchMeModalOpen, setIsMapSearchMeModalOpen] = useState(false);
   //#endregion
@@ -117,6 +118,7 @@ export default function Home() {
     setTitle,
     setBody,
     setIsEdited,
+    init,
   } = useMap();
 
   const { setUser, logout, accessToken, setAccessToken } = useAuth();
@@ -139,13 +141,31 @@ export default function Home() {
     }
   };
 
+  const clickInitMap = () => {
+    init();
+  };
+
+  //#endregion
+
+  //#region 
+
+  const onClickMapSave = () => {
+    setIsSaveMapNew(false);
+    setIsSaveMapModalOpen(true);
+  }
+
+  const onClickNewMapSave = () => {
+    setIsSaveMapNew(true);
+    setIsSaveMapModalOpen(true);
+  }
+
   //#endregion
 
   //#region --이벤트 콜백 함수--
 
   const onMapReady = (map: L.Map) => {
     setMap(map);
-  }
+  };
 
   const onMapClick = (event: L.LeafletMouseEvent) => {
     if (mark) {
@@ -304,9 +324,9 @@ export default function Home() {
     } catch (error) {}
   };
 
-  const clickSaveMapBtn = async (title: string, body: string) => {
+  const saveMap = async (title: string, body: string) => {
     const mapSaveReq: MapSaveReq = {
-      _id: id,
+      _id: isSaveMapNew === true ? undefined : id,
       title,
       body,
       marks,
@@ -387,6 +407,7 @@ export default function Home() {
         ]}
         clickMarkInfo={clickMarkInfo}
         clickMapMe={clickMapMe}
+        clickInitMap={clickInitMap}
       />
       <WriteModal
         open={isWriteModalOpen}
@@ -426,7 +447,8 @@ export default function Home() {
         onOpenChange={() => {
           setIsSaveMapModalOpen((prev) => !prev);
         }}
-        clickSaveCb={clickSaveMapBtn}
+        isNew={isSaveMapNew}
+        clickSaveCb={saveMap}
       ></MapSaveModal>
       <MapSearchMeModal
         isOpen={isMapSearchMeModalOpen}
@@ -445,9 +467,8 @@ export default function Home() {
         }}
         onLogoutClick={logout}
         onProfileClick={() => {}}
-        onSaveClick={() => {
-          setIsSaveMapModalOpen(true);
-        }}
+        onSaveClick={onClickMapSave}
+        onSaveAsNewClick={onClickNewMapSave}
       />
       <ToastComponent
         open={open}
