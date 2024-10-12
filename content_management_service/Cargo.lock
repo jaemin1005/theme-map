@@ -474,6 +474,7 @@ dependencies = [
  "futures-util",
  "jsonwebtoken",
  "mongodb",
+ "percent-encoding",
  "serde",
  "serde_json",
 ]
