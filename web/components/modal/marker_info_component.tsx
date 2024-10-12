@@ -25,7 +25,7 @@ export const MarkerInfoComponent: React.FC<MarkerInfoComponent> = ({
   onClickEdit,
   onClickDelete,
 }) => {
-  const { map, isEdited } = useMap();
+  const { isEdited } = useMap();
 
   return (
     <Card
