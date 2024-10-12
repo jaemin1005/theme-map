@@ -11,6 +11,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import RoomIcon from '@mui/icons-material/Room';
 import { ToggleButton } from "./toggle_button";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import SearchIcon from '@mui/icons-material/Search';
 
 interface SideButtonComponentProps {
   map?: L.Map
@@ -18,6 +19,7 @@ interface SideButtonComponentProps {
   clickMarkInfo: () => void,
   clickMapMe: () => void,
   clickInitMap: () => void,
+  clickSearch: () => void,
 }
 
 const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
@@ -25,7 +27,8 @@ const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
   toggleMark,
   clickMarkInfo,
   clickMapMe,
-  clickInitMap
+  clickInitMap,
+  clickSearch
 }) => {
 
   const zoomInFunc = () => {
@@ -61,7 +64,10 @@ const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
         <ToggleButton selected={toggleMark[0]} onChange={toggleMark[1]} originIconColor="white" changeIconColor="#93c5fd"> 
           <RoomIcon className="text-white text-2xl group-hover:text-blue-300" />
         </ToggleButton>
-        <IconButton className="mt-5" onClick={clickMarkInfo}>
+        <IconButton className="mt-5" onClick={clickSearch}>
+          <SearchIcon className="text-white text-2xl group-hover:text-purple-300"/>
+        </IconButton>
+        <IconButton onClick={clickMarkInfo}>
           <BookmarkIcon className="text-white text-2xl group-hover:text-green-300" />
         </IconButton>
         <IconButton onClick={clickMapMe}>
