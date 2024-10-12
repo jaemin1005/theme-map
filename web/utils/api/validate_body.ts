@@ -9,6 +9,7 @@ import { NextRequest } from "next/server";
  * @param validateOptions : 유효성검사 옵션
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const validateBody = async <T extends Object>(
   req: NextRequest,
   classType: new () => T,
