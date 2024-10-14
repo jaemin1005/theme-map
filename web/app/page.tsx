@@ -358,6 +358,8 @@ export default function Home() {
         showToast(TOAST_MSG.MAP_SAVE_SUCCESS, "success");
         const data = (await response.json()) as ObjectId;
         setId(data);
+        setTitle(title);
+        setBody(body);
         setIsSaveMapModalOpen(false);
       } else {
         showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
