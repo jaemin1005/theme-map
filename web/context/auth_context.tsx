@@ -18,7 +18,7 @@ interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   loading: boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
   accessToken: string | null
   setAccessToken: React.Dispatch<React.SetStateAction<string | null>>
 }
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [accessToken]);
 
   // 로그아웃 함수
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
