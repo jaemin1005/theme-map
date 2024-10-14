@@ -158,7 +158,6 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
               <ModalBody>
                 <div className="flex flex-col h-auto min-h-max overflow-y-auto gap-y-2">
                   {marks.map((mark, idx) => (
-                    <>
                       <MarkerInfoComponent
                         key={idx}
                         url={mark.urls[0]}
@@ -180,7 +179,6 @@ export const MarkerInfoModal: React.FC<MarkerInfoModalProps> = ({
                           onClickDeleteCb(idx);
                         }}
                       />
-                    </>
                   ))}
                 </div>
               </ModalBody>
