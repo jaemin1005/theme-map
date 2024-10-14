@@ -301,6 +301,11 @@ export default function Home() {
     }
   };
 
+  const logoutFunc = async () => {
+    await logout();
+    init();
+  }
+
   const registerFunc = async (
     email: string,
     name: string,
@@ -482,7 +487,7 @@ export default function Home() {
         onRegisterClick={() => {
           setIsRegisterModalOpen(true);
         }}
-        onLogoutClick={logout}
+        onLogoutClick={logoutFunc}
         onProfileClick={() => {}}
         onSaveClick={onClickMapSave}
         onSaveAsNewClick={onClickNewMapSave}
