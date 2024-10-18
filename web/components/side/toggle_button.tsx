@@ -29,11 +29,18 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
         "&.Mui-selected:hover": {
           background: "#1f2937",
         },
+        backgroundColor: "rgba(31, 41, 55, 0.6)",
+        borderRadius: "9999px",
+        padding: "0.5rem",
+        "&:hover": {
+          backgroundColor: "#1f2937",
+          backgroundOpacity: 1,
+        },
       }}
       value="check"
       selected={selected}
       onChange={onChange}
-      className={`group bg-gray-800 bg-opacity-60 hover:bg-opacity-100 hover:bg-gray-800 rounded-full p-2 ${className}`}
+      className={`${className}`}
     >
       {children}
     </MUIToggleButton>
