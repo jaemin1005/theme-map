@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateOptions } from "@/static/validate_option";
 import { LoginReq, LoginServiceRes } from "@/interface/auth.dto";
-import { FAILED_VALIDATE_BODY, INTERNAL_SERVER_ERROR } from "@/static/api/res";
+import { FAILED_VALIDATE_BODY } from "@/static/api/res";
 import { validateBody } from "@/utils/api/validate_body";
 import { GET_ENV, getEnv } from "@/utils/api/get_env";
 import { setUpRefreshToken } from "@/utils/api/set_cookie";
@@ -45,6 +45,9 @@ export async function POST(req: NextRequest) {
     }
   } catch (error) {
     console.error("Internal Server Error:", error);
-    return INTERNAL_SERVER_ERROR;
+    return NextResponse.json(
+      { message: AUTH_SERVICE_URL + "connect fail" },
+      { status: 500 }
+    );
   }
 }
