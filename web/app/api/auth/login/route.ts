@@ -37,16 +37,16 @@ export async function POST(req: NextRequest) {
 
       return res;
     } else {
-      const errorData = await response.json();
+      //const errorData = await response.json();
       return NextResponse.json(
-        { message: errorData.message },
+        { message: AUTH_SERVICE_URL + " connect fail" },
         { status: response.status }
       );
     }
   } catch (error) {
     console.error("Internal Server Error:", error);
     return NextResponse.json(
-      { message: AUTH_SERVICE_URL + "connect fail" },
+      { message: AUTH_SERVICE_URL + " connect fail" },
       { status: 500 }
     );
   }
