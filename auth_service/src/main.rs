@@ -7,7 +7,6 @@ use env_logger::Env;
 mod routes;
 mod end_points {
     pub mod auth;
-    pub mod index;
 }
 mod services {
     pub mod auth_service;
