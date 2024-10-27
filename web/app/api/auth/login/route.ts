@@ -5,6 +5,7 @@ import { FAILED_VALIDATE_BODY } from "@/static/api/res";
 import { validateBody } from "@/utils/api/validate_body";
 import { GET_ENV, getEnv } from "@/utils/api/get_env";
 import { setUpRefreshToken } from "@/utils/api/set_cookie";
+import { ERROR_MSG } from "@/static/log/error_msg";
 
 // 로그인 핸들러 POST 메서드
 export async function POST(req: NextRequest) {
@@ -13,7 +14,15 @@ export async function POST(req: NextRequest) {
     return FAILED_VALIDATE_BODY;
   }
 
-  const AUTH_SERVICE_URL = getEnv(GET_ENV.AUTH_SERVICE_URL);
+  let AUTH_SERVICE_URL = "";
+  try {
+    AUTH_SERVICE_URL = getEnv(GET_ENV.AUTH_SERVICE_URL);
+  } catch {
+    return NextResponse.json(
+      { message: ERROR_MSG.FAILED_ENV_SETUP },
+      { status: 500 }
+    );
+  }
 
   try {
     // Actix Web 서버로 로그인 요청 전송
