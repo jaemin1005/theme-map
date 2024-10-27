@@ -293,6 +293,8 @@ export default function Home() {
         showToast(TOAST_MSG.LOGIN_SUCCESS + `${data.user.name}`, "success");
         setIsLoginModalOpen(false);
       } else {
+        const data = await response.json();
+        console.error(data.message);
         showToast(TOAST_MSG.LOGIN_FAIL, "error");
       }
     } catch (error) {
