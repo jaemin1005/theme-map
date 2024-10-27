@@ -1,5 +1,6 @@
-use actix_web::{web, App, HttpServer};
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
+use env_logger::Env;
 use std::io;
 use utils::db;
 
@@ -37,6 +38,7 @@ mod routes;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
 
     //세션을 시작하기 위한 client 생성 ()
     let client_mongodb = match utils::db::get_client().await {
@@ -56,9 +58,10 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(db.clone()))
             .app_data(web::Data::new(client_mongodb.clone()))
+            .wrap(Logger::default())
             .configure(routes::init)
     })
-    .bind("127.0.0.1:3001")?
+    .bind("0.0.0.0:3001")?
     .run()
     .await
 }
