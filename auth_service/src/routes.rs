@@ -1,8 +1,9 @@
 use actix_web::web;
 
-use crate::end_points::auth;
+use crate::end_points::{auth, index};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::resource("/").route(web::get().to(index::home)));
     cfg.service(
         web::scope("/api/auth")
             .route("/register", web::post().to(auth::register))
