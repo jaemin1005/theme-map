@@ -1,4 +1,6 @@
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use aws_config::BehaviorVersion;
+use aws_sdk_s3::Client;
 use dotenv::dotenv;
 use env_logger::Env;
 use std::io;
@@ -18,15 +20,17 @@ mod services {
 mod models {
     pub mod err;
     pub mod map;
+    pub mod search_model;
     pub mod upload_model;
     pub mod user;
-    pub mod search_model;
 }
 
 mod utils {
     pub mod db;
+    pub mod find_diffrent;
     pub mod get_user_info;
     mod jwt;
+    pub mod s3;
 }
 
 mod statics {
@@ -51,6 +55,10 @@ async fn main() -> std::io::Result<()> {
             ));
         }
     };
+    
+    //세션을 시작하기 위한 client 생성 ()
+    let config = aws_config::defaults(BehaviorVersion::latest()).load().await;
+    let s3_client = Client::new(&config);
 
     let db = db::get_database(&client_mongodb, "map_project");
 
@@ -58,6 +66,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(db.clone()))
             .app_data(web::Data::new(client_mongodb.clone()))
+            .app_data(web::Data::new(s3_client.clone()))
             .wrap(Logger::default())
             .configure(routes::init)
     })
