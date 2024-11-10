@@ -1,5 +1,6 @@
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
-use mongodb::{Client, Database};
+use aws_sdk_s3::Client;
+use mongodb::Database;
 
 use crate::models::err::ErrorRes;
 use crate::models::map::{MapReadReq, MapSaveReq};
@@ -12,23 +13,34 @@ pub async fn map_save(
     req: HttpRequest,
     body: web::Json<MapSaveReq>,
     db: web::Data<Database>,
-    client: web::Data<Client>,
 ) -> impl Responder {
     let user_id = match get_user_info(&req) {
         Ok(user_id) => user_id,
         Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
     };
 
-    // let email = match user_service::get_user_email_by_id(&user_id, &db).await  {
-    //     Ok(email) => email,
-    //     Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string()))
-    // };
-
-    match map_service::map_save(body.into_inner(), &user_id, &db, &client).await {
+    match map_service::map_save(body.into_inner(), &user_id, &db).await {
         Ok(map) => match map.id {
             Some(id) => HttpResponse::Ok().json(id),
             None => HttpResponse::InternalServerError().json(ErrorRes::new(err_msg::DB_ERR_MSG)),
         },
+        Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
+    }
+}
+
+pub async fn map_edit(
+    req: HttpRequest,
+    body: web::Json<MapSaveReq>,
+    db: web::Data<Database>,
+    s3_client: web::Data<Client>,
+) -> impl Responder {
+    let user_id = match get_user_info(&req) {
+        Ok(user_id) => user_id,
+        Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
+    };
+
+    match map_service::map_edit(body.into_inner(), &user_id, &db, &s3_client).await {
+        Ok(map) => HttpResponse::Ok().json(map),
         Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
     }
 }
