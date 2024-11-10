@@ -3,6 +3,7 @@ import { AlertType } from "./toast_interface";
 
 // 토스트 메세지 시간
 interface UseToastProps {
+  defaultType?: AlertType;   
   defaultTime?: number;
 }
 
@@ -29,12 +30,13 @@ interface UseToastReturn {
  * @returns
  */
 export const useToast = ({
+  defaultType = "success",
   defaultTime = 3000,
 }: UseToastProps = {}): UseToastReturn => {
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
   const [time, setTime] = useState(defaultTime);
-  const [type, setType] = useState<AlertType>("success");
+  const [type, setType] = useState<AlertType>(defaultType);
 
   const showToast = (message: string, type: AlertType, duration?: number) => {
     setMsg(message);

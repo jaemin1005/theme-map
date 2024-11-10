@@ -15,6 +15,9 @@ import {
   isCheckMinMaxLength,
   isValidEmail,
 } from "@/utils/validate";
+import { useToast } from "../toast/toast_hook";
+import { ToastComponent } from "../toast/toast_component";
+import { TOAST_MSG } from "@/static/component/toast_msg";
 
 enum MODAL_ERR_MSG {
   REF_ERROR = "REF_ERROR",
@@ -31,6 +34,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   onOpenChange,
   registerCbFunc,
 }) => {
+  // 모달창의 Input Ref 정의
   const emailRef = useRef<HTMLInputElement | null>(null);
   const nicknameRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
@@ -39,6 +43,11 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   // 패스워드를 보여주는 유무
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordCheck, setShowPasswordCheck] = useState(false);
+
+  // SnackBar
+  const toastProps = useToast({ defaultType: "warning" });
+
+  const [errMsg, setErrMsg] = useState<string>("");
 
   // 버튼 동작에 따른 handler
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -58,6 +67,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
     event.preventDefault();
   };
 
+  // 회원가입 절차 진행
   const processRegister = () => {
     if (
       emailRef.current &&
@@ -70,23 +80,31 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
       const passwordValue = passwordRef.current.value;
       const passwordCheckValue = passwordCheckRef.current.value;
 
+      // 이메일 형식이 아닐 때
       if (isValidEmail(emailValue) === false) {
-        //어떻게 처리할까요
+        setErrMsg(TOAST_MSG.INVALID_EMAIL)
+        toastProps.setOpen(true);
         return;
       }
 
+      // nickname에 특수문자가 들어갈 때
       if (hasContainSpecialCharacters(nicknameValue) === true) {
-        //어떻게 처리하띾요
+        setErrMsg(TOAST_MSG.INVALID_NICKNAME)
+        toastProps.setOpen(true);
         return;
       }
 
+      // 패드워드의 최소 최대 길이 확인
       if (isCheckMinMaxLength(passwordValue, 8, 15) === false) {
-        //어떻게 처리할까요
+        setErrMsg(TOAST_MSG.INVALID_PASSWORD_LENGTH)
+        toastProps.setOpen(true);
         return;
       }
 
+      // 패스워드와 패스워드 확인 일치
       if (passwordValue !== passwordCheckValue) {
-        //어떻게 처리할까요
+        setErrMsg(TOAST_MSG.INVALID_MATCH_PASSWORD)
+        toastProps.setOpen(true);
         return;
       }
 
@@ -152,6 +170,13 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
         </ModalBody>
         <ModalFooter></ModalFooter>
       </ModalContent>
+      <ToastComponent
+        open={toastProps.open}
+        setOpen={toastProps.setOpen}
+        type={toastProps.type}
+        time={toastProps.time}
+        msg={errMsg}
+      />
     </Modal>
   );
 };
