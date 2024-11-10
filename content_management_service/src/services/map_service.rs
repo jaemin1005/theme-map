@@ -1,10 +1,15 @@
 use crate::{
     models::map::{Map, MapReadRes, MapSaveReq, MapSearchRes},
-    statics::err_msg::{DB_FIND_FAIL, DB_FIND_MAP_FAIL, DB_INCORRECT_TOKEN_ID},
+    statics::err_msg::{
+        DB_FIND_FAIL, DB_FIND_MAP_FAIL, DB_INCORRECT_TOKEN_ID, INCORRECT_ACCESS, MAP_NEED_ID,
+    },
+    utils::find_diffrent::detect_map_changes,
 };
+use aws_sdk_s3::Client as S3Client;
 use mongodb::{
-    bson::{self, doc, oid::ObjectId},
-    Client, Database,
+    bson::{doc, oid::ObjectId},
+    options::UpdateOptions,
+    Database,
 };
 
 use futures_util::TryStreamExt;
@@ -12,14 +17,12 @@ use futures_util::TryStreamExt;
 /**
  * 맵을 저장하는 로직
  * _id가 없을 경우, 새로운 맵을 저장
- * _id가 있을 경우, 맵을 일괄 삭제 및 추가하는 과정을 거친다 (트랜잭션으로 일관성 보장)
- * ! 부분 업데이트, 부분 삭제를 할 수 있는지? 비용에 대한 계산이 필요,
+ * _id가 있을 경우, 잘못된 접근임으로 에러
  */
 pub async fn map_save(
     map_save_req: MapSaveReq,
     user_id: &str,
     db: &Database,
-    client: &Client,
 ) -> Result<Map, Box<dyn std::error::Error>> {
     let maps = db.collection::<Map>("maps");
 
@@ -43,49 +46,63 @@ pub async fn map_save(
 
         Ok(new_map)
     } else {
-        let find_doc = doc! {"_id": map_save_req.id};
+        Err(INCORRECT_ACCESS.into())
+    }
+}
 
+/**
+ * #1 ID를 통해 2개의 맵을 비교한다.
+ * #2 달라진것들은 Vec를 통해 변경한다.
+ * #3 이미지의 Url인 경우에는 S3 존재하는지 확인하고, 없을시 update
+ * ++ 임시 이미지인가도 확인이 필요하다.
+ */
+pub async fn map_edit(
+    map_save_req: MapSaveReq,
+    user_id: &str,
+    db: &Database,
+    client: &S3Client,
+) -> Result<Map, Box<dyn std::error::Error>> {
+    if let None = map_save_req.id {
+        Err(MAP_NEED_ID.into())
+    } else {
+        let maps = db.collection::<Map>("maps");
+
+        // 원래 저장되어있는 맵
         let find_map = maps
-            .find_one(find_doc.clone(), None)
+            .find_one(doc! {"_id" : map_save_req.id}, None)
             .await?
-            .ok_or(DB_FIND_FAIL)?;
+            .ok_or(DB_FIND_MAP_FAIL)?;
 
-        if find_map.user_id != object_id {
+        let object_user_id = ObjectId::parse_str(user_id)?;
+
+        // 수정하려는 맵이 옳바른 유저의 접근인지 판단
+        if find_map.user_id != object_user_id {
             return Err(DB_INCORRECT_TOKEN_ID.into());
         }
 
-        // session 생성
-        let mut session = client.start_session(None).await?;
+        let mut update_map = Map::new_with_req(object_user_id, map_save_req);
 
-        // `db`에서 MongoDB 클라이언트를 가져옴
-        // 맵이 존재했을 때, 저장 ( 일괄 삭제 및 추가 ), 트랜잭션으로 일관성을 보장한다
-        // 트랜잭션 시작
-        session.start_transaction(None).await?;
+        // Diffrent 로직
 
-        let unset = doc! {
-          "$unset" : { "title": "", "body": "", "marks": "" }
-        };
+        let update_doc = detect_map_changes(client, &find_map, &mut update_map).await?;
 
-        maps.update_one_with_session(find_doc.clone(), unset, None, &mut session)
-            .await?;
+        // 맵 업데이트
 
-        let marks_bson_value = bson::to_bson(&map_save_req.marks)?;
+        let filter = doc! { "_id": update_map.id };
+        let update = doc! { "$set":  update_doc};
 
-        let set = doc! {
-          "$set": {"title": map_save_req.title, "body": map_save_req.body, "marks": marks_bson_value}
-        };
+        // 업데이트 옵션 설정, 문서가 없을 경우 생성하는걸 방지한다
+        let options = UpdateOptions::builder().upsert(false).build();
 
-        maps.update_one_with_session(find_doc.clone(), set, None, &mut session)
-            .await?;
+        maps.update_one(filter, update, options).await?;
 
-        let update_map = maps
-            .find_one_with_session(find_doc.clone(), None, &mut session)
+        // DB의 업데이트 된 맵을 찾아 체크 후 반환
+        let check_map = maps
+            .find_one(doc! {"_id": update_map.id}, None)
             .await?
-            .ok_or(DB_FIND_FAIL)?;
+            .ok_or(DB_FIND_MAP_FAIL)?;
 
-        session.commit_transaction().await?;
-
-        Ok(update_map)
+        Ok(check_map)
     }
 }
 
@@ -156,7 +173,7 @@ pub async fn map_read(
 
     Ok(MapReadRes {
         map: map_save_req,
-        is_edit
+        is_edit,
     })
 }
 
