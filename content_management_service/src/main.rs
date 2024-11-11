@@ -27,7 +27,7 @@ mod models {
 
 mod utils {
     pub mod db;
-    pub mod find_diffrent;
+    pub mod map;
     pub mod get_user_info;
     mod jwt;
     pub mod s3;
