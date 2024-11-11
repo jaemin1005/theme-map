@@ -33,7 +33,7 @@ pub async fn map_save(
     if let None = map_save_req.id {
         let mut map = Map::new_with_req(object_id, map_save_req);
 
-        new_map_changes_url(s3_client, &mut map);
+        new_map_changes_url(s3_client, &mut map).await?;
 
         let insert_result = maps.insert_one(map, None).await?;
 
