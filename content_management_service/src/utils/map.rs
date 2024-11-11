@@ -46,36 +46,38 @@ pub async fn detect_map_changes(
             bucket_temp_name, bucket_temp_dir
         );
 
-        for mark in updated.marks.iter_mut() {
-            for url in &mut mark.urls {
-                // 추가된 URL이 임시 저장소에 있는 경우 최종 버킷으로 이동
-                if url.contains(&check_url) {
-                    let file_name = url.split('/').last().ok_or(NOT_FILE_NAME_FOUND)?;
-                    let file_id = Uuid::new_v4().to_string();
+        for url in updated
+            .marks
+            .iter_mut()
+            .flat_map(|mark| mark.urls.iter_mut())
+        {
+            // 추가된 URL이 임시 저장소에 있는 경우 최종 버킷으로 이동
+            if url.contains(&check_url) {
+                let file_name = url.split('/').last().ok_or(NOT_FILE_NAME_FOUND)?;
+                let file_id = Uuid::new_v4().to_string();
 
-                    let src_s3_key = url.replace(
-                        &format!("https://{}.s3.amazonaws.com/", bucket_temp_name),
-                        "",
-                    );
-                    let dst_s3_key = format!("{}/{}/{}", bucket_target_dir, file_id, file_name);
+                let src_s3_key = url.replace(
+                    &format!("https://{}.s3.amazonaws.com/", bucket_temp_name),
+                    "",
+                );
+                let dst_s3_key = format!("{}/{}/{}", bucket_target_dir, file_id, file_name);
 
-                    copy_s3(
-                        s3_client,
-                        &bucket_temp_name,
-                        &bucket_target_name,
-                        &src_s3_key,
-                        &dst_s3_key,
-                    )
-                    .await?;
+                copy_s3(
+                    s3_client,
+                    &bucket_temp_name,
+                    &bucket_target_name,
+                    &src_s3_key,
+                    &dst_s3_key,
+                )
+                .await?;
 
-                    // 최종 URL로 변경하여 updated.marks에 반영한다
-                    *url = format!(
-                        "https://{}.s3.amazonaws.com/{}",
-                        bucket_target_name, dst_s3_key
-                    );
-                }
-                updated_urls.insert(url.clone());
+                // 최종 URL로 변경하여 updated.marks에 반영한다
+                *url = format!(
+                    "https://{}.s3.amazonaws.com/{}",
+                    bucket_target_name, dst_s3_key
+                );
             }
+            updated_urls.insert(url.clone());
         }
 
         // 삭제된 URLs
@@ -94,4 +96,40 @@ pub async fn detect_map_changes(
     }
 
     Ok(update_doc)
+}
+
+// 새로운 맵을저장할 때, url 경로를 변환하여 S3에 저장 하는 로직
+pub async fn new_map_changes_url(
+    s3_client: &Client,
+    map: &mut Map,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let bucket_temp_name = env::var("S3_BUCKET_TEMP_NAME")?;
+    let bucket_target_name = env::var("S3_BUCKET_TARGET_NAME")?;
+    let bucket_target_dir = env::var("S3_TARGET_DIR")?;
+
+    for url in map.marks.iter_mut().flat_map(|mark| mark.urls.iter_mut()) {
+        let file_name = url.split('/').last().ok_or(NOT_FILE_NAME_FOUND)?;
+        let file_id = Uuid::new_v4().to_string();
+
+        let src_s3_key = url.replace(
+            &format!("https://{}.s3.amazonaws.com/", bucket_temp_name),
+            "",
+        );
+        let dst_s3_key = format!("{}/{}/{}", bucket_target_dir, file_id, file_name);
+
+        copy_s3(
+            s3_client,
+            &bucket_temp_name,
+            &bucket_target_name,
+            &src_s3_key,
+            &dst_s3_key,
+        )
+        .await?;
+
+        *url = format!(
+            "https://{}.s3.amazonaws.com/{}",
+            bucket_target_name, dst_s3_key
+        );
+    }
+    Ok(())
 }

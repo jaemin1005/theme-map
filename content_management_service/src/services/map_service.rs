@@ -3,7 +3,7 @@ use crate::{
     statics::err_msg::{
         DB_FIND_FAIL, DB_FIND_MAP_FAIL, DB_INCORRECT_TOKEN_ID, INCORRECT_ACCESS, MAP_NEED_ID,
     },
-    utils::find_diffrent::detect_map_changes,
+    utils::map::{detect_map_changes, new_map_changes_url},
 };
 use aws_sdk_s3::Client as S3Client;
 use mongodb::{
@@ -23,6 +23,7 @@ pub async fn map_save(
     map_save_req: MapSaveReq,
     user_id: &str,
     db: &Database,
+    s3_client: &S3Client,
 ) -> Result<Map, Box<dyn std::error::Error>> {
     let maps = db.collection::<Map>("maps");
 
@@ -30,7 +31,9 @@ pub async fn map_save(
 
     // _id가 없을 경우, 새로운 맵이라고 판단한다.
     if let None = map_save_req.id {
-        let map = Map::new_with_req(object_id, map_save_req);
+        let mut map = Map::new_with_req(object_id, map_save_req);
+
+        new_map_changes_url(s3_client, &mut map);
 
         let insert_result = maps.insert_one(map, None).await?;
 
@@ -86,15 +89,17 @@ pub async fn map_edit(
 
         let update_doc = detect_map_changes(client, &find_map, &mut update_map).await?;
 
-        // 맵 업데이트
+        if update_doc.is_empty() == false {
+            // 맵 업데이트
 
-        let filter = doc! { "_id": update_map.id };
-        let update = doc! { "$set":  update_doc};
+            let filter = doc! { "_id": update_map.id };
+            let update = doc! { "$set":  update_doc};
 
-        // 업데이트 옵션 설정, 문서가 없을 경우 생성하는걸 방지한다
-        let options = UpdateOptions::builder().upsert(false).build();
+            // 업데이트 옵션 설정, 문서가 없을 경우 생성하는걸 방지한다
+            let options = UpdateOptions::builder().upsert(false).build();
 
-        maps.update_one(filter, update, options).await?;
+            maps.update_one(filter, update, options).await?;
+        }
 
         // DB의 업데이트 된 맵을 찾아 체크 후 반환
         let check_map = maps
