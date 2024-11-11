@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_multipart::Multipart;
 use actix_web::web;
 use aws_sdk_s3::{primitives::ByteStream, Client};
@@ -12,6 +14,7 @@ pub async fn upload_images(
     mut payload: Multipart,
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut image_urls = Vec::new();
+    let s3_dir_name = env::var("AWS_S3_DIR")?;
 
     while let Ok(Some(mut field)) = payload.try_next().await {
         // 파일의 메타 정보를 가져온다. 없을 경우 에러
@@ -21,7 +24,7 @@ pub async fn upload_images(
 
         let file_id = Uuid::new_v4().to_string();
 
-        let s3_key = format!("uploads/{}/{}", file_id, filename);
+        let s3_key = format!("{}/{}/{}", s3_dir_name, file_id, filename);
 
         let mut bytes = web::BytesMut::new();
         while let Ok(Some(chunk)) = field.try_next().await {
@@ -58,8 +61,7 @@ pub async fn remove_images(
     for url_str in urls {
         // Parse the URL to extract the S3 key
         let base_url = format!("https://{}.s3.amazonaws.com/", bucket_name);
-        let s3_key = url_str.strip_prefix(&base_url)
-            .ok_or(INVALID_URL_FORMAT)?;
+        let s3_key = url_str.strip_prefix(&base_url).ok_or(INVALID_URL_FORMAT)?;
 
         // Delete the object from S3
         s3_client
