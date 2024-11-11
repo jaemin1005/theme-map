@@ -1,8 +1,15 @@
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
+// 맵 객체
+// id: 맵의 고유 Id,
+// user_id: 맵을 저장한 유저의 고유 Id,
+// title: 맵의 제목
+// body: 맵에 대한 간략한 설명
+// marks: 맵을 이루고 있는 마커들
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Map {
+    // none이라면 직렬화를 스킵한다. 
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub user_id: ObjectId,
@@ -23,6 +30,11 @@ impl Map {
     }
 }
 
+// 맵 저장시의 객체
+// id: 맵의 고유 ID (맵을 새로 저장할 때는 None, Edit일 경우 값이 존재)
+// title: 맵의 이름
+// body: 맵 설명
+// marks: 맵 마커들
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MapSaveReq {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
@@ -32,7 +44,11 @@ pub struct MapSaveReq {
     pub marks: Vec<Mark>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+// urls: 이미지의 걍로
+// title: 마커의 제목
+// body: 마커의 설명
+// point: 마커의 좌표
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Mark {
     pub urls: Vec<String>,
     pub title: String,
@@ -67,4 +83,3 @@ pub struct MapReadRes {
     pub map: MapSaveReq,
     pub is_edit: bool,
 }
-
