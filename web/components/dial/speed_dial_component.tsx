@@ -38,7 +38,7 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({
   onSaveAsNewClick,
 }) => {
   const { user } = useAuth();
-  const { id } = useMap();
+  const { id, isEdited } = useMap();
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen(true);
@@ -92,7 +92,7 @@ export const SpeedDial: React.FC<SpeedDialProps> = ({
               onClick={onSaveClick}
               open={open}
               FabProps={{
-                disabled: id === undefined,  // disabled 상태로 설정
+                disabled: id === undefined || isEdited === false,  // disabled 상태로 설정
               }}
             />,
             <SpeedDialAction
