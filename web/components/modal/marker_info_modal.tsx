@@ -17,7 +17,7 @@ import { useAuth } from "@/context/auth_context";
 import { ErrMsg } from "@/interface/err.dto";
 import { UploadImageRes } from "@/interface/upload.dto";
 import { ERROR_MSG } from "@/static/log/error_msg";
-import { API_ROUTE } from "@/static/routes";
+import { API_ROUTE } from "@/static/api/routes";
 
 enum MODAL_CONSTANT {
   TITLE = "Marker Info",

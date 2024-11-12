@@ -10,7 +10,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { MapInfoComponent } from "./map_info_component";
 import { ObjectId } from "@/interface/objectId";
-import { API_ROUTE } from "@/static/routes";
+import { API_ROUTE } from "@/static/api/routes";
 import { useMap } from "@/context/map_context";
 import { ToastComponent } from "../toast/toast_component";
 import { useToast } from "../toast/toast_hook";
