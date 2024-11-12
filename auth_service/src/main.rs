@@ -12,19 +12,17 @@ mod services {
     pub mod auth_service;
 }
 mod models {
+    pub mod app_err;
     pub mod err;
     pub mod refresh_token;
     pub mod user;
 }
+
 mod utils {
     pub mod db;
     pub mod jwt;
     pub mod password;
     pub mod user;
-}
-
-mod statics {
-    pub mod err_msg;
 }
 
 #[actix_web::main]

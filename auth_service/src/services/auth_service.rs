@@ -2,16 +2,16 @@ use actix_web::HttpRequest;
 use chrono::{Duration, Utc};
 use mongodb::{bson::doc, bson::oid::ObjectId, Database};
 
+use crate::models::app_err::AppError;
 use crate::models::refresh_token::{AccessTokenRes, RefreshToken};
 use crate::models::user::{LoginRequest, LoginResponse, RegisterRequest, User, UserRes};
-use crate::statics::err_msg::INVALID_REFESH_TOKEN;
 use crate::utils::{jwt, password};
 
 // 유저 회원가입
 pub async fn register_user(
     register_info: RegisterRequest,
     db: &Database,
-) -> Result<UserRes, Box<dyn std::error::Error>> {
+) -> Result<UserRes, AppError> {
     let users = db.collection::<User>("users");
 
     // 이메일 중복 확인
@@ -20,7 +20,7 @@ pub async fn register_user(
         .await?
         .is_some()
     {
-        return Err("이미 존재하는 이메일입니다.".into());
+        return Err(AppError::EmailAlreadyExists);
     }
 
     // 비밀번호 해싱
@@ -41,13 +41,13 @@ pub async fn register_user(
     let user_id = insert_result
         .inserted_id
         .as_object_id() // Bson을 ObjectId로 변환
-        .ok_or("삽입된 ID를 가져오지 못했습니다.")?;
+        .ok_or(AppError::UserNotFound)?;
 
     // 데이터베이스에서 사용자 조회
     let user = users
         .find_one(doc! { "_id": user_id.clone() }, None)
         .await?
-        .ok_or("사용자를 찾을 수 없습니다.")?;
+        .ok_or(AppError::UserNotFound)?;
 
     Ok(UserRes {
         email: user.email,
@@ -59,18 +59,18 @@ pub async fn register_user(
 pub async fn login_user(
     login_info: LoginRequest,
     db: &Database,
-) -> Result<LoginResponse, Box<dyn std::error::Error>> {
+) -> Result<LoginResponse, AppError> {
     let users = db.collection::<User>("users");
 
     // 이메일로 사용자 조회
     let user = users
         .find_one(doc! { "email": &login_info.email }, None)
         .await?
-        .ok_or("이메일 또는 비밀번호가 잘못되었습니다.")?;
+        .ok_or(AppError::InvalidCredentials)?;
 
     // 비밀번호 검증
     if !password::verify_password(&login_info.password, &user.password)? {
-        return Err("이메일 또는 비밀번호가 잘못되었습니다.".into());
+        return Err(AppError::InvalidCredentials);
     }
 
     let user_id = user.id.as_ref().unwrap().to_hex();
@@ -130,11 +130,9 @@ pub async fn login_user(
 
 // 리프레시 토큰 재생성
 // 1. 리프레시 토큰 유출 방지, 2. 권한 해제 및 세션 종료 관리
-pub async fn refresh_token(
-    req: &HttpRequest,
-    db: &Database,
-) -> Result<LoginResponse, Box<dyn std::error::Error>> {
-    let refresh_token = extract_refresh_token_from_request(req)?;
+pub async fn refresh_token(req: &HttpRequest, db: &Database) -> Result<LoginResponse, AppError> {
+    let refresh_token =
+        extract_refresh_token_from_request(req).map_err(|_| AppError::MissingRefreshToken)?;
 
     let token_data = jwt::verify_refresh_token(&refresh_token)?;
 
@@ -148,7 +146,7 @@ pub async fn refresh_token(
 
     // 해당 토큰이 db에 존재하지 않을 떄
     if stored_token.is_none() {
-        return Err(INVALID_REFESH_TOKEN.into());
+        return Err(AppError::TokenNotFound);
     }
 
     // 새로운 토큰 생성, 리프레쉬 토큰 재생성
@@ -179,7 +177,7 @@ pub async fn refresh_token(
 pub async fn refresh_aceess_token(
     req: &HttpRequest,
     db: &Database,
-) -> Result<AccessTokenRes, Box<dyn std::error::Error>> {
+) -> Result<AccessTokenRes, AppError> {
     let refresh_token = extract_refresh_token_from_request(req)?;
 
     let token_data = jwt::verify_refresh_token(&refresh_token)?;
@@ -193,7 +191,7 @@ pub async fn refresh_aceess_token(
     let stored_token = refresh_tokens.find_one(filter, None).await?;
 
     if stored_token.is_none() {
-        return Err(INVALID_REFESH_TOKEN.into());
+        return Err(AppError::TokenNotFound);
     }
 
     let access_token = jwt::create_access_token(&user_id)?;
@@ -205,7 +203,7 @@ pub async fn refresh_aceess_token(
 pub async fn logout_user(
     req: &HttpRequest,
     db: &Database,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), AppError> {
     // 클라이언트로부터 리프레시 토큰 가져오기
     let refresh_token = extract_refresh_token_from_request(req)?;
 
@@ -220,16 +218,16 @@ pub async fn logout_user(
 pub async fn get_user_info(
     req: &HttpRequest,
     db: &Database,
-) -> Result<User, Box<dyn std::error::Error>> {
+) -> Result<User, AppError> {
     // Authorization 헤더에서 액세스 토큰 추출
     let auth_header = req
         .headers()
         .get("Authorization")
-        .ok_or("Authorization 헤더가 없습니다.")?
+        .ok_or(AppError::InvalidAuthorizationHeader)?
         .to_str()?;
 
     if !auth_header.starts_with("Bearer ") {
-        return Err("잘못된 Authorization 헤더입니다.".into());
+        return Err(AppError::InvalidAuthorizationHeader)?;
     }
 
     let token = &auth_header[7..]; // "Bearer " 부분 제거
@@ -246,7 +244,7 @@ pub async fn get_user_info(
 }
 
 // _id를 통해 유저 정보를 가져온다
-async fn get_user_by_id(user_id: &str, db: &Database) -> Result<User, Box<dyn std::error::Error>> {
+async fn get_user_by_id(user_id: &str, db: &Database) -> Result<User, AppError> {
     let users = db.collection::<User>("users");
 
     let object_id = ObjectId::parse_str(user_id)?;
@@ -254,7 +252,7 @@ async fn get_user_by_id(user_id: &str, db: &Database) -> Result<User, Box<dyn st
     let user = users
         .find_one(doc! { "_id": object_id }, None)
         .await?
-        .ok_or("사용자를 찾을 수 없습니다.")?;
+        .ok_or(AppError::UserNotFound)?;
 
     Ok(User {
         id: user.id,
@@ -265,22 +263,20 @@ async fn get_user_by_id(user_id: &str, db: &Database) -> Result<User, Box<dyn st
 }
 
 // 요청으로 부터 리프레쉬 토큰을 추출한다.
-fn extract_refresh_token_from_request(
-    req: &HttpRequest,
-) -> Result<String, Box<dyn std::error::Error>> {
+fn extract_refresh_token_from_request(req: &HttpRequest) -> Result<String, AppError> {
     if let Some(cookie) = req.cookie("refreshToken") {
         Ok(cookie.value().to_string())
     } else {
-        Err("리프레시 토큰이 요청에 없습니다.".into())
+        Err(AppError::MissingRefreshToken)
     }
 }
 
 // 비밀번호없이 유저 정보 반환
-fn user_without_password(user: User) -> User {
-    User {
-        id: user.id.clone(),
-        name: user.name,
-        email: user.email,
-        password: String::new(), // 비밀번호는 비워둡니다.
-    }
-}
+// fn user_without_password(user: User) -> User {
+//     User {
+//         id: user.id.clone(),
+//         name: user.name,
+//         email: user.email,
+//         password: String::new(), // 비밀번호는 비워둡니다.
+//     }
+// }
