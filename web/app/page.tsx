@@ -27,6 +27,7 @@ import { MapSearchMeModal } from "@/components/modal/map_search_me_modal";
 import { UploadImageRes } from "@/interface/upload.dto";
 import { ErrMsg } from "@/interface/err.dto";
 import { MapSearchModal } from "@/components/modal/map_search_modal";
+import { API_ROUTE } from "@/static/api/routes";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -345,8 +346,10 @@ export default function Home() {
       marks,
     };
 
+    const route = isSaveMapNew ?  API_ROUTE.MAP_SAVE : API_ROUTE.MAP_EDIT;
+
     try {
-      const response = await fetch("/api/contents/map_save", {
+      const response = await fetch(route, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,

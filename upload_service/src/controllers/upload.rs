@@ -15,7 +15,7 @@ use crate::{
  * ! 유효성 검사를 넣는다고 하면 비회원 유저들은 마크를 사용할 수가 없다.
  */
 pub async fn upload_images(
-    req: HttpRequest,
+    _req: HttpRequest,
     payload: Multipart,
     client: web::Data<Client>,
 ) -> impl Responder {
@@ -32,7 +32,7 @@ pub async fn upload_images(
 }
 
 pub async fn remove_images(
-    req: HttpRequest,
+    _req: HttpRequest,
     body: web::Json<UploadImgRes>,
     client: web::Data<Client>,
 ) -> impl Responder {

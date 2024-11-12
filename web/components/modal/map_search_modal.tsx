@@ -10,7 +10,7 @@ import {
 import { useCallback, useState } from "react";
 import { MapInfoComponent } from "./map_info_component";
 import { ObjectId } from "@/interface/objectId";
-import { API_ROUTE } from "@/static/routes";
+import { API_ROUTE } from "@/static/api/routes";
 import { SearchBarComponent } from "../search_bar_component";
 import { SEARCH_TYPE } from "@/interface/search.dto";
 

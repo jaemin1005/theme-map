@@ -10,6 +10,7 @@ export enum API_ROUTE {
 
   // CONTENTS
   MAP_SAVE = "/api/contents/map_save",
+  MAP_EDIT = "/api/contents/edit",
   MAP_ME = "/api/contents/me",
   MAP_READ = "/api/contents/read",
   MAP_SEARCH = "/api/contents/search",
