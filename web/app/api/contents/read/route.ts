@@ -1,4 +1,4 @@
-import { MapReadReq } from "@/interface/content.dto";
+import { MapId } from "@/interface/content.dto";
 import {
   FAILED_VALIDATE_BODY,
   INTERNAL_SERVER_ERROR,
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     return NONE_ACCESS_TOKEN;
   }
 
-  const body = await validateBody(req, MapReadReq, validateOptions);
+  const body = await validateBody(req, MapId, validateOptions);
   if (Array.isArray(body)) {
     return FAILED_VALIDATE_BODY;
   }
@@ -33,8 +33,16 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
-    return NextResponse.json(data, { status: data.status });
+    if (response.ok) {
+      const data = await response.json();
+      return NextResponse.json(data, { status: response.status });
+    } else {
+      const errorData = await response.json();
+      return NextResponse.json(
+        { message: errorData.message },
+        { status: response.status }
+      );
+    }
   } catch (error) {
     console.error(error);
     return INTERNAL_SERVER_ERROR;

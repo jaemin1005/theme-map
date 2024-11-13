@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
         );
 
         setUpRefreshToken(res, data.refresh_token);
-
         return res;
       }
 
@@ -44,9 +43,10 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       );
     } else {
+      const errorData = await response.json();
       return NextResponse.json(
-        { message: "리프레시 토큰이 유효하지 않습니다." },
-        { status: 401 }
+        { message: errorData.message },
+        { status: response.status }
       );
     }
   } catch (error) {
