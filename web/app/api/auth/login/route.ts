@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
   }
 
   const AUTH_SERVICE_URL = getEnv(GET_ENV.AUTH_SERVICE_URL);
+  const deviceId = req.headers.get("Device-ID");
 
   try {
     // Actix Web 서버로 로그인 요청 전송
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Device-ID": deviceId || "",
       },
       body: JSON.stringify(body),
     });

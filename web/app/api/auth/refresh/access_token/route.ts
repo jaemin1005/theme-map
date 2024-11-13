@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
   }
 
   const AUTH_SERVICE_URL = getEnv(GET_ENV.AUTH_SERVICE_URL);
+  const deviceId = req.headers.get("Device-ID");
 
   try {
     // Actix Web 서버에 리프레시 토큰으로 액세스 토큰 갱신 요청
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Device-ID": deviceId || "",
         Cookie: `${REFRESH_TOKEN}=${refreshToken}`,
       },
     });
