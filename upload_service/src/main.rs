@@ -17,12 +17,9 @@ pub mod services {
 }
 
 pub mod models {
+    pub mod app_err;
     pub mod upload_model;
     pub mod err;
-}
-
-pub mod statics {
-    pub mod err_msg;
 }
 
 pub mod routes;

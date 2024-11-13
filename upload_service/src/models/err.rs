@@ -1,12 +1,12 @@
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub struct ErrorRes<'a> {
-    pub message: &'a str,
+pub struct ErrorRes {
+    pub message: String,
 }
 
-impl<'a> ErrorRes<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message: message }
+impl ErrorRes {
+    pub fn new(message: String) -> Self {
+        Self { message }
     }
 }

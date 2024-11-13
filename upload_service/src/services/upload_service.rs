@@ -6,21 +6,25 @@ use aws_sdk_s3::{primitives::ByteStream, Client};
 use futures_util::TryStreamExt;
 use uuid::Uuid;
 
-use crate::statics::err_msg::{FILE_NO_FILENAME, FILE_NO_METADATA, INVALID_URL_FORMAT};
+use crate::models::app_err::AppError;
 
 pub async fn upload_images(
     s3_client: &Client,
     bucket_name: &str,
     mut payload: Multipart,
-) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+) -> Result<Vec<String>, AppError> {
     let mut image_urls = Vec::new();
     let s3_dir_name = env::var("AWS_S3_DIR")?;
 
     while let Ok(Some(mut field)) = payload.try_next().await {
         // 파일의 메타 정보를 가져온다. 없을 경우 에러
-        let content_disposition = field.content_disposition().ok_or(FILE_NO_METADATA)?;
+        let content_disposition = field
+            .content_disposition()
+            .ok_or(AppError::MetaDataNotFound)?;
         // 파일 이름을 가져온다. 파일의 이름이 없을 경우 default: file
-        let filename = content_disposition.get_filename().ok_or(FILE_NO_FILENAME)?;
+        let filename = content_disposition
+            .get_filename()
+            .ok_or(AppError::FileNameNotFound)?;
 
         let file_id = Uuid::new_v4().to_string();
 
@@ -51,26 +55,4 @@ pub async fn upload_images(
     }
 
     Ok(image_urls)
-}
-
-pub async fn remove_images(
-    urls: Vec<String>,
-    s3_client: &Client,
-    bucket_name: &str,
-) -> Result<bool, Box<dyn std::error::Error>> {
-    for url_str in urls {
-        // Parse the URL to extract the S3 key
-        let base_url = format!("https://{}.s3.amazonaws.com/", bucket_name);
-        let s3_key = url_str.strip_prefix(&base_url).ok_or(INVALID_URL_FORMAT)?;
-
-        // Delete the object from S3
-        s3_client
-            .delete_object()
-            .bucket(bucket_name)
-            .key(s3_key)
-            .send()
-            .await?;
-    }
-
-    Ok(true)
 }
