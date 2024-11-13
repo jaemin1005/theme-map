@@ -1,4 +1,4 @@
-import { MapReadReq, MapSearchMeRes } from "@/interface/content.dto";
+import { MapId, MapSearchMeRes } from "@/interface/content.dto";
 import { Button } from "@nextui-org/button";
 import {
   Modal,
@@ -78,7 +78,7 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
   const onClickDeleteCb = async (idx: number) => {
     const map = mapsData[idx];
 
-    const body: MapReadReq = {
+    const body: MapId = {
       _id: map._id,
     };
 
@@ -96,7 +96,9 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
         return;
       }
 
-      if (id && map._id === id) {
+      const mapId = (await res.json()) as MapId;
+
+      if (id && mapId._id.$oid === id.$oid) {
         init();
       }
       setMapsData((prev) => {

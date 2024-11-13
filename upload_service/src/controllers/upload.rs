@@ -1,11 +1,11 @@
 use std::env;
 
 use actix_multipart::Multipart;
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse};
 use aws_sdk_s3::Client;
 
 use crate::{
-    models::{err::ErrorRes, upload_model::UploadImgRes},
+    models::{app_err::AppError, upload_model::UploadImgRes},
     services::upload_service,
 };
 
@@ -18,31 +18,10 @@ pub async fn upload_images(
     _req: HttpRequest,
     payload: Multipart,
     client: web::Data<Client>,
-) -> impl Responder {
+) -> Result<HttpResponse, AppError> {
     // buck
-    let bucket_name = match env::var("AWS_S3_BUCKET_NAME") {
-        Ok(name) => name,
-        Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
-    };
+    let bucket_name = env::var("AWS_S3_BUCKET_NAME")?;
 
-    match upload_service::upload_images(&client, &bucket_name, payload).await {
-        Ok(res) => HttpResponse::Ok().json(UploadImgRes { img_urls: res }),
-        Err(e) => HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
-    }
-}
-
-pub async fn remove_images(
-    _req: HttpRequest,
-    body: web::Json<UploadImgRes>,
-    client: web::Data<Client>,
-) -> impl Responder {
-    let bucket_name = match env::var("AWS_S3_BUCKET_NAME") {
-        Ok(name) => name,
-        Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
-    };
-
-    match upload_service::remove_images(body.into_inner().img_urls, &client, &bucket_name).await {
-        Ok(_) => HttpResponse::Ok().finish(),
-        Err(e) => return HttpResponse::InternalServerError().json(ErrorRes::new(&e.to_string())),
-    }
+    let images = upload_service::upload_images(&client, &bucket_name, payload).await?;
+    Ok(HttpResponse::Ok().json(UploadImgRes { img_urls: images }))
 }

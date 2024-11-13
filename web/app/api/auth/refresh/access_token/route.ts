@@ -23,8 +23,16 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    if (response.ok) {
+      const data = await response.json();
+      return NextResponse.json(data, { status: response.status });
+    } else {
+      const errorData = await response.json();
+      return NextResponse.json(
+        { message: errorData.message },
+        { status: response.status }
+      );
+    }
   } catch (error) {
     console.error(error);
     return INTERNAL_SERVER_ERROR;

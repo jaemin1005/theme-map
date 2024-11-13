@@ -1,11 +1,10 @@
 use std::{collections::HashSet, env};
 
-use crate::{models::map::Map, statics::err_msg::NOT_FILE_NAME_FOUND};
+use crate::models::{app_err::AppError, map::Map};
 
 use aws_sdk_s3::Client;
 use mongodb::bson;
 use mongodb::bson::Document;
-use uuid::Uuid;
 
 use super::s3::{copy_s3, remove_s3};
 
@@ -14,7 +13,7 @@ pub async fn detect_map_changes(
     s3_client: &Client,
     original: &Map,
     updated: &mut Map,
-) -> Result<Document, Box<dyn std::error::Error>> {
+) -> Result<Document, AppError> {
     let mut update_doc = Document::new();
 
     if original.title != updated.title {
@@ -35,8 +34,6 @@ pub async fn detect_map_changes(
 
         let bucket_temp_name = env::var("S3_BUCKET_TEMP_NAME")?;
         let bucket_temp_dir = env::var("S3_TEMP_DIR")?;
-        let bucket_target_name = env::var("S3_BUCKET_TARGET_NAME")?;
-        let bucket_target_dir = env::var("S3_TARGET_DIR")?;
 
         // HashSet을 사용하여 중복 없이 URL 수집
         let mut updated_urls = HashSet::new();
@@ -53,29 +50,10 @@ pub async fn detect_map_changes(
         {
             // 추가된 URL이 임시 저장소에 있는 경우 최종 버킷으로 이동
             if url.contains(&check_url) {
-                let file_name = url.split('/').last().ok_or(NOT_FILE_NAME_FOUND)?;
-                let file_id = Uuid::new_v4().to_string();
-
-                let src_s3_key = url.replace(
-                    &format!("https://{}.s3.amazonaws.com/", bucket_temp_name),
-                    "",
-                );
-                let dst_s3_key = format!("{}/{}/{}", bucket_target_dir, file_id, file_name);
-
-                copy_s3(
-                    s3_client,
-                    &bucket_temp_name,
-                    &bucket_target_name,
-                    &src_s3_key,
-                    &dst_s3_key,
-                )
-                .await?;
+                let dst_url = copy_s3(s3_client, &url).await?;
 
                 // 최종 URL로 변경하여 updated.marks에 반영한다
-                *url = format!(
-                    "https://{}.s3.amazonaws.com/{}",
-                    bucket_target_name, dst_s3_key
-                );
+                *url = dst_url
             }
             updated_urls.insert(url.clone());
         }
@@ -83,13 +61,7 @@ pub async fn detect_map_changes(
         // 삭제된 URLs
         let deleted_urls: HashSet<_> = original_urls.difference(&updated_urls).collect();
         for url in &deleted_urls {
-            let bucket_target_name = env::var("S3_BUCKET_TARGET_NAME")?;
-            let key = url.replace(
-                &format!("https://{}.s3.amazonaws.com/", bucket_target_name),
-                "",
-            );
-
-            remove_s3(s3_client, &bucket_target_name, &key).await?;
+            remove_s3(s3_client, url).await?;
         }
 
         update_doc.insert("marks", bson::to_bson(&updated.marks)?);
@@ -99,37 +71,11 @@ pub async fn detect_map_changes(
 }
 
 // 새로운 맵을저장할 때, url 경로를 변환하여 S3에 저장 하는 로직
-pub async fn new_map_changes_url(
-    s3_client: &Client,
-    map: &mut Map,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let bucket_temp_name = env::var("S3_BUCKET_TEMP_NAME")?;
-    let bucket_target_name = env::var("S3_BUCKET_TARGET_NAME")?;
-    let bucket_target_dir = env::var("S3_TARGET_DIR")?;
-
+pub async fn new_map_changes_url(s3_client: &Client, map: &mut Map) -> Result<(), AppError> {
     for url in map.marks.iter_mut().flat_map(|mark| mark.urls.iter_mut()) {
-        let file_name = url.split('/').last().ok_or(NOT_FILE_NAME_FOUND)?;
-        let file_id = Uuid::new_v4().to_string();
+        let dst_url = copy_s3(s3_client, &url).await?;
 
-        let src_s3_key = url.replace(
-            &format!("https://{}.s3.amazonaws.com/", bucket_temp_name),
-            "",
-        );
-        let dst_s3_key = format!("{}/{}/{}", bucket_target_dir, file_id, file_name);
-
-        copy_s3(
-            s3_client,
-            &bucket_temp_name,
-            &bucket_target_name,
-            &src_s3_key,
-            &dst_s3_key,
-        )
-        .await?;
-
-        *url = format!(
-            "https://{}.s3.amazonaws.com/{}",
-            bucket_target_name, dst_s3_key
-        );
+        *url = dst_url;
     }
     Ok(())
 }

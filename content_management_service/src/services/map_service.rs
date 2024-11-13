@@ -1,10 +1,14 @@
 use crate::{
-    models::map::{Map, MapReadRes, MapSaveReq, MapSearchRes},
-    statics::err_msg::{
-        DB_FIND_FAIL, DB_FIND_MAP_FAIL, DB_INCORRECT_TOKEN_ID, INCORRECT_ACCESS, MAP_NEED_ID,
+    models::{
+        app_err::AppError,
+        map::{Map, MapDetails, MapId, MapReadRes, MapSearchResult},
     },
-    utils::map::{detect_map_changes, new_map_changes_url},
+    utils::{
+        map::{detect_map_changes, new_map_changes_url},
+        s3::remove_s3,
+    },
 };
+
 use aws_sdk_s3::Client as S3Client;
 use mongodb::{
     bson::{doc, oid::ObjectId},
@@ -20,18 +24,18 @@ use futures_util::TryStreamExt;
  * _id가 있을 경우, 잘못된 접근임으로 에러
  */
 pub async fn map_save(
-    map_save_req: MapSaveReq,
+    map_details: MapDetails,
     user_id: &str,
     db: &Database,
     s3_client: &S3Client,
-) -> Result<Map, Box<dyn std::error::Error>> {
+) -> Result<Map, AppError> {
     let maps = db.collection::<Map>("maps");
 
     let object_id = ObjectId::parse_str(user_id)?;
 
     // _id가 없을 경우, 새로운 맵이라고 판단한다.
-    if let None = map_save_req.id {
-        let mut map = Map::new_with_req(object_id, map_save_req);
+    if let None = map_details.id {
+        let mut map = Map::new_with_details(object_id, map_details);
 
         new_map_changes_url(s3_client, &mut map).await?;
 
@@ -40,16 +44,16 @@ pub async fn map_save(
         let result_id = insert_result
             .inserted_id
             .as_object_id()
-            .ok_or("삽입된 ID를 가져오지 못했습니다.")?;
+            .ok_or(AppError::ObjectIdNotFound)?;
 
         let new_map = maps
             .find_one(doc! {"_id": result_id.clone()}, None)
             .await?
-            .ok_or(DB_FIND_MAP_FAIL)?;
+            .ok_or(AppError::MapNotFound)?;
 
         Ok(new_map)
     } else {
-        Err(INCORRECT_ACCESS.into())
+        Err(AppError::InvalidAceessError)
     }
 }
 
@@ -60,30 +64,30 @@ pub async fn map_save(
  * ++ 임시 이미지인가도 확인이 필요하다.
  */
 pub async fn map_edit(
-    map_save_req: MapSaveReq,
+    map_details: MapDetails,
     user_id: &str,
     db: &Database,
     client: &S3Client,
-) -> Result<Map, Box<dyn std::error::Error>> {
-    if let None = map_save_req.id {
-        Err(MAP_NEED_ID.into())
+) -> Result<Map, AppError> {
+    if let None = map_details.id {
+        Err(AppError::InvalidAceessError)
     } else {
         let maps = db.collection::<Map>("maps");
 
         // 원래 저장되어있는 맵
         let find_map = maps
-            .find_one(doc! {"_id" : map_save_req.id}, None)
+            .find_one(doc! {"_id" : map_details.id}, None)
             .await?
-            .ok_or(DB_FIND_MAP_FAIL)?;
+            .ok_or(AppError::MapNotFound)?;
 
         let object_user_id = ObjectId::parse_str(user_id)?;
 
         // 수정하려는 맵이 옳바른 유저의 접근인지 판단
         if find_map.user_id != object_user_id {
-            return Err(DB_INCORRECT_TOKEN_ID.into());
+            return Err(AppError::InvalidAceessError);
         }
 
-        let mut update_map = Map::new_with_req(object_user_id, map_save_req);
+        let mut update_map = Map::new_with_details(object_user_id, map_details);
 
         // Diffrent 로직
 
@@ -105,7 +109,7 @@ pub async fn map_edit(
         let check_map = maps
             .find_one(doc! {"_id": update_map.id}, None)
             .await?
-            .ok_or(DB_FIND_MAP_FAIL)?;
+            .ok_or(AppError::MapNotFound)?;
 
         Ok(check_map)
     }
@@ -115,10 +119,7 @@ pub async fn map_edit(
  * 자기가 저장한 맵을 불러온다.
  * user_id를 통해, 자기의 맵을 불러옴
  */
-pub async fn map_me(
-    user_id: &str,
-    db: &Database,
-) -> Result<Vec<MapSearchRes>, Box<dyn std::error::Error>> {
+pub async fn map_me(user_id: &str, db: &Database) -> Result<Vec<MapSearchResult>, AppError> {
     let maps = db.collection::<Map>("maps");
 
     let object_id_user = ObjectId::parse_str(user_id)?;
@@ -132,18 +133,18 @@ pub async fn map_me(
     }
 
     // ObjectId가 None일때 에러를 반환.
-    let res: Vec<MapSearchRes> = find_maps
+    let res: Vec<MapSearchResult> = find_maps
         .iter()
         .map(|map| {
-            let id = map.id.clone().ok_or("Map ID is missing")?;
-            Ok(MapSearchRes {
+            let id = map.id.clone().ok_or(AppError::ObjectIdNotFound)?;
+            Ok(MapSearchResult {
                 id,
                 title: map.title.clone(),
                 body: map.body.clone(),
                 is_edit: object_id_user == map.user_id,
             })
         })
-        .collect::<Result<_, Box<dyn std::error::Error>>>()?;
+        .collect::<Result<_, AppError>>()?;
 
     Ok(res)
 }
@@ -156,7 +157,7 @@ pub async fn map_read(
     _id: &ObjectId,
     user_id: Option<&str>,
     db: &Database,
-) -> Result<MapReadRes, Box<dyn std::error::Error>> {
+) -> Result<MapReadRes, AppError> {
     let maps = db.collection::<Map>("maps");
     let find_doc = doc! {"_id": _id};
 
@@ -166,10 +167,13 @@ pub async fn map_read(
         None
     };
 
-    let find_map = maps.find_one(find_doc, None).await?.ok_or(DB_FIND_FAIL)?;
+    let find_map = maps
+        .find_one(find_doc, None)
+        .await?
+        .ok_or(AppError::MapNotFound)?;
     let is_edit = object_id_user.map_or(false, |obj_id| obj_id == find_map.user_id);
 
-    let map_save_req = MapSaveReq {
+    let map_save_req = MapDetails {
         id: find_map.id,
         title: find_map.title,
         body: find_map.body,
@@ -190,27 +194,35 @@ pub async fn map_remove(
     _id: &ObjectId,
     user_id: &str,
     db: &Database,
-) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    s3_client: &S3Client,
+) -> Result<MapId, AppError> {
     let maps = db.collection::<Map>("maps");
     let find_doc = doc! {"_id": _id};
 
     let find_map = maps
         .find_one(find_doc.clone(), None)
         .await?
-        .ok_or(DB_FIND_FAIL)?;
+        .ok_or(AppError::MapNotFound)?;
+
+    let map_object_id = find_map.id.ok_or(AppError::ObjectIdNotFound)?;
 
     if find_map.user_id != ObjectId::parse_str(user_id)? {
-        return Err(DB_INCORRECT_TOKEN_ID.into());
+        return Err(AppError::InvalidAceessError);
     }
 
     let urls = find_map
         .marks
         .iter()
         .flat_map(|mark| mark.urls.clone())
-        .collect();
+        .collect::<Vec<_>>();
+
+    // 이미지 삭제
+    for url in urls {
+        remove_s3(s3_client, &url).await?;
+    }
 
     // 맵 삭제
     maps.delete_one(find_doc, None).await?;
 
-    return Ok(urls);
+    return Ok(MapId::new(map_object_id));
 }
