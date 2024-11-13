@@ -2471,6 +2471,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
+ "thiserror",
  "uuid",
 ]
 
