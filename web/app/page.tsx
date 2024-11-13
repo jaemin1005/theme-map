@@ -21,7 +21,7 @@ import { RegisterReq } from "@/interface/auth.dto";
 import { User } from "@/interface/user";
 import { MarkerInfoModal } from "@/components/modal/marker_info_modal";
 import { MapSaveModal } from "@/components/modal/map_save_modal";
-import { MapReadReq, MapReadRes, MapSaveReq } from "@/interface/content.dto";
+import { MapId, MapReadRes, MapSaveReq } from "@/interface/content.dto";
 import { ObjectId } from "@/interface/objectId";
 import { MapSearchMeModal } from "@/components/modal/map_search_me_modal";
 import { UploadImageRes } from "@/interface/upload.dto";
@@ -305,7 +305,7 @@ export default function Home() {
   const logoutFunc = async () => {
     await logout();
     init();
-  }
+  };
 
   const registerFunc = async (
     email: string,
@@ -346,7 +346,7 @@ export default function Home() {
       marks,
     };
 
-    const route = isSaveMapNew ?  API_ROUTE.MAP_SAVE : API_ROUTE.MAP_EDIT;
+    const route = isSaveMapNew ? API_ROUTE.MAP_SAVE : API_ROUTE.MAP_EDIT;
 
     try {
       const response = await fetch(route, {
@@ -359,10 +359,10 @@ export default function Home() {
 
       if (response.ok) {
         showToast(TOAST_MSG.MAP_SAVE_SUCCESS, "success");
-        const data = (await response.json()) as ObjectId;
-        setId(data);
-        setTitle(title);
-        setBody(body);
+        const data = (await response.json()) as MapSaveReq;
+        setId(data._id!);
+        setTitle(data.title);
+        setBody(data.body);
         setIsSaveMapModalOpen(false);
       } else {
         showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
@@ -373,7 +373,7 @@ export default function Home() {
   };
 
   const readMap = async (_id: ObjectId) => {
-    const body: MapReadReq = {
+    const body: MapId = {
       _id,
     };
 

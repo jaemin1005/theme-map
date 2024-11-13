@@ -77,7 +77,7 @@ export interface MapSearchMeRes {
   is_edit: boolean,
 }
 
-export class MapReadReq {
+export class MapId {
   @Type(() => ObjectId)
   @ValidateNested()
   _id!: ObjectId
