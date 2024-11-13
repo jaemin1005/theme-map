@@ -14,10 +14,10 @@ mod controllers {
 mod services {
     pub mod map_service;
     pub mod search_service;
-    pub mod user_service;
 }
 
 mod models {
+    pub mod app_err;
     pub mod err;
     pub mod map;
     pub mod search_model;
@@ -27,14 +27,10 @@ mod models {
 
 mod utils {
     pub mod db;
-    pub mod map;
     pub mod get_user_info;
     mod jwt;
+    pub mod map;
     pub mod s3;
-}
-
-mod statics {
-    pub mod err_msg;
 }
 
 mod routes;
@@ -55,7 +51,7 @@ async fn main() -> std::io::Result<()> {
             ));
         }
     };
-    
+
     //세션을 시작하기 위한 client 생성 ()
     let config = aws_config::defaults(BehaviorVersion::latest()).load().await;
     let s3_client = Client::new(&config);

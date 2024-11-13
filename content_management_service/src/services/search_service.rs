@@ -5,9 +5,7 @@ use mongodb::{
 };
 
 use crate::models::{
-    map::{Map, MapSearchRes},
-    search_model::SearchType,
-    user::User,
+    app_err::AppError, map::{Map, MapSearchResult}, search_model::SearchType, user::User
 };
 
 use futures_util::TryStreamExt;
@@ -18,7 +16,7 @@ pub async fn search_map(
     body: &str,
     user_id: Option<&str>,
     db: &Database,
-) -> Result<Vec<MapSearchRes>, Box<dyn std::error::Error>> {
+) -> Result<Vec<MapSearchResult>, AppError> {
     let maps = db.collection::<Map>("maps");
     let users = db.collection::<User>("users");
 
@@ -38,7 +36,7 @@ pub async fn search_map(
             let user = users
                 .find_one(doc! {"name": { "$regex": body, "$options": "i" }}, None)
                 .await?
-                .ok_or("User not found")?;
+                .ok_or(AppError::UserNotFound)?;
             doc! {"user_id": user.id}
         }
     };
@@ -55,19 +53,19 @@ pub async fn search_map(
     }
 
     // 검색된 Map을 MapSearchRes로 변환하여 반환
-    let res: Vec<MapSearchRes> = find_maps
+    let res: Vec<MapSearchResult> = find_maps
         .into_iter()
         .map(|map| {
-            let id = map.id.ok_or("Map ID is missing")?;
+            let id = map.id.ok_or(AppError::ObjectIdNotFound)?;
             let is_edit = object_id_user.map_or(false, |obj_id| obj_id == map.user_id);
-            Ok(MapSearchRes {
+            Ok(MapSearchResult {
                 id,
                 title: map.title.clone(),
                 body: map.body.clone(),
                 is_edit,
             })
         })
-        .collect::<Result<_, Box<dyn std::error::Error>>>()?;
+        .collect::<Result<_, AppError>>()?;
 
     Ok(res)
 }
