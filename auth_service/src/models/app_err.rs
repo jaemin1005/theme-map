@@ -45,6 +45,9 @@ pub enum AppError {
 
     #[error("Token Not Found")]
     TokenNotFound,
+
+    #[error("Invalid Device-ID Header")]
+    InvalidDeviceIdHeader,
 }
 
 impl ResponseError for AppError {
@@ -61,6 +64,7 @@ impl ResponseError for AppError {
             AppError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             AppError::MissingRefreshToken => StatusCode::BAD_REQUEST,
             AppError::InvalidAuthorizationHeader => StatusCode::BAD_REQUEST,
+            AppError::InvalidDeviceIdHeader => StatusCode::BAD_REQUEST,
             AppError::TokenNotFound => StatusCode::UNAUTHORIZED,
         }
     }

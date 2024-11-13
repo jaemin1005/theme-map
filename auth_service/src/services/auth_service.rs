@@ -58,6 +58,7 @@ pub async fn register_user(
 // 유저 로그인
 pub async fn login_user(
     login_info: LoginRequest,
+    device_id: &str,
     db: &Database,
 ) -> Result<LoginResponse, AppError> {
     let users = db.collection::<User>("users");
@@ -90,6 +91,7 @@ pub async fn login_user(
     let new_refresh_token = RefreshToken {
         id: None,
         user_id: obejct_id_user,
+        device_id: device_id.to_string(),
         token: refresh_token.clone(),
         expiry: set_time,
     };
@@ -101,7 +103,7 @@ pub async fn login_user(
         }
     };
 
-    let filter_find_id = doc! {"user_id": obejct_id_user};
+    let filter_find_id = doc! {"user_id": obejct_id_user, "device_id": device_id};
 
     match refresh_tokens
         .find_one(filter_find_id.clone(), None)
@@ -130,7 +132,11 @@ pub async fn login_user(
 
 // 리프레시 토큰 재생성
 // 1. 리프레시 토큰 유출 방지, 2. 권한 해제 및 세션 종료 관리
-pub async fn refresh_token(req: &HttpRequest, db: &Database) -> Result<LoginResponse, AppError> {
+pub async fn refresh_token(
+    req: &HttpRequest,
+    device_id: &str,
+    db: &Database,
+) -> Result<LoginResponse, AppError> {
     let refresh_token =
         extract_refresh_token_from_request(req).map_err(|_| AppError::MissingRefreshToken)?;
 
@@ -139,7 +145,7 @@ pub async fn refresh_token(req: &HttpRequest, db: &Database) -> Result<LoginResp
     let user_id = token_data.claims.sub;
 
     let refresh_tokens = db.collection::<RefreshToken>("refresh_tokens");
-    let filter = doc! { "user_id": ObjectId::parse_str(&user_id)?, "token": &refresh_token };
+    let filter = doc! { "user_id": ObjectId::parse_str(&user_id)?, "token": &refresh_token, "device_id": device_id };
 
     // 토큰이 존재하는지 확인
     let stored_token = refresh_tokens.find_one(filter.clone(), None).await?;
@@ -156,6 +162,7 @@ pub async fn refresh_token(req: &HttpRequest, db: &Database) -> Result<LoginResp
     let update = doc! {
         "$set": {
             "token": &new_refresh_token,
+            "device_id": device_id,
             "expiry": (Utc::now() + Duration::days(7)).to_rfc3339(),        }
     };
 
@@ -176,6 +183,7 @@ pub async fn refresh_token(req: &HttpRequest, db: &Database) -> Result<LoginResp
 
 pub async fn refresh_aceess_token(
     req: &HttpRequest,
+    device_id: &str,
     db: &Database,
 ) -> Result<AccessTokenRes, AppError> {
     let refresh_token = extract_refresh_token_from_request(req)?;
@@ -185,7 +193,7 @@ pub async fn refresh_aceess_token(
     let user_id = token_data.claims.sub;
 
     let refresh_tokens = db.collection::<RefreshToken>("refresh_tokens");
-    let filter = doc! { "user_id": ObjectId::parse_str(&user_id)?, "token": &refresh_token };
+    let filter = doc! { "user_id": ObjectId::parse_str(&user_id)?, "token": &refresh_token, "device_id": device_id};
 
     // 토큰이 존재하는지 확인
     let stored_token = refresh_tokens.find_one(filter, None).await?;
@@ -200,10 +208,7 @@ pub async fn refresh_aceess_token(
 }
 
 // 토큰을 이용해, 해재함으로 인해 권한 해제 및 세션 종료 관리가 가능
-pub async fn logout_user(
-    req: &HttpRequest,
-    db: &Database,
-) -> Result<(), AppError> {
+pub async fn logout_user(req: &HttpRequest, db: &Database) -> Result<(), AppError> {
     // 클라이언트로부터 리프레시 토큰 가져오기
     let refresh_token = extract_refresh_token_from_request(req)?;
 
@@ -215,10 +220,7 @@ pub async fn logout_user(
     Ok(())
 }
 
-pub async fn get_user_info(
-    req: &HttpRequest,
-    db: &Database,
-) -> Result<User, AppError> {
+pub async fn get_user_info(req: &HttpRequest, db: &Database) -> Result<User, AppError> {
     // Authorization 헤더에서 액세스 토큰 추출
     let auth_header = req
         .headers()
@@ -270,13 +272,3 @@ fn extract_refresh_token_from_request(req: &HttpRequest) -> Result<String, AppEr
         Err(AppError::MissingRefreshToken)
     }
 }
-
-// 비밀번호없이 유저 정보 반환
-// fn user_without_password(user: User) -> User {
-//     User {
-//         id: user.id.clone(),
-//         name: user.name,
-//         email: user.email,
-//         password: String::new(), // 비밀번호는 비워둡니다.
-//     }
-// }

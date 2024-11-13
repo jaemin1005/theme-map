@@ -4,6 +4,7 @@ use mongodb::Database;
 use crate::models::app_err::AppError;
 use crate::models::user::{LoginRequest, RegisterRequest};
 use crate::services::auth_service;
+use crate::utils::user::get_user_device_id;
 
 pub async fn register(
     req_body: web::Json<RegisterRequest>,
@@ -14,15 +15,19 @@ pub async fn register(
 }
 
 pub async fn login(
+    req: HttpRequest,
     req_body: web::Json<LoginRequest>,
     db: web::Data<Database>,
 ) -> Result<HttpResponse, AppError> {
-    let res = auth_service::login_user(req_body.into_inner(), &db).await?;
+    let device_id = get_user_device_id(&req)?;
+
+    let res = auth_service::login_user(req_body.into_inner(), &device_id, &db).await?;
     Ok(HttpResponse::Ok().json(res))
 }
 
 pub async fn refresh(req: HttpRequest, db: web::Data<Database>) -> Result<HttpResponse, AppError> {
-    let res = auth_service::refresh_token(&req, &db).await?;
+    let device_id = get_user_device_id(&req)?;
+    let res = auth_service::refresh_token(&req, &device_id, &db).await?;
     Ok(HttpResponse::Ok().json(res))
 }
 
@@ -40,6 +45,7 @@ pub async fn refresh_aceess_token(
     req: HttpRequest,
     db: web::Data<Database>,
 ) -> Result<HttpResponse, AppError> {
-    let res = auth_service::refresh_aceess_token(&req, &db).await?;
+    let device_id = get_user_device_id(&req)?;
+    let res = auth_service::refresh_aceess_token(&req, &device_id, &db).await?;
     Ok(HttpResponse::Ok().json(res))
 }

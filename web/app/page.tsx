@@ -28,6 +28,7 @@ import { UploadImageRes } from "@/interface/upload.dto";
 import { ErrMsg } from "@/interface/err.dto";
 import { MapSearchModal } from "@/components/modal/map_search_modal";
 import { API_ROUTE } from "@/static/api/routes";
+import { getDeviceId } from "@/utils/getDeviceId";
 
 // 클라이언트에서만 랜더링 되도록 설정한다.
 const MapComponent = dynamic(() => import("../components/map_component"), {
@@ -273,11 +274,14 @@ export default function Home() {
     }
 
     try {
+      const deviceId = getDeviceId();
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         credentials: "include", // 쿠키 포함
         headers: {
           "Content-Type": "application/json",
+          "Device-ID": deviceId,
         },
         body: JSON.stringify({ email, password }),
       });

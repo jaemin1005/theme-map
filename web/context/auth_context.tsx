@@ -8,10 +8,12 @@ import React, {
   useContext,
 } from "react";
 
-import {User} from "@/interface/user"
+import { User } from "@/interface/user";
 import { AccessTokenRes } from "@/interface/auth.dto";
 import { ErrMsg } from "@/interface/err.dto";
-
+import { getDeviceId } from "@/utils/getDeviceId";
+import { jwtDecode } from "jwt-decode";
+import { Claims } from "@/interface/claims.dto";
 
 // 컨텍스트 타입 정의
 interface AuthContextType {
@@ -19,8 +21,8 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   loading: boolean;
   logout: () => Promise<void>;
-  accessToken: string | null
-  setAccessToken: React.Dispatch<React.SetStateAction<string | null>>
+  accessToken: string | null;
+  setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -30,27 +32,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // 리프레시 토큰을 통해 자동 로그인
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        if (!accessToken) {
-          // 액세스 토큰이 없으면 리프레시 토큰으로 새로고침
-          const refreshResponse = await fetch("/api/auth/refresh", {
-            method: "POST",
-            credentials: "include",
-          });
+        const deviceId = getDeviceId();
+        const refreshResponse = await fetch("/api/auth/refresh", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Device-ID": deviceId,
+          },
+        });
 
-          if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            setAccessToken(refreshData.accessToken);
-            setUser(refreshData.user);
-          } else {
-            console.error("리프레시 토큰이 유효하지 않습니다.");
-            setUser(null);
-          }
-          setLoading(false);
-          return;
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          setAccessToken(refreshData.accessToken);
+          setUser(refreshData.user);
+        } else {
+          console.error("리프레시 토큰이 유효하지 않습니다.");
+          setUser(null);
         }
+        setLoading(false);
+        return;
       } catch (error) {
         console.error("사용자 정보를 가져오는 데 실패했습니다:", error);
         setUser(null);
@@ -59,24 +63,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    fetchUser();
-  }, []);
+    const refreshAccessToken = async () => {
+      const deviceId = getDeviceId();
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
       try {
         const response = await fetch("/api/auth/refresh/access_token", {
           method: "GET",
           credentials: "include",
+          headers: {
+            "Device-ID": deviceId,
+          },
         });
 
-
         if (response.ok) {
-          const refreshData = await response.json() as AccessTokenRes
+          const refreshData = (await response.json()) as AccessTokenRes;
           setAccessToken(refreshData.access_token);
-    
         } else {
-          const refreshData = await response.json() as ErrMsg
+          const refreshData = (await response.json()) as ErrMsg;
           console.error(refreshData.message);
           setUser(null);
         }
@@ -84,9 +87,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error("토큰 갱신 중 오류 발생:", error);
         setUser(null);
       }
-    }, 10 * 60 * 1000); // 10분 (10 * 60 * 1000 ms)
+    }; // 10분 (10 * 60 * 1000 ms)
 
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 타이머 정리
+    if (accessToken) {
+      const decodedToken = jwtDecode(accessToken) as Claims;
+
+      // 만료 5분전에 요청한다.
+      // access_token 만료시간 15분
+      const refreshTime =
+        decodedToken.exp - Math.floor(Date.now() / 1000) - 600;
+
+      const timeout = setTimeout(() => {
+        refreshAccessToken();
+      }, refreshTime * 1000);
+
+      return () => clearTimeout(timeout);
+    } else {
+      fetchUser();
+    }
+  }, [accessToken]);
+
+  // Access Token 재발급 받는 로직
+  // 만료되기 5분전에 setTimeout을 통해 재발급 받는다.
+  useEffect(() => {
+    const refreshAccessToken = async () => {
+      const deviceId = getDeviceId();
+
+      try {
+        const response = await fetch("/api/auth/refresh/access_token", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Device-ID": deviceId,
+          },
+        });
+
+        if (response.ok) {
+          const refreshData = (await response.json()) as AccessTokenRes;
+          setAccessToken(refreshData.access_token);
+        } else {
+          const refreshData = (await response.json()) as ErrMsg;
+          console.error(refreshData.message);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("토큰 갱신 중 오류 발생:", error);
+        setUser(null);
+      }
+    }; // 10분 (10 * 60 * 1000 ms)
+
+    if (accessToken) {
+      const decodedToken = jwtDecode(accessToken) as Claims;
+
+      // 만료 5분전에 요청한다.
+      // access_token 만료시간 15분
+      const refreshTime =
+        decodedToken.exp - Math.floor(Date.now() / 1000) - 600;
+
+      const timeout = setTimeout(() => {
+        refreshAccessToken();
+      }, refreshTime * 1000);
+
+      return () => clearTimeout(timeout);
+    }
   }, [accessToken]);
 
   // 로그아웃 함수
