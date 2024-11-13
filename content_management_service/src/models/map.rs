@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 // marks: 맵을 이루고 있는 마커들
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Map {
-    // none이라면 직렬화를 스킵한다. 
+    // none이라면 직렬화를 스킵한다.
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub user_id: ObjectId,
@@ -19,13 +19,13 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new_with_req(user_id: ObjectId, map_save_req: MapSaveReq) -> Self {
+    pub fn new_with_details(user_id: ObjectId, map_details: MapDetails) -> Self {
         Self {
-            id: map_save_req.id,
-            title: map_save_req.title,
+            id: map_details.id,
+            title: map_details.title,
             user_id: user_id,
-            body: map_save_req.body,
-            marks: map_save_req.marks,
+            body: map_details.body,
+            marks: map_details.marks,
         }
     }
 }
@@ -36,12 +36,23 @@ impl Map {
 // body: 맵 설명
 // marks: 맵 마커들
 #[derive(Debug, Deserialize, Serialize)]
-pub struct MapSaveReq {
+pub struct MapDetails {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub title: String,
     pub body: String,
     pub marks: Vec<Mark>,
+}
+
+impl MapDetails {
+    pub fn new_with_map(map: Map) -> Self {
+        Self {
+            id: map.id,
+            title: map.title,
+            body: map.body,
+            marks: map.marks,
+        }
+    }
 }
 
 // urls: 이미지의 걍로
@@ -64,7 +75,7 @@ pub struct Mark {
 // }
 
 #[derive(Debug, Serialize)]
-pub struct MapSearchRes {
+pub struct MapSearchResult {
     #[serde(rename = "_id")]
     pub id: ObjectId,
     pub title: String,
@@ -72,14 +83,20 @@ pub struct MapSearchRes {
     pub is_edit: bool,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct MapReadReq {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+#[derive(Debug, Deserialize, Serialize)]
+pub struct MapId {
+    #[serde(rename = "_id")]
     pub id: ObjectId,
+}
+
+impl MapId {
+    pub fn new(id: ObjectId) -> Self {
+        Self { id }
+    }
 }
 
 #[derive(Debug, Serialize)]
 pub struct MapReadRes {
-    pub map: MapSaveReq,
+    pub map: MapDetails,
     pub is_edit: bool,
 }
