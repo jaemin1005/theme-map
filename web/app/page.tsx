@@ -400,6 +400,12 @@ export default function Home() {
       setMarks(map.marks);
       setIsEdited(mapReadRes.is_edit);
 
+      if (map.marks.length > 0) {
+        const firstMap = map.marks[0];
+
+        setCurrentLocation([firstMap.point[0], firstMap.point[1]]);
+      }
+
       return true;
     } else {
       showToast(TOAST_MSG.MAP_READ_FAIL, "error");
