@@ -1,6 +1,15 @@
 import { Type } from "class-transformer";
-import { ArrayMinSize, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
-import "reflect-metadata"
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
+import "reflect-metadata";
 import { ObjectId } from "./objectId";
 
 export class ImageData {
@@ -18,12 +27,12 @@ export class ImageData {
 
   @IsNotEmpty()
   @IsBoolean()
-  isDeleted!: boolean
+  isDeleted!: boolean;
 }
 
 export class Mark {
   @IsArray()
-  @IsString({each: true})
+  @IsString({ each: true })
   urls!: string[];
 
   @IsNotEmpty()
@@ -32,15 +41,14 @@ export class Mark {
 
   @IsString()
   body!: string;
-  
+
   @IsArray()
   @ArrayMinSize(2)
-  @IsNumber({}, {each: true})
+  @IsNumber({}, { each: true })
   point!: [number, number];
 }
 
 export class MapSaveReq {
-
   @Type(() => ObjectId)
   @IsOptional()
   _id?: ObjectId;
@@ -63,27 +71,40 @@ export class MapSaveReq {
   @IsArray() // 배열 타입인지 확인
   @ValidateNested({ each: true }) // 배열의 각 요소에 대해 유효성 검사를 수행
   @Type(() => Mark) // MarkerInfo 클래스로 변환
-  marks!: Mark[]
+  marks!: Mark[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ObjectId)
+  likes!: ObjectId[];
 }
 
 export interface MapSaveRes {
-  _id: string,
+  _id: string;
 }
 
 export interface MapSearchMeRes {
-  _id: ObjectId,
-  title: string,
-  body: string,
-  is_edit: boolean,
+  _id: ObjectId;
+  title: string;
+  body: string;
+  is_edit: boolean;
 }
 
 export class MapId {
   @Type(() => ObjectId)
   @ValidateNested()
-  _id!: ObjectId
+  _id!: ObjectId;
 }
 
 export interface MapReadRes {
   map: MapSaveReq;
   is_edit: boolean;
+}
+
+/**
+ * id: Map의 Id,
+ * objectids: Like 유저,                 
+ */
+export interface MapLikes {
+  objectids: Array<ObjectId>;
 }

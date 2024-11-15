@@ -125,6 +125,7 @@ export default function Home() {
     setBody,
     setIsEdited,
     init,
+    likes
   } = useMap();
 
   const { setUser, logout, accessToken, setAccessToken } = useAuth();
@@ -348,6 +349,7 @@ export default function Home() {
       title,
       body,
       marks,
+      likes
     };
 
     const route = isSaveMapNew ? API_ROUTE.MAP_SAVE : API_ROUTE.MAP_EDIT;
