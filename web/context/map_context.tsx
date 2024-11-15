@@ -13,7 +13,6 @@ import {
 
 // context의 타입
 interface MapInfo {
-
   // Leaflet
   map?: L.Map;
   setMap: (map: L.Map) => void;
@@ -30,11 +29,11 @@ interface MapInfo {
   setBody: (body: string) => void;
 
   // Map State
-  isNew: boolean,
-  isEdited: boolean,
+  isNew: boolean;
+  isEdited: boolean;
 
-  setIsNew: (isNew: boolean) => void,
-  setIsEdited: (isEdited: boolean) => void,
+  setIsNew: (isNew: boolean) => void;
+  setIsEdited: (isEdited: boolean) => void;
 
   // Mark Info
   marks: Mark[];
@@ -43,6 +42,9 @@ interface MapInfo {
   setMarks: (marks: Mark[]) => void;
   delMark: (idx: number) => void;
 
+  likes: ObjectId[];
+  setLikes: (likes: ObjectId[]) => void;
+
   // Utils
   init: () => void;
 }
@@ -50,7 +52,6 @@ interface MapInfo {
 const MapContext = createContext<MapInfo | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
-
   const [map, setMap] = useState<L.Map>();
 
   const [id, setId] = useState<ObjectId>();
@@ -62,6 +63,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [isEdited, setIsEdited] = useState<boolean>(true);
 
   const [marks, setMarks] = useState<Mark[]>([]);
+
+  const [likes, setLikes] = useState<ObjectId[]>([]);
 
   const addMark = useCallback((mark: Mark) => {
     setMarks((prev) => [...prev, mark]);
@@ -84,9 +87,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
       const newMarks = [...prev];
       newMarks[index] = mark;
       return newMarks;
-    })
+    });
   }, []);
-
   const init = useCallback(() => {
     setId(undefined);
     setUserId("");
@@ -95,6 +97,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
     setIsEdited(true);
     setMarks([]);
+    setLikes([]);
   }, []);
 
   return (
@@ -119,7 +122,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         updateMark,
         setMarks: setMarksFunc,
         delMark,
-        init
+        init,
+        likes,
+        setLikes,
       }}
     >
       {children}
