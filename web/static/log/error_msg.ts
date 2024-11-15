@@ -11,6 +11,7 @@ export enum ERROR_MSG {
   //api
   NONE_REFRESH_TOKEN = "Don't have refresh token",
   NONE_ACCESS_TOKEN = "Don't have access token",
+  NONE_UNIQUE_URL_ID = "BAD REQUEST",
   FAILED_VALIDATE_BODY = "Failed validate body",
 
   INTERNAL_SERVER_ERROR = "Internal Server Error",
