@@ -1,4 +1,10 @@
-import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
+import {
+  Circle,
+  LayersControl,
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+} from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 import "leaflet/dist/leaflet.css";
@@ -18,7 +24,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   onMapReady,
   onMapClick,
 }) => {
-
   useEffect(() => {
     // 기본 마커 아이콘 설정
     L.Icon.Default.mergeOptions({
@@ -30,6 +35,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
     });
   }, []);
 
+  // 자기 위치 표시
+  // https://react-leaflet.js.org/docs/example-layers-control/
   return (
     <MapContainer
       center={center}
@@ -48,6 +55,21 @@ const MapComponent: React.FC<MapComponentProps> = ({
         center={center}
         zoom={zoom}
       />
+      <LayersControl>
+        <LayersControl.Overlay checked name="Layer group with circles">
+          <Circle
+            center={center}
+            pathOptions={{ fillColor: "blue" }}
+            radius={10}
+          />
+          <Circle
+            center={center}
+            pathOptions={{ fillColor: "red" }}
+            radius={5}
+            stroke={false}
+          />
+        </LayersControl.Overlay>
+      </LayersControl>
     </MapContainer>
   );
 };

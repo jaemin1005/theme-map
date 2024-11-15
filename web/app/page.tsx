@@ -82,7 +82,7 @@ export default function Home() {
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 30000,
           maximumAge: 60000,
         }
       );
@@ -400,6 +400,7 @@ export default function Home() {
       setMarks(map.marks);
       setIsEdited(mapReadRes.is_edit);
 
+      // 마커가 존재할 경우, 맨 첫번째의 마커로 이동한다.
       if (map.marks.length > 0) {
         const firstMap = map.marks[0];
 
