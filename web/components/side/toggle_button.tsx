@@ -3,7 +3,8 @@ import MUIToggleButton from "@mui/material/ToggleButton";
 interface ToggleButtonProps {
   children: React.ReactNode;
   selected: boolean;
-  onChange: () => void;
+  onChange?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>, value: unknown) => void
   originIconColor: string;
   changeIconColor: string;
   className?: string;
@@ -13,6 +14,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   children,
   selected,
   onChange,
+  onClick,
   originIconColor,
   changeIconColor,
   className,
@@ -40,6 +42,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
       value="check"
       selected={selected}
       onChange={onChange}
+      onClick={onClick}
       className={`${className}`}
     >
       {children}

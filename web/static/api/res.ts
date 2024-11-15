@@ -20,6 +20,15 @@ export const NONE_ACCESS_TOKEN = NextResponse.json<ErrMsg>(
   }
 );
 
+export const NONE_UNIQUE_URL_ID = NextResponse.json<ErrMsg>(
+  {
+    message: ERROR_MSG.NONE_UNIQUE_URL_ID,
+  },
+  {
+    status: 400,
+  }
+)
+
 export const FAILED_VALIDATE_BODY = NextResponse.json<ErrMsg>(
   {
     message: ERROR_MSG.FAILED_VALIDATE_BODY,
