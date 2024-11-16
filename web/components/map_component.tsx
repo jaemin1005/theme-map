@@ -1,13 +1,17 @@
 import {
   Circle,
-  LayersControl,
   MapContainer,
   TileLayer,
   useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
+import {
+  startWatchingPosition,
+  stopWatchingPosition,
+} from "@/utils/geo/watchPosition";
+import { ERROR_MSG } from "@/static/log/error_msg";
 
 interface MapComponentProps {
   children?: React.ReactNode;
@@ -24,6 +28,32 @@ const MapComponent: React.FC<MapComponentProps> = ({
   onMapReady,
   onMapClick,
 }) => {
+  const [userPosition, setUserPosition] = useState<[number, number]>([0, 0]);
+
+  useEffect(() => {
+    const watchId = startWatchingPosition(
+      (location) => setUserPosition(location),
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            console.error(ERROR_MSG.GEOLOCATION_PERMISSION_DENIED);
+            break;
+          case error.POSITION_UNAVAILABLE:
+            console.error(ERROR_MSG.GEOLOCATION_POSITION_UNAVAILABLE);
+            break;
+          case error.TIMEOUT:
+            console.error(ERROR_MSG.GEOLOCATION_TIMEOUT);
+            break;
+          default:
+            console.error(ERROR_MSG.GEOLOCATION_GETTING_FAIL);
+            break;
+        }
+      }
+    );
+
+    return () => stopWatchingPosition(watchId);
+  }, []);
+
   useEffect(() => {
     // 기본 마커 아이콘 설정
     L.Icon.Default.mergeOptions({
@@ -55,21 +85,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
         center={center}
         zoom={zoom}
       />
-      <LayersControl>
-        <LayersControl.Overlay checked name="Layer group with circles">
-          <Circle
-            center={center}
-            pathOptions={{ fillColor: "blue" }}
-            radius={10}
-          />
-          <Circle
-            center={center}
-            pathOptions={{ fillColor: "red" }}
-            radius={5}
-            stroke={false}
-          />
-        </LayersControl.Overlay>
-      </LayersControl>
+      <Circle
+        center={userPosition}
+        pathOptions={{ fillColor: "blue" }}
+        radius={10}
+      />
+      <Circle
+        center={userPosition}
+        pathOptions={{ fillColor: "red" }}
+        radius={5}
+        stroke={false}
+      />
     </MapContainer>
   );
 };
