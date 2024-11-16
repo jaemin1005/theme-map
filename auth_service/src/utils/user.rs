@@ -1,16 +1,6 @@
 use actix_web::HttpRequest;
 
-use crate::models::{
-    app_err::AppError,
-    user::{User, UserRes},
-};
-
-pub fn user_to_user_res(user: User) -> UserRes {
-    UserRes {
-        email: user.email,
-        name: user.name,
-    }
-}
+use crate::models::app_err::AppError;
 
 pub fn get_user_device_id(req: &HttpRequest) -> Result<String, AppError> {
     // Authorization 헤더에서 액세스 토큰 추출

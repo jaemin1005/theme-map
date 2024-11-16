@@ -36,6 +36,7 @@ pub struct LoginResponse {
 
 #[derive(Debug, Serialize)]
 pub struct UserRes {
+    pub user_id: ObjectId,
     pub name: String,
     pub email: String,
 }

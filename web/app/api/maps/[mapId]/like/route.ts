@@ -27,7 +27,7 @@ export async function POST(
   const CONTENT_SERVICE_URL = getEnv(GET_ENV.CONTENT_SERVICE_URL);
 
   try {
-    const response = await fetch(CONTENT_SERVICE_URL + "/maps/${mapId}/like", {
+    const response = await fetch(`${CONTENT_SERVICE_URL}/maps/${mapId}/like`, {
       method: "POST",
       headers: {
         Authorization: `${authHeader}`,

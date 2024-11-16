@@ -4,6 +4,7 @@ use mongodb::Database;
 
 use crate::models::app_err::AppError;
 use crate::models::map::{MapDetails, MapId};
+use crate::models::path::MapIdpath;
 use crate::services::map_service;
 use crate::utils::get_user_info::get_user_info;
 
@@ -62,4 +63,26 @@ pub async fn map_remove(
 
     let map_id = map_service::map_remove(&id, &user_id, &db, &s3_client).await?;
     Ok(HttpResponse::Ok().json(map_id))
+}
+
+pub async fn map_like(
+    req: HttpRequest,
+    path: web::Path<MapIdpath>,
+    db: web::Data<Database>,
+) -> Result<HttpResponse, AppError> {
+    let user_id = get_user_info(&req)?;
+
+    let likes = map_service::map_like(&path.map_id, &user_id, &db).await?;
+    Ok(HttpResponse::Ok().json(likes))
+}
+
+pub async fn map_dislike(
+    req: HttpRequest,
+    path: web::Path<MapIdpath>,
+    db: web::Data<Database>,
+) -> Result<HttpResponse, AppError> {
+    let user_id = get_user_info(&req)?;
+
+    let likes = map_service::map_dislike(&path.map_id, &user_id, &db).await?;
+    Ok(HttpResponse::Ok().json(likes))
 }

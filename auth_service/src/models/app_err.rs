@@ -48,6 +48,9 @@ pub enum AppError {
 
     #[error("Invalid Device-ID Header")]
     InvalidDeviceIdHeader,
+
+    #[error("User Id Not Founded")]
+    UserIdNotFound,
 }
 
 impl ResponseError for AppError {
@@ -66,6 +69,7 @@ impl ResponseError for AppError {
             AppError::InvalidAuthorizationHeader => StatusCode::BAD_REQUEST,
             AppError::InvalidDeviceIdHeader => StatusCode::BAD_REQUEST,
             AppError::TokenNotFound => StatusCode::UNAUTHORIZED,
+            AppError::UserIdNotFound => StatusCode::NOT_FOUND,
         }
     }
 

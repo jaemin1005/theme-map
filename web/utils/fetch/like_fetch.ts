@@ -1,4 +1,3 @@
-import { MapLikes } from "@/interface/content.dto";
 import { ObjectId } from "@/interface/objectId";
 
 export const likeFetch = async (
@@ -12,7 +11,7 @@ export const likeFetch = async (
     },
   });
 
-  const { objectids } = (await res.json()) as MapLikes;
+  const objectids = await res.json();
 
   return objectids;
 };
@@ -28,7 +27,7 @@ export const dislikeFetch = async (
     },
   });
 
-  const { objectids } = (await res.json()) as MapLikes;
+  const objectids = await res.json();
 
   return objectids;
 };

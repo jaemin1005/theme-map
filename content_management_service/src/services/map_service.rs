@@ -178,6 +178,7 @@ pub async fn map_read(
         title: find_map.title,
         body: find_map.body,
         marks: find_map.marks,
+        likes: find_map.likes,
     };
 
     Ok(MapReadRes {
@@ -225,4 +226,65 @@ pub async fn map_remove(
     maps.delete_one(find_doc, None).await?;
 
     return Ok(MapId::new(map_object_id));
+}
+
+// 맵 좋아요
+pub async fn map_like(
+    map_id: &str,
+    user_id: &str,
+    db: &Database,
+) -> Result<Vec<ObjectId>, AppError> {
+    let maps = db.collection::<Map>("maps");
+
+    let path_object_id = ObjectId::parse_str(map_id).map_err(|_| AppError::InvalidPath)?;
+
+    let user_object_id = ObjectId::parse_str(user_id)?;
+
+    let filter = doc! { "_id": path_object_id };
+    let update = doc! { "$addToSet": { "likes": user_object_id } };
+
+    let update_options = UpdateOptions::builder().upsert(false).build();
+
+    let update_result = maps.update_one(filter, update, update_options).await?;
+
+    if update_result.matched_count == 0 {
+        return Err(AppError::MapNotFound);
+    }
+
+    // 업데이트된 맵의 좋아요 리스트를 가져옴
+    let updated_map = maps
+        .find_one(doc! { "_id": path_object_id }, None)
+        .await?
+        .ok_or(AppError::MapNotFound)?;
+
+    Ok(updated_map.likes)
+}
+
+// 맵 좋아요 제거
+pub async fn map_dislike(
+    map_id: &str,
+    user_id: &str,
+    db: &Database,
+) -> Result<Vec<ObjectId>, AppError> {
+    let maps = db.collection::<Map>("maps");
+
+    let path_object_id = ObjectId::parse_str(map_id).map_err(|_| AppError::InvalidPath)?;
+
+    let user_object_id = ObjectId::parse_str(user_id)?;
+
+    let filter = doc! { "_id": path_object_id };
+    let update = doc! { "$pull": { "likes": user_object_id } };
+
+    let update_result = maps.update_one(filter, update, None).await?;
+
+    if update_result.matched_count == 0 {
+        return Err(AppError::MapNotFound);
+    }
+
+    let updated_map = maps
+        .find_one(doc! { "_id": path_object_id }, None)
+        .await?
+        .ok_or(AppError::MapNotFound)?;
+
+    Ok(updated_map.likes)
 }
