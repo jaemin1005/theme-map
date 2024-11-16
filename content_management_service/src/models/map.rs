@@ -15,6 +15,7 @@ pub struct Map {
     pub user_id: ObjectId,
     pub title: String,
     pub body: String,
+    pub likes: Vec<ObjectId>,
     pub marks: Vec<Mark>,
 }
 
@@ -26,6 +27,7 @@ impl Map {
             user_id: user_id,
             body: map_details.body,
             marks: map_details.marks,
+            likes: map_details.likes
         }
     }
 }
@@ -42,6 +44,7 @@ pub struct MapDetails {
     pub title: String,
     pub body: String,
     pub marks: Vec<Mark>,
+    pub likes: Vec<ObjectId>,
 }
 
 impl MapDetails {
@@ -51,6 +54,7 @@ impl MapDetails {
             title: map.title,
             body: map.body,
             marks: map.marks,
+            likes: map.likes,
         }
     }
 }
