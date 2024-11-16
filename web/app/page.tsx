@@ -125,7 +125,8 @@ export default function Home() {
     setBody,
     setIsEdited,
     init,
-    likes
+    likes,
+    setLikes,
   } = useMap();
 
   const { setUser, logout, accessToken, setAccessToken } = useAuth();
@@ -349,7 +350,7 @@ export default function Home() {
       title,
       body,
       marks,
-      likes
+      likes: isSaveMapNew === true ? [] : likes,
     };
 
     const route = isSaveMapNew ? API_ROUTE.MAP_SAVE : API_ROUTE.MAP_EDIT;
@@ -370,6 +371,7 @@ export default function Home() {
         setTitle(data.title);
         setBody(data.body);
         setIsSaveMapModalOpen(false);
+        setLikes(data.likes);
       } else {
         showToast(TOAST_MSG.MAP_SAVE_FAIL, "error");
       }
@@ -400,6 +402,7 @@ export default function Home() {
       setTitle(map.title);
       setBody(map.body);
       setMarks(map.marks);
+      setLikes(map.likes);
       setIsEdited(mapReadRes.is_edit);
 
       if (map.marks.length > 0) {
