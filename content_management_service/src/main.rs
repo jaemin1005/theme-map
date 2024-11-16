@@ -23,6 +23,7 @@ mod models {
     pub mod search_model;
     pub mod upload_model;
     pub mod user;
+    pub mod path;
 }
 
 mod utils {
