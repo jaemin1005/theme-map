@@ -66,8 +66,10 @@ const SideButtonComponent: React.FC<SideButtonComponentProps> = ({
   };
 
   const clickLikeBtn = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+
+    e.preventDefault();
+
     if (!user || !id || !accessToken || loading) {
-      e.preventDefault();
       return;
     }
 
