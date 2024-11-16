@@ -49,7 +49,10 @@ pub async fn register_user(
         .await?
         .ok_or(AppError::UserNotFound)?;
 
+    let user_id = user.id.ok_or(AppError::UserIdNotFound)?;
+
     Ok(UserRes {
+        user_id,
         email: user.email,
         name: user.name,
     })
@@ -119,9 +122,12 @@ pub async fn login_user(
         }
     }
 
+
+
     // 응답 반환
     Ok(LoginResponse {
         user: UserRes {
+            user_id: obejct_id_user,
             email: user.email,
             name: user.name,
         },
@@ -144,8 +150,10 @@ pub async fn refresh_token(
 
     let user_id = token_data.claims.sub;
 
+    let object_id_user = ObjectId::parse_str(&user_id)?;
+
     let refresh_tokens = db.collection::<RefreshToken>("refresh_tokens");
-    let filter = doc! { "user_id": ObjectId::parse_str(&user_id)?, "token": &refresh_token, "device_id": device_id };
+    let filter = doc! { "user_id": object_id_user, "token": &refresh_token, "device_id": device_id };
 
     // 토큰이 존재하는지 확인
     let stored_token = refresh_tokens.find_one(filter.clone(), None).await?;
@@ -173,6 +181,7 @@ pub async fn refresh_token(
 
     Ok(LoginResponse {
         user: UserRes {
+            user_id: object_id_user,
             email: user.email,
             name: user.name,
         },
