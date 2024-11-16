@@ -39,6 +39,9 @@ pub enum AppError {
     #[error("Bson Serde Parsing Error: {0}")]
     BsonSerdeParsingError(#[from] BsonSerdeError),
 
+    #[error("Invalid Path")]
+    InvalidPath,
+
     #[error("User Not Founded")]
     UserNotFound,
 
@@ -75,6 +78,7 @@ impl ResponseError for AppError {
             AppError::InvalidAceessError => StatusCode::FORBIDDEN,
             AppError::InvalidAuthorizationHeader => StatusCode::BAD_REQUEST,
             AppError::FileNameNotFound => StatusCode::BAD_REQUEST,
+            AppError::InvalidPath => StatusCode::BAD_REQUEST,
         }
     }
 
