@@ -89,6 +89,7 @@ export const MapSearchModal: React.FC<MapSaerchMeModalProps> = ({
                     title={map.title}
                     body={map.body}
                     isEdited={map.is_edit}
+                    likes={map.likes}
                     onClickCb={() => {
                       onClickCb(idx);
                     }}
