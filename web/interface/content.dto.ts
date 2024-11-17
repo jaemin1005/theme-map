@@ -87,6 +87,7 @@ export interface MapSearchMeRes {
   _id: ObjectId;
   title: string;
   body: string;
+  likes: Array<ObjectId>;
   is_edit: boolean;
 }
 
@@ -103,7 +104,7 @@ export interface MapReadRes {
 
 /**
  * id: Map의 Id,
- * objectids: Like 유저,                 
+ * objectids: Like 유저,
  */
 export interface MapLikes {
   objectids: Array<ObjectId>;
