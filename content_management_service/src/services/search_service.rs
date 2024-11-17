@@ -5,7 +5,10 @@ use mongodb::{
 };
 
 use crate::models::{
-    app_err::AppError, map::{Map, MapSearchResult}, search_model::SearchType, user::User
+    app_err::AppError,
+    map::{Map, MapSearchResult},
+    search_model::SearchType,
+    user::User,
 };
 
 use futures_util::TryStreamExt;
@@ -31,7 +34,7 @@ pub async fn search_map(
     let find_doc = match search_type {
         SearchType::TITLE => {
             doc! {"title": { "$regex": body, "$options": "i" }}
-        } 
+        }
         SearchType::USER => {
             let user = users
                 .find_one(doc! {"name": { "$regex": body, "$options": "i" }}, None)
@@ -63,6 +66,7 @@ pub async fn search_map(
                 title: map.title.clone(),
                 body: map.body.clone(),
                 is_edit,
+                likes: map.likes.clone(),
             })
         })
         .collect::<Result<_, AppError>>()?;

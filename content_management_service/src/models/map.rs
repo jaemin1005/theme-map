@@ -85,6 +85,7 @@ pub struct MapSearchResult {
     pub title: String,
     pub body: String,
     pub is_edit: bool,
+    pub likes: Vec<ObjectId>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

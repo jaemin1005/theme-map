@@ -142,6 +142,7 @@ pub async fn map_me(user_id: &str, db: &Database) -> Result<Vec<MapSearchResult>
                 title: map.title.clone(),
                 body: map.body.clone(),
                 is_edit: object_id_user == map.user_id,
+                likes: map.likes.clone(),
             })
         })
         .collect::<Result<_, AppError>>()?;
@@ -241,6 +242,8 @@ pub async fn map_like(
     let user_object_id = ObjectId::parse_str(user_id)?;
 
     let filter = doc! { "_id": path_object_id };
+    //배열에 특정 값을 추가
+    //중복을 허용하지 않음
     let update = doc! { "$addToSet": { "likes": user_object_id } };
 
     let update_options = UpdateOptions::builder().upsert(false).build();
@@ -273,6 +276,7 @@ pub async fn map_dislike(
     let user_object_id = ObjectId::parse_str(user_id)?;
 
     let filter = doc! { "_id": path_object_id };
+    //조건에 일치하는 모든 요소를 배열에서 삭제
     let update = doc! { "$pull": { "likes": user_object_id } };
 
     let update_result = maps.update_one(filter, update, None).await?;
