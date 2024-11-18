@@ -20,3 +20,13 @@ pub async fn search(
     let searchs = search_service::search_map(search_type, &body, user_id.as_deref(), &db).await?;
     Ok(HttpResponse::Ok().json(searchs))
 }
+
+pub async fn search_me_like(
+    req: HttpRequest,
+    db: web::Data<Database>,
+) -> Result<HttpResponse, AppError> {
+    let user_id = get_user_info(&req)?;
+
+    let searchs = search_service::search_me_like(&user_id, &db).await?;
+    Ok(HttpResponse::Ok().json(searchs))
+}

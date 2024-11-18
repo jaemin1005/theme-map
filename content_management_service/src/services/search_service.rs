@@ -73,3 +73,39 @@ pub async fn search_map(
 
     Ok(res)
 }
+
+pub async fn search_me_like(
+    user_id: &str,
+    db: &Database,
+) -> Result<Vec<MapSearchResult>, AppError> {
+    let maps = db.collection::<Map>("maps");
+    let object_id_user = ObjectId::parse_str(user_id)?;
+
+    let find_doc = doc! {"likes": object_id_user};
+    
+    let mut cursor = maps.find(find_doc, None).await?;
+
+    let mut find_maps: Vec<Map> = Vec::new();
+    while let Some(map) = cursor.try_next().await? {
+        find_maps.push(map);
+    }
+
+    // ObjectId가 None일때 에러를 반환.
+    let res: Vec<MapSearchResult> = find_maps
+        .into_iter()
+        .map(|map| {
+            let id = map.id.ok_or(AppError::ObjectIdNotFound)?;
+            let is_edit = object_id_user == map.user_id;
+
+            Ok(MapSearchResult {
+                id,
+                title: map.title.clone(),
+                body: map.body.clone(),
+                is_edit,
+                likes: map.likes.clone(),
+            })
+        })
+        .collect::<Result<_, AppError>>()?;
+
+    Ok(res)
+}
