@@ -15,6 +15,8 @@ import { useMap } from "@/context/map_context";
 import { ToastComponent } from "../toast/toast_component";
 import { useToast } from "../toast/toast_hook";
 import { TOAST_MSG } from "@/static/component/toast_msg";
+import { Breadcrumbs } from "@mui/material";
+import { meFetch, MeSelect } from "@/utils/fetch/search_fetch";
 
 enum MODAL_CONSTANT {
   TITLE = "MAP ME",
@@ -36,6 +38,11 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
   onClickComponentCb,
 }) => {
   const [mapsData, setMapsData] = useState<MapSearchMeRes[]>([]);
+  const [select, setSelect] = useState<MeSelect>("me");
+
+  const handleClick = (select: MeSelect) => {
+    setSelect(select);
+  };
 
   const { init, id } = useMap();
 
@@ -44,23 +51,9 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
   const fetchMapsData = useCallback(async () => {
     if (accessToken === null) return;
 
-    try {
-      const response = await fetch("/api/contents/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = (await response.json()) as MapSearchMeRes[];
-        setMapsData(data);
-      } else {
-        setMapsData([]);
-      }
-    } catch (error) {
-      console.error("Failed to fetch maps data", error);
-    }
-  }, [accessToken]);
+    const data = await meFetch(select, accessToken);
+    setMapsData(data);
+  }, [accessToken, select]);
 
   useEffect(() => {
     if (isOpen) {
@@ -127,7 +120,24 @@ export const MapSearchMeModal: React.FC<MapSaerchMeModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <h1>{MODAL_CONSTANT.TITLE}</h1>
+                <Breadcrumbs>
+                  <Button
+                    onClick={() => handleClick("me")}
+                    color={select === "me" ? "primary" : "default"}
+                    variant="light"
+                    className="text-sm font-semibold"
+                  >
+                    Me
+                  </Button>
+                  <Button
+                    onClick={() => handleClick("like")}
+                    color={select === "like" ? "primary" : "default"}
+                    variant="light"
+                    className="text-sm font-semibold"
+                  >
+                    Like
+                  </Button>
+                </Breadcrumbs>
               </ModalHeader>
               <ModalBody>
                 {mapsData.map((map, idx) => (
